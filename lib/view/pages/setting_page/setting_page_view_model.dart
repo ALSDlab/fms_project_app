@@ -1,7 +1,7 @@
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
-import 'package:fms_project/view/pages/setting_page/setting_page_state.dart';
+import 'package:fmsproject/view/pages/setting_page/setting_page_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPageViewModel with ChangeNotifier {

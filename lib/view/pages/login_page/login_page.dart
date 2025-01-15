@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -39,16 +40,20 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final loginViewModel = context.read<LoginPageViewModel>();
+      if (mounted) {
+        final loginViewModel = context.read<LoginPageViewModel>();
 
-      loginViewModel.initPreferences().then((value) => idController.text = value);
+        loginViewModel
+            .initPreferences()
+            .then((value) => idController.text = value);
+      }
     });
-    // authStateChanges = FirebaseAuth.instance.authStateChanges().listen((user) {
-    //   if (user != null) {
-    //     GoRouter.of(context).go('/main_page');
-    //     return;
-    //   }
-    // });
+    authStateChanges = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null && mounted) {
+        GoRouter.of(context).go('/find_WG_page');
+        return;
+      }
+    });
   }
 
   @override
@@ -340,9 +345,9 @@ class _LoginPageState extends State<LoginPage> {
                                                 Color(0xFF008080)),
                                       ),
                                       onPressed: () async {
-
                                         // 로그인 화면 통과
-                                        GoRouter.of(context).go('/find_WG_page');
+                                        GoRouter.of(context)
+                                            .go('/find_WG_page');
 
                                         // setState(() {
                                         //   _errorIdText =
@@ -408,52 +413,57 @@ class _LoginPageState extends State<LoginPage> {
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     0, 16, 0, 0),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    viewModel.signInAndLoginWithGoogle(context);
+                                  },
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: const Color(0xFFD0D5DD),
-                                        width: 1,
-                                      ),
                                     ),
-                                    child: Align(
-                                      alignment:
-                                          const AlignmentDirectional(0, 0),
-                                      child: Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(0, 10, 0, 10),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/images/IOS_Google_icon.png',
-                                              width: 24,
-                                              fit: BoxFit.cover,
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(12, 0, 0, 0),
-                                              child: SelectionArea(
-                                                  child: Text(
-                                                      'Sign in with Google',
-                                                      style: TextStyle(
-                                                        fontFamily: 'Inter',
-                                                        fontSize: 16,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ))),
-                                            ),
-                                          ],
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: const Color(0xFFD0D5DD),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment:
+                                            const AlignmentDirectional(0, 0),
+                                        child: Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(0, 10, 0, 10),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/images/IOS_Google_icon.png',
+                                                width: 24,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              const Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(12, 0, 0, 0),
+                                                child: SelectionArea(
+                                                    child: Text(
+                                                        'Sign in with Google',
+                                                        style: TextStyle(
+                                                          fontFamily: 'Inter',
+                                                          fontSize: 16,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ))),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -495,20 +505,17 @@ class _LoginPageState extends State<LoginPage> {
                                               fit: BoxFit.cover,
                                             ),
                                             const Padding(
-                                              padding:
-                                                  EdgeInsetsDirectional
-                                                      .fromSTEB(12, 0, 0, 0),
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(12, 0, 0, 0),
                                               child: SelectionArea(
                                                   child: Text(
                                                 'Sign in with Facebook',
-                                                style:
-                                                    TextStyle(
-                                                      fontFamily: 'Inter',
-                                                      fontSize: 16,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                      FontWeight.w600,
-                                                    ),
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 16,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               )),
                                             ),
                                           ],
@@ -523,7 +530,7 @@ class _LoginPageState extends State<LoginPage> {
                                     0, 12, 0, 0),
                                 child: Material(
                                   color: Colors.transparent,
-                                  elevation: 0 ,
+                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -553,18 +560,17 @@ class _LoginPageState extends State<LoginPage> {
                                               fit: BoxFit.cover,
                                             ),
                                             const Padding(
-                                              padding:
-                                                  EdgeInsetsDirectional
-                                                      .fromSTEB(12, 0, 0, 0),
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(12, 0, 0, 0),
                                               child: SelectionArea(
                                                   child: Text(
                                                 'Sign in with Apple',
-                                                style:
-                                                    TextStyle(fontFamily: 'Inter',
-                                                      fontSize: 16,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                      FontWeight.w600,),
+                                                style: TextStyle(
+                                                  fontFamily: 'Inter',
+                                                  fontSize: 16,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               )),
                                             ),
                                           ],

@@ -1,12 +1,26 @@
-import 'package:fms_project/data/core/result.dart';
-import 'package:fms_project/domain/model/user_data_model.dart';
-import 'package:fms_project/domain/repository/user_data_repository.dart';
+import 'package:fmsproject/data/core/result.dart';
+import 'package:fmsproject/data/data_source/firebase_auth_user_data.dart';
+import 'package:fmsproject/data/mappers/user_data_mapper.dart';
+import 'package:fmsproject/domain/model/user_data_model.dart';
+import 'package:fmsproject/domain/repository/user_data_repository.dart';
 
-class UserDataReporitoryImpl implements UserDataRepository {
+class UserDataRepositoryImpl implements UserDataRepository {
   @override
-  Future<Result<void>> createUserData(String email, String password) {
-    // TODO: implement createUserData
-    throw UnimplementedError();
+  Future<Result<UserDataModel>> createUserData(
+      String email, String password) async {
+    final emailCheck = await FirebaseAuthUserData().checkIfEmailInUse(email);
+    if (emailCheck == true) {
+      return const Result.error('used email');
+    }
+    final result = await FirebaseAuthUserData().signUpByEmail(email, password);
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
   }
 
   @override
@@ -28,21 +42,26 @@ class UserDataReporitoryImpl implements UserDataRepository {
   }
 
   @override
-  Future<Result<void>> signUpWithApple() {
-    // TODO: implement signUpWithApple
-    throw UnimplementedError();
+  Future<Result<UserDataModel>> signUpWithGoogle() async {
+    final result = await FirebaseAuthUserData().signUpWithGoogle();
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
   }
 
   @override
-  Future<Result<void>> signUpWithFacebook() {
+  Future<Result<UserDataModel>> signUpWithFacebook() {
     // TODO: implement signUpWithFacebook
     throw UnimplementedError();
   }
 
   @override
-  Future<Result<void>> signUpWithGoogle() {
-    // TODO: implement signUpWithGoogle
+  Future<Result<UserDataModel>> signUpWithApple() {
+    // TODO: implement signUpWithApple
     throw UnimplementedError();
   }
-  
 }

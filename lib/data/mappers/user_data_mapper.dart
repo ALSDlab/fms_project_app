@@ -1,5 +1,5 @@
-import 'package:fms_project/data/dtos/user_data_dto.dart';
-import 'package:fms_project/domain/model/user_data_model.dart';
+import 'package:fmsproject/data/dtos/user_data_dto.dart';
+import 'package:fmsproject/domain/model/user_data_model.dart';
 
 class UserDataMapper {
   static UserDataModel fromDTO(UserDataDto dto) {
@@ -7,7 +7,7 @@ class UserDataMapper {
       id: dto.id ?? 0,
       signUpDate: dto.signUpDate ?? '',
       email: dto.email ?? '',
-      deleted: dto.deleted ?? false,
+      isSignOut: dto.isSignOut ?? false,
       signOutDate: dto.signOutDate ?? '',
     );
   }
@@ -17,7 +17,7 @@ class UserDataMapper {
       id: model.id,
       signUpDate: model.signUpDate,
       email: model.email,
-      deleted: model.deleted,
+      isSignOut: model.isSignOut,
       signOutDate: model.signOutDate,
     );
   }

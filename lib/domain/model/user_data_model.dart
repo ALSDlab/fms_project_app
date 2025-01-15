@@ -12,7 +12,7 @@ class UserDataModel with _$UserDataModel {
     @JsonKey(name: 'id') required int id,
     @JsonKey(name: 'signUpDate') required String signUpDate,
     @JsonKey(name: 'email') required String email,
-    @JsonKey(name: 'isSignOut') required bool deleted,
+    @JsonKey(name: 'isSignOut') required bool isSignOut,
     @JsonKey(name: 'signOutDate') required String signOutDate,
 
 

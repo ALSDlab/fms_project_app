@@ -1,8 +1,6 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:fms_project/view/pages/setting_page/setting_page_view_model.dart';
-import 'package:go_router/go_router.dart';
+import 'package:fmsproject/view/pages/setting_page/setting_page_view_model.dart';
 import 'package:provider/provider.dart';
 
 class SettingPage extends StatefulWidget {
@@ -45,7 +43,6 @@ class _SettingPageState extends State<SettingPage> {
                 borderRadius: BorderRadius.circular(20),
                 onTap: () async {
                   //TODO: 탈퇴기능 넣기
-
 
                   // if (viewModel.languageController.value != null &&
                   //     viewModel.targetLanguageController.value != null) {

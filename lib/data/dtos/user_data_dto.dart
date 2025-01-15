@@ -2,7 +2,7 @@ class UserDataDto {
   final int? id;
   final String? signUpDate;
   final String? email;
-  final bool? deleted;
+  final bool? isSignOut;
   final String? signOutDate;
 
 //<editor-fold desc="Data Methods">
@@ -10,7 +10,7 @@ class UserDataDto {
     this.id,
     this.signUpDate,
     this.email,
-    this.deleted,
+    this.isSignOut,
     this.signOutDate,
   });
 
@@ -22,7 +22,7 @@ class UserDataDto {
           id == other.id &&
           signUpDate == other.signUpDate &&
           email == other.email &&
-          deleted == other.deleted &&
+          isSignOut == other.isSignOut &&
           signOutDate == other.signOutDate);
 
   @override
@@ -30,26 +30,26 @@ class UserDataDto {
       id.hashCode ^
       signUpDate.hashCode ^
       email.hashCode ^
-      deleted.hashCode ^
+      isSignOut.hashCode ^
       signOutDate.hashCode;
 
   @override
   String toString() {
-    return 'UserDataDto{ id: $id, signUpDate: $signUpDate, email: $email, deleted: $deleted, signOutDate: $signOutDate,}';
+    return 'UserDataDto{ id: $id, signUpDate: $signUpDate, email: $email, deleted: $isSignOut, signOutDate: $signOutDate,}';
   }
 
   UserDataDto copyWith({
     int? id,
     String? signUpDate,
     String? email,
-    bool? deleted,
+    bool? isSignOut,
     String? signOutDate,
   }) {
     return UserDataDto(
       id: id ?? this.id,
       signUpDate: signUpDate ?? this.signUpDate,
       email: email ?? this.email,
-      deleted: deleted ?? this.deleted,
+      isSignOut: isSignOut ?? this.isSignOut,
       signOutDate: signOutDate ?? this.signOutDate,
     );
   }
@@ -59,7 +59,7 @@ class UserDataDto {
       'id': id,
       'signUpDate': signUpDate,
       'email': email,
-      'deleted': deleted,
+      'isSignOut': isSignOut,
       'signOutDate': signOutDate,
     };
   }
@@ -69,7 +69,7 @@ class UserDataDto {
       id: map['id'] as int,
       signUpDate: map['signUpDate'] as String,
       email: map['email'] as String,
-      deleted: map['deleted'] as bool,
+      isSignOut: map['isSignOut'] as bool,
       signOutDate: map['signOutDate'] as String,
     );
   }
