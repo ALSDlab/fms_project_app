@@ -218,3 +218,4 @@ fabric.properties
 *.env
 *.env*
 GoogleService-Info.plist
+strings.xml
