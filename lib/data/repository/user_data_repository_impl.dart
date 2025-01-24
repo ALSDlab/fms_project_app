@@ -54,14 +54,26 @@ class UserDataRepositoryImpl implements UserDataRepository {
   }
 
   @override
-  Future<Result<UserDataModel>> signUpWithFacebook() {
-    // TODO: implement signUpWithFacebook
-    throw UnimplementedError();
+  Future<Result<UserDataModel>> signUpWithFacebook() async {
+    final result = await FirebaseAuthUserData().signUpWithFacebook();
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
   }
 
   @override
-  Future<Result<UserDataModel>> signUpWithApple() {
-    // TODO: implement signUpWithApple
-    throw UnimplementedError();
+  Future<Result<UserDataModel>> signUpWithApple() async {
+    final result = await FirebaseAuthUserData().signUpWithApple();
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
   }
 }

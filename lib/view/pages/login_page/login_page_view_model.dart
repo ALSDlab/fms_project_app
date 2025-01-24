@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fmsproject/data/core/result.dart';
 import 'package:fmsproject/domain/model/user_data_model.dart';
+import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_case.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,9 +13,13 @@ SharedPreferences? prefs;
 
 class LoginPageViewModel with ChangeNotifier {
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
+  final SignInWithFacebookUseCase _signInWithFacebookUseCase;
 
-  LoginPageViewModel({required SignInWithGoogleUseCase signInWithGoogleUseCase})
-      : _signInWithGoogleUseCase = signInWithGoogleUseCase;
+  LoginPageViewModel({
+    required SignInWithGoogleUseCase signInWithGoogleUseCase,
+    required SignInWithFacebookUseCase signInWithFacebookUseCase,
+  })  : _signInWithGoogleUseCase = signInWithGoogleUseCase,
+        _signInWithFacebookUseCase = signInWithFacebookUseCase;
 
   LoginPageState _state = const LoginPageState();
 
@@ -110,7 +115,31 @@ class LoginPageViewModel with ChangeNotifier {
           break;
       }
     } catch (error) {
-      logger.info('Error fetching FIREBASE data(mySentence): $error');
+      logger.info('Error signing in with google: $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> signInAndLoginWithFacebook(BuildContext context) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+
+    try {
+      final result = await _signInWithFacebookUseCase.execute();
+      switch (result) {
+        case Success<UserDataModel>():
+          await prefs!.setString('userEmail', result.data.email);
+          if (context.mounted) {
+            context.go('/find_WG_page');
+          }
+        case Error<UserDataModel>():
+          logger.info(result.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error signing in with facebook: $error');
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

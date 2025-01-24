@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
@@ -165,9 +166,67 @@ class FirebaseAuthUserData {
   }
 
   // 페이스북으로 회원가입
-  Future<Result<void>> signUpWithFacebook() async {
+  Future<Result<UserDataDto>> signUpWithFacebook() async {
     try {
-      return const Result.success(null);
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+      // by default we request the email and the public profile
+      // or FacebookAuth.i.login()
+      if (result.status == LoginStatus.success) {
+        final userData = await FacebookAuth.instance.getUserData();
+        print(userData);
+        final email = userData['email'];
+        final AccessToken accessToken = result.accessToken!;
+        final OAuthCredential credential =
+            FacebookAuthProvider.credential(accessToken.token);
+
+        // Firebase에 로그인
+        final UserCredential userCredential =
+            await _auth.signInWithCredential(credential);
+
+        final User? user = userCredential.user;
+
+        // 이메일 정보가 있다면 Firebase User 프로필 업데이트
+        if (email != null && user != null) {
+          await user.verifyBeforeUpdateEmail(
+              email); // Firebase Authentication에 이메일 업데이트
+        }
+
+        final docId = userCredential.user!.uid;
+
+        // 유저데이터 id 체크
+        QuerySnapshot querySnapshot =
+            await _firestore.collection('user_data').get();
+
+        List<int> idList = querySnapshot.docs
+            .map((doc) => doc['id'] as int) // id를 int로 캐스팅
+            .toList();
+        int maxId =
+            idList.isNotEmpty ? idList.reduce((a, b) => a > b ? a : b) : 0;
+
+        // 현재 날짜와 시간
+        DateTime now = DateTime.now();
+        String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+        await _firestore.collection('user_data').doc(docId).set({
+          'id': maxId + 1,
+          'signUpDate': formattedDate,
+          'email': email,
+          'isSignOut': false,
+          'signOutDate': '',
+        });
+
+        DocumentSnapshot docSnapshot =
+            await _firestore.collection('user_data').doc(docId).get();
+
+        final UserDataDto newUserData =
+            UserDataDto.fromJson(docSnapshot.data() as Map<String, dynamic>);
+
+        return Result.success(newUserData);
+      } else {
+        return Result.error('Facebook login failed: ${result.message}');
+      }
     } catch (e) {
       logger.info('Firestore 페이스북으로 회원가입 에러 => $e');
       return Result.error(e.toString());
@@ -175,9 +234,52 @@ class FirebaseAuthUserData {
   }
 
   // 애플로 회원가입
-  Future<Result<void>> signUpWithApple() async {
+  Future<Result<UserDataDto>> signUpWithApple() async {
     try {
-      return const Result.success(null);
+      final LoginResult result = await FacebookAuth.instance.login();
+      // by default we request the email and the public profile
+      // or FacebookAuth.i.login()
+      final AccessToken accessToken = result.accessToken!;
+      final OAuthCredential credential =
+          FacebookAuthProvider.credential(accessToken.token);
+      //
+      // Firebase에 로그인
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      final docId = userCredential.user!.uid;
+
+      // 유저데이터 id 체크
+      QuerySnapshot querySnapshot =
+          await _firestore.collection('user_data').get();
+
+      List<int> idList = querySnapshot.docs
+          .map((doc) => doc['id'] as int) // id를 int로 캐스팅
+          .toList();
+      int maxId =
+          idList.isNotEmpty ? idList.reduce((a, b) => a > b ? a : b) : 0;
+
+      // 현재 날짜와 시간
+      DateTime now = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+      // Firebase User 정보 가져오기
+      final User? user = userCredential.user;
+
+      await _firestore.collection('user_data').doc(docId).set({
+        'id': maxId + 1,
+        'signUpDate': formattedDate,
+        'email': user?.email,
+        'isSignOut': false,
+        'signOutDate': '',
+      });
+
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('user_data').doc(docId).get();
+
+      final UserDataDto newUserData =
+          UserDataDto.fromJson(docSnapshot.data() as Map<String, dynamic>);
+      return Result.success(newUserData);
     } catch (e) {
       logger.info('Firestore 애플로 회원가입 에러 => $e');
       return Result.error(e.toString());

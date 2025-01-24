@@ -1,5 +1,6 @@
 import 'package:fmsproject/data/repository/user_data_repository_impl.dart';
 import 'package:fmsproject/domain/repository/user_data_repository.dart';
+import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_case.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,13 +18,17 @@ void diSetup() {
   getIt.registerSingleton<UserDataRepository>(UserDataRepositoryImpl());
 
   // use case
-  getIt.registerSingleton<SignInWithGoogleUseCase>(
-      SignInWithGoogleUseCase(userDataRepository: getIt<UserDataRepository>()));
+  getIt
+    ..registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<SignInWithFacebookUseCase>(SignInWithFacebookUseCase(
+        userDataRepository: getIt<UserDataRepository>()));
 
   // ViewModel
   getIt
     ..registerFactory<LoginPageViewModel>(() => LoginPageViewModel(
-        signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>()))
+        signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
+        signInWithFacebookUseCase: getIt<SignInWithFacebookUseCase>()))
     ..registerFactory<NavigationBarPageViewModel>(
         () => NavigationBarPageViewModel())
     ..registerFactory<FindWGPageViewModel>(() => FindWGPageViewModel())

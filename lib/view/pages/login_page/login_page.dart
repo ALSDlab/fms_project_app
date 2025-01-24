@@ -451,16 +451,15 @@ class _LoginPageState extends State<LoginPage> {
                                               const Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(12, 0, 0, 0),
-                                                child: SelectionArea(
-                                                    child: Text(
-                                                        'Sign in with Google',
-                                                        style: TextStyle(
-                                                          fontFamily: 'Inter',
-                                                          fontSize: 16,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ))),
+                                                child: Text(
+                                                    'Sign in with Google',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 16,
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    )),
                                               ),
                                             ],
                                           ),
@@ -473,12 +472,11 @@ class _LoginPageState extends State<LoginPage> {
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     0, 12, 0, 0),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    viewModel
+                                        .signInAndLoginWithFacebook(context);
+                                  },
                                   child: Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(
@@ -488,9 +486,12 @@ class _LoginPageState extends State<LoginPage> {
                                         width: 1,
                                       ),
                                     ),
-                                    child: Align(
-                                      alignment:
-                                          const AlignmentDirectional(0, 0),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                       child: Padding(
                                         padding: const EdgeInsetsDirectional
                                             .fromSTEB(0, 10, 0, 10),
@@ -507,8 +508,7 @@ class _LoginPageState extends State<LoginPage> {
                                             const Padding(
                                               padding: EdgeInsetsDirectional
                                                   .fromSTEB(12, 0, 0, 0),
-                                              child: SelectionArea(
-                                                  child: Text(
+                                              child: Text(
                                                 'Sign in with Facebook',
                                                 style: TextStyle(
                                                   fontFamily: 'Inter',
@@ -516,7 +516,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   letterSpacing: 0.0,
                                                   fontWeight: FontWeight.w600,
                                                 ),
-                                              )),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -562,8 +562,7 @@ class _LoginPageState extends State<LoginPage> {
                                             const Padding(
                                               padding: EdgeInsetsDirectional
                                                   .fromSTEB(12, 0, 0, 0),
-                                              child: SelectionArea(
-                                                  child: Text(
+                                              child: Text(
                                                 'Sign in with Apple',
                                                 style: TextStyle(
                                                   fontFamily: 'Inter',
@@ -571,7 +570,7 @@ class _LoginPageState extends State<LoginPage> {
                                                   letterSpacing: 0.0,
                                                   fontWeight: FontWeight.w600,
                                                 ),
-                                              )),
+                                              ),
                                             ),
                                           ],
                                         ),
