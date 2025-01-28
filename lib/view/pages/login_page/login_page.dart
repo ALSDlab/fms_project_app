@@ -528,51 +528,56 @@ class _LoginPageState extends State<LoginPage> {
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     0, 12, 0, 0),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    viewModel.signInAndLoginWithApple(context);
+                                  },
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: const Color(0xFFD0D5DD),
-                                        width: 1,
-                                      ),
                                     ),
-                                    child: Align(
-                                      alignment:
-                                          const AlignmentDirectional(0, 0),
-                                      child: Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(0, 10, 0, 10),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/images/Apple_logo_black.png',
-                                              width: 24,
-                                              fit: BoxFit.cover,
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(12, 0, 0, 0),
-                                              child: Text(
-                                                'Sign in with Apple',
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 16,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: const Color(0xFFD0D5DD),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment:
+                                            const AlignmentDirectional(0, 0),
+                                        child: Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(0, 10, 0, 10),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/images/Apple_logo_black.png',
+                                                width: 24,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              const Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(12, 0, 0, 0),
+                                                child: Text(
+                                                  'Sign in with Apple',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Inter',
+                                                    fontSize: 16,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

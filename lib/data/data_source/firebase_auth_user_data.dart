@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -175,7 +176,6 @@ class FirebaseAuthUserData {
       // or FacebookAuth.i.login()
       if (result.status == LoginStatus.success) {
         final userData = await FacebookAuth.instance.getUserData();
-        print(userData);
         final email = userData['email'];
         final AccessToken accessToken = result.accessToken!;
         final OAuthCredential credential =
@@ -236,6 +236,17 @@ class FirebaseAuthUserData {
   // 애플로 회원가입
   Future<Result<UserDataDto>> signUpWithApple() async {
     try {
+      //TODO: 애플로 로그인 구현
+      final appleProvider = AppleAuthProvider();
+      // Firebase에 로그인
+      if (kIsWeb) {
+        final UserCredential userCredential = await _auth.signInWithPopup(appleProvider);
+      } else {
+        final UserCredential userCredential = await _auth.signInWithProvider(appleProvider);
+      }
+
+
+
       final LoginResult result = await FacebookAuth.instance.login();
       // by default we request the email and the public profile
       // or FacebookAuth.i.login()

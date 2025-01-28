@@ -6,6 +6,7 @@ import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_cas
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../domain/use_case/user_data/sign_in_with_apple_use_case.dart';
 import '../../../utils/simple_logger.dart';
 import 'login_page_state.dart';
 
@@ -14,12 +15,15 @@ SharedPreferences? prefs;
 class LoginPageViewModel with ChangeNotifier {
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithFacebookUseCase _signInWithFacebookUseCase;
+  final SignInWithAppleUseCase _signInWithAppleUseCase;
 
   LoginPageViewModel({
     required SignInWithGoogleUseCase signInWithGoogleUseCase,
     required SignInWithFacebookUseCase signInWithFacebookUseCase,
+    required SignInWithAppleUseCase signInWithAppleUseCase,
   })  : _signInWithGoogleUseCase = signInWithGoogleUseCase,
-        _signInWithFacebookUseCase = signInWithFacebookUseCase;
+        _signInWithFacebookUseCase = signInWithFacebookUseCase,
+        _signInWithAppleUseCase = signInWithAppleUseCase;
 
   LoginPageState _state = const LoginPageState();
 
@@ -140,6 +144,30 @@ class LoginPageViewModel with ChangeNotifier {
       }
     } catch (error) {
       logger.info('Error signing in with facebook: $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> signInAndLoginWithApple(BuildContext context) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+
+    try {
+      final result = await _signInWithAppleUseCase.execute();
+      switch (result) {
+        case Success<UserDataModel>():
+          await prefs!.setString('userEmail', result.data.email);
+          if (context.mounted) {
+            context.go('/find_WG_page');
+          }
+        case Error<UserDataModel>():
+          logger.info(result.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error signing in with apple: $error');
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

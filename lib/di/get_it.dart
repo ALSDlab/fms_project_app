@@ -4,6 +4,7 @@ import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_c
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_case.dart';
 import 'package:get_it/get_it.dart';
 
+import '../domain/use_case/user_data/sign_in_with_apple_use_case.dart';
 import '../view/navigation/navigation_bar_page_view_model.dart';
 import '../view/pages/find_WG_page/find_WG_page_view_model.dart';
 import '../view/pages/login_page/login_page_view_model.dart';
@@ -22,13 +23,16 @@ void diSetup() {
     ..registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignInWithFacebookUseCase>(SignInWithFacebookUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<SignInWithAppleUseCase>(SignInWithAppleUseCase(
         userDataRepository: getIt<UserDataRepository>()));
 
   // ViewModel
   getIt
     ..registerFactory<LoginPageViewModel>(() => LoginPageViewModel(
         signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
-        signInWithFacebookUseCase: getIt<SignInWithFacebookUseCase>()))
+        signInWithFacebookUseCase: getIt<SignInWithFacebookUseCase>(),
+        signInWithAppleUseCase: getIt<SignInWithAppleUseCase>()))
     ..registerFactory<NavigationBarPageViewModel>(
         () => NavigationBarPageViewModel())
     ..registerFactory<FindWGPageViewModel>(() => FindWGPageViewModel())
