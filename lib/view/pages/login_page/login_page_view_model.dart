@@ -44,6 +44,16 @@ class LoginPageViewModel with ChangeNotifier {
     }
   }
 
+  void changeErrorEmailText(String errorText) {
+    _state = state.copyWith(errorEmailText: errorText);
+    notifyListeners();
+}
+
+  void changeErrorPasswordText(String errorText) {
+    _state = state.copyWith(errorPasswordText: errorText);
+    notifyListeners();
+  }
+
   //
   // Future signIn(String? id, String? password, BuildContext context) async {
   //   try {

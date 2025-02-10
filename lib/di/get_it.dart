@@ -2,6 +2,8 @@ import 'package:fmsproject/data/repository/user_data_repository_impl.dart';
 import 'package:fmsproject/domain/repository/user_data_repository.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
+import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
 import 'package:get_it/get_it.dart';
 
 import '../domain/use_case/user_data/sign_in_with_apple_use_case.dart';
@@ -20,6 +22,8 @@ void diSetup() {
 
   // use case
   getIt
+    ..registerSingleton<SignUpByEmailUseCase>(
+        SignUpByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignInWithFacebookUseCase>(SignInWithFacebookUseCase(
@@ -29,12 +33,14 @@ void diSetup() {
 
   // ViewModel
   getIt
+    ..registerFactory<NavigationBarPageViewModel>(
+        () => NavigationBarPageViewModel())
     ..registerFactory<LoginPageViewModel>(() => LoginPageViewModel(
         signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
         signInWithFacebookUseCase: getIt<SignInWithFacebookUseCase>(),
         signInWithAppleUseCase: getIt<SignInWithAppleUseCase>()))
-    ..registerFactory<NavigationBarPageViewModel>(
-        () => NavigationBarPageViewModel())
+    ..registerFactory<SignupPageViewModel>(() => SignupPageViewModel(
+        signUpByEmailUseCase: getIt<SignUpByEmailUseCase>()))
     ..registerFactory<FindWGPageViewModel>(() => FindWGPageViewModel())
     ..registerFactory<UploadWGPageViewModel>(() => UploadWGPageViewModel())
     ..registerFactory<MyHistoryPageViewModel>(() => MyHistoryPageViewModel())

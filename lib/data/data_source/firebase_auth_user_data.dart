@@ -12,19 +12,20 @@ import '../core/result.dart';
 class FirebaseAuthUserData {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late User? user;
 
   // 이메일 중복 검사
-  Future<bool> checkIfEmailInUse(String email) async {
+  Future<Result<bool>> checkIfEmailInUse(String email) async {
     try {
       QuerySnapshot<Map<String, dynamic>> query = await _firestore
           .collection('user_data')
           .where('email', isEqualTo: email)
           .get();
-      return query.docs.isNotEmpty; // 이미 사용 중
+      return Result.success(query.docs.isNotEmpty); // 이미 사용 중: true, 중복아님: false
     } catch (e) {
       // ignore: avoid_print
-      print('에러: $e');
-      return false;
+      logger.info('에러: $e');
+      return Result.error(e.toString());
     }
   }
 
@@ -75,11 +76,29 @@ class FirebaseAuthUserData {
     }
   }
 
+  // 이메일 인증확인
+  Future<Result<bool>> checkEmailVerified() async {
+    try {
+      await user?.reload();
+      user = _auth.currentUser;
+      if (user != null && user!.emailVerified) {
+        return const Result.success(true);
+      } else {
+        return const Result.success(false);
+      }
+    } catch (e) {
+      logger.info('Firestore 이메일 인증확인 에러 => $e');
+      return Result.error(e.toString());
+    }
+  }
+
   // 이메일 로그인
   Future<Result<void>> loginByEmail(String email, String password) async {
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(email: email, password: password).then((value) async {
+        //회원가입 성공시
+        await value.user!.sendEmailVerification();
+      });
       return const Result.success(null);
     } catch (e) {
       logger.info('Firestore 이메일 로그인 에러 => $e');
@@ -122,6 +141,8 @@ class FirebaseAuthUserData {
         idToken: googleAuth?.idToken,
       );
 
+      final email = googleUser?.email;
+
       // Firebase에 로그인
       final UserCredential userCredential =
           await _auth.signInWithCredential(googleCredential);
@@ -142,13 +163,10 @@ class FirebaseAuthUserData {
       DateTime now = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
-      // Firebase User 정보 가져오기
-      final User? user = userCredential.user;
-
       await _firestore.collection('user_data').doc(docId).set({
         'id': maxId + 1,
         'signUpDate': formattedDate,
-        'email': user?.email,
+        'email': email,
         'isSignOut': false,
         'signOutDate': '',
       });
@@ -238,25 +256,14 @@ class FirebaseAuthUserData {
     try {
       //TODO: 애플로 로그인 구현
       final appleProvider = AppleAuthProvider();
+      late final UserCredential userCredential; // late 키워드로 선언
+
       // Firebase에 로그인
       if (kIsWeb) {
-        final UserCredential userCredential = await _auth.signInWithPopup(appleProvider);
+        userCredential = await _auth.signInWithPopup(appleProvider);
       } else {
-        final UserCredential userCredential = await _auth.signInWithProvider(appleProvider);
+        userCredential = await _auth.signInWithProvider(appleProvider);
       }
-
-
-
-      final LoginResult result = await FacebookAuth.instance.login();
-      // by default we request the email and the public profile
-      // or FacebookAuth.i.login()
-      final AccessToken accessToken = result.accessToken!;
-      final OAuthCredential credential =
-          FacebookAuthProvider.credential(accessToken.token);
-      //
-      // Firebase에 로그인
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
 
       final docId = userCredential.user!.uid;
 

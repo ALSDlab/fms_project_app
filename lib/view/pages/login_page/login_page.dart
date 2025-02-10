@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fmsproject/view/pages/login_page/social_login_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../utils/custom_text_form_field.dart';
 import '../../../utils/gif_progress_bar.dart';
 import 'login_page_view_model.dart';
 
@@ -26,8 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   var passwordControllerFocusNode = FocusNode();
 
   StreamSubscription? authStateChanges;
-  String? _errorIdText;
-  String? _errorPasswordText;
 
   @override
   void dispose() {
@@ -156,168 +156,35 @@ class _LoginPageState extends State<LoginPage> {
                                       key: _formKey,
                                       child: Column(
                                         children: [
-                                          Stack(
-                                            children: [
-                                              TextFormField(
-                                                controller: idController,
-                                                focusNode:
-                                                    idControllerFocusNode,
-                                                autofocus: false,
-                                                obscureText: false,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Enter your email',
-                                                  border: OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                      width: 0.1,
-                                                      color: Colors.white,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      width: 1,
-                                                      color:
-                                                          (_errorIdText == null)
-                                                              ? Colors.grey
-                                                              : const Color(
-                                                                  0xFFFDA29B),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      width: 1,
-                                                      color:
-                                                          (_errorIdText == null)
-                                                              ? const Color(
-                                                                  0xFF2F362F)
-                                                              : const Color(
-                                                                  0xFFFDA29B),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _errorIdText =
-                                                        (value.isEmpty
-                                                            ? '필수항목입니다.'
-                                                            : null);
-                                                  });
-                                                },
-                                              ),
-                                              if (_errorIdText != null)
-                                                Positioned(
-                                                  top: 19,
-                                                  right: 15,
-                                                  child: Container(
-                                                    color: Colors.transparent,
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 4),
-                                                    child: Text(
-                                                      _errorIdText!,
-                                                      style: const TextStyle(
-                                                          color:
-                                                              Color(0xFFFDA29B),
-                                                          fontSize: 12),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
+                                          CustomTextFormField(
+                                            controller: idController,
+                                            focusNode: idControllerFocusNode,
+                                            hintText: 'Enter your email',
+                                            errorText: state.errorEmailText,
+                                            onChanged: (value) {
+                                              if (value.isEmpty) {
+                                                viewModel.changeErrorEmailText('필수항목입니다.');
+                                              } else {
+                                                viewModel.changeErrorEmailText('');
+                                              }
+                                            },
                                           ),
                                           SizedBox(
                                             height: 10.h,
                                           ),
-                                          Stack(
-                                            children: [
-                                              TextFormField(
-                                                controller: passwordController,
-                                                focusNode:
-                                                    passwordControllerFocusNode,
-                                                autofocus: false,
-                                                obscureText: true,
-                                                decoration: InputDecoration(
-                                                  hintText: '비밀번호',
-                                                  border: OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                      width: 0.1,
-                                                      color: Colors.white,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      width: 1,
-                                                      color:
-                                                          (_errorPasswordText ==
-                                                                  null)
-                                                              ? Colors.grey
-                                                              : const Color(
-                                                                  0xFFFDA29B),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      width: 1,
-                                                      color:
-                                                          (_errorPasswordText ==
-                                                                  null)
-                                                              ? const Color(
-                                                                  0xFF2F362F)
-                                                              : const Color(
-                                                                  0xFFFDA29B),
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _errorPasswordText =
-                                                        (value.isEmpty
-                                                            ? '필수항목입니다.'
-                                                            : null);
-                                                  });
-                                                },
-                                              ),
-                                              if (_errorPasswordText != null)
-                                                Positioned(
-                                                  top: 19,
-                                                  right: 15,
-                                                  child: Container(
-                                                    color: Colors.transparent,
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 4),
-                                                    child: Text(
-                                                      _errorPasswordText!,
-                                                      style: const TextStyle(
-                                                          color:
-                                                              Color(0xFFFDA29B),
-                                                          fontSize: 12),
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
+                                          CustomTextFormField(
+                                            controller: passwordController,
+                                            focusNode: passwordControllerFocusNode,
+                                            hintText: 'Password',
+                                            obscureText: true,
+                                            errorText: state.errorPasswordText,
+                                            onChanged: (value) {
+                                              if (value.isEmpty) {
+                                                viewModel.changeErrorPasswordText('필수항목입니다.');
+                                              } else {
+                                                viewModel.changeErrorPasswordText('');
+                                              }
+                                            },
                                           ),
                                         ],
                                       ),
@@ -410,179 +277,20 @@ class _LoginPageState extends State<LoginPage> {
                                   ],
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0, 16, 0, 0),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    viewModel.signInAndLoginWithGoogle(context);
-                                  },
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: const Color(0xFFD0D5DD),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment:
-                                            const AlignmentDirectional(0, 0),
-                                        child: Padding(
-                                          padding: const EdgeInsetsDirectional
-                                              .fromSTEB(0, 10, 0, 10),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'assets/images/IOS_Google_icon.png',
-                                                width: 24,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              const Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(12, 0, 0, 0),
-                                                child: Text(
-                                                    'Sign in with Google',
-                                                    style: TextStyle(
-                                                      fontFamily: 'Inter',
-                                                      fontSize: 16,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    )),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              SocialLoginButton(
+                                imagePath: 'assets/images/IOS_Google_icon.png',
+                                text: 'Sign in with Google',
+                                onTap: () => viewModel.signInAndLoginWithGoogle(context),
                               ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0, 12, 0, 0),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    viewModel
-                                        .signInAndLoginWithFacebook(context);
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: const Color(0xFFD0D5DD),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(0, 10, 0, 10),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              'assets/images/Facebook_Logo.png',
-                                              width: 24,
-                                              fit: BoxFit.cover,
-                                            ),
-                                            const Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(12, 0, 0, 0),
-                                              child: Text(
-                                                'Sign in with Facebook',
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 16,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              SocialLoginButton(
+                                imagePath: 'assets/images/Facebook_Logo.png',
+                                text: 'Sign in with Facebook',
+                                onTap: () => viewModel.signInAndLoginWithFacebook(context),
                               ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    0, 12, 0, 0),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    viewModel.signInAndLoginWithApple(context);
-                                  },
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: const Color(0xFFD0D5DD),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment:
-                                            const AlignmentDirectional(0, 0),
-                                        child: Padding(
-                                          padding: const EdgeInsetsDirectional
-                                              .fromSTEB(0, 10, 0, 10),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'assets/images/Apple_logo_black.png',
-                                                width: 24,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              const Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(12, 0, 0, 0),
-                                                child: Text(
-                                                  'Sign in with Apple',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Inter',
-                                                    fontSize: 16,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              SocialLoginButton(
+                                imagePath: 'assets/images/Apple_logo_black.png',
+                                text: 'Sign in with Apple',
+                                onTap: () => viewModel.signInAndLoginWithApple(context),
                               ),
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
@@ -598,7 +306,7 @@ class _LoginPageState extends State<LoginPage> {
                                     TextButton(
                                       onPressed: () {
                                         context.push(
-                                          '/profile_page/login_page/signup_page',
+                                          '/login_page/signup_page',
                                           // extra: {
                                           //   'hideNavBar':
                                           //       widget.hideNavBar
@@ -669,7 +377,7 @@ class _LoginPageState extends State<LoginPage> {
                                           height: 1.4,
                                           fontFamily: 'Kopub',
                                           color: Colors.grey),
-                                      'ⓒ 2024. SMS Project Co. All rights reserved.'),
+                                      'ⓒ 2025. FMS Project Co. All rights reserved.'),
                                 ],
                               ),
                             ],

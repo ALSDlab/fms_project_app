@@ -9,11 +9,14 @@ import 'package:fmsproject/view/pages/my_history_page/my_history_page.dart';
 import 'package:fmsproject/view/pages/my_history_page/my_history_page_view_model.dart';
 import 'package:fmsproject/view/pages/setting_page/setting_page.dart';
 import 'package:fmsproject/view/pages/setting_page/setting_page_view_model.dart';
+import 'package:fmsproject/view/pages/signup_page/signup_page.dart';
+import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
 import 'package:fmsproject/view/pages/splash_page/splash_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/upload_WG_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/upload_WG_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import 'di/get_it.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -37,7 +40,9 @@ final router = GoRouter(
         routes: [
           GoRoute(
             path: 'signup_page',
-            builder: (context, state) => const LoginPage(),
+            builder: (context, state) => ChangeNotifierProvider(
+                create: (BuildContext context) => getIt<SignupPageViewModel>(),
+                child: const SignupPage()),
           ),
           GoRoute(
             path: 'change_password_page',

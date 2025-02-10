@@ -7,6 +7,9 @@ part 'login_page_state.g.dart';
 class LoginPageState with _$LoginPageState {
   const factory LoginPageState({
     @Default(false) bool isLoading,
+    @Default('') String errorEmailText,
+    @Default('') String errorPasswordText,
+
   }) = _LoginPageState;
 
   factory LoginPageState.fromJson(Map<String, dynamic> json) =>

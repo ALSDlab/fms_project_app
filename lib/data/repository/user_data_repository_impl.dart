@@ -9,7 +9,7 @@ class UserDataRepositoryImpl implements UserDataRepository {
   Future<Result<UserDataModel>> createUserData(
       String email, String password) async {
     final emailCheck = await FirebaseAuthUserData().checkIfEmailInUse(email);
-    if (emailCheck == true) {
+    if (emailCheck == const Result.success(true)) {
       return const Result.error('used email');
     }
     final result = await FirebaseAuthUserData().signUpByEmail(email, password);
