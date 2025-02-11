@@ -7,9 +7,7 @@ part 'setting_page_state.g.dart';
 class SettingPageState with _$SettingPageState {
   const factory SettingPageState({
     @Default(false) bool tapped,
-    @Default('') String selectedLanguage,
-    @Default('') String targetLanguage,
-    @Default('') String selectedLevel,
+    @Default(false) bool isLoading,
   }) = _SettingPageState;
 
   factory SettingPageState.fromJson(Map<String, dynamic> json) =>

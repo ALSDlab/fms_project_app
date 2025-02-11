@@ -11,6 +11,14 @@ abstract interface class UserDataRepository {
 
   Future<Result<void>> deleteUserData(String email);
 
+  Future<Result<UserDataModel>> userLogIn(String email, String password);
+
+  Future<Result<void>> logOutUser();
+
+  Future<Result<void>> signOutUser();
+
+  Future<Result<bool>> checkEmailVerified();
+
   Future<Result<UserDataModel>> signUpWithGoogle();
 
   Future<Result<UserDataModel>> signUpWithFacebook();

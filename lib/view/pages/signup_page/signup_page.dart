@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/custom_text_form_field.dart';
+import '../../../utils/one_answer_dialog.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -19,18 +22,46 @@ class _SignupPageState extends State<SignupPage> {
   var emailControllerFocusNode = FocusNode();
   var passwordControllerFocusNode = FocusNode();
   var confirmPasswordControllerFocusNode = FocusNode();
+  StreamSubscription<bool>? _subscription;
 
   // 이메일 인증여부 확인
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   authStateChanges = FirebaseAuth.instance.authStateChanges().listen((user) {
-  //     if (user != null && mounted) {
-  //       GoRouter.of(context).go('/find_WG_page');
-  //       return;
-  //     }
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    final viewModel = context.read<SignupPageViewModel>();
+    final state = viewModel.state;
+
+    // 스트림 구독 시작
+    _subscription = viewModel.emailVerificationStream.listen((result) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return OneAnswerDialog(
+              onTap: () {
+                if (result) {
+                  // 이메일 인증 완료시 처리
+                  if (context.canPop()) {
+                    context.pop();
+                  }
+                  context.go('/find_WG_page');
+                }
+              },
+              title: 'SignUp',
+              subtitle: 'email verifying..',
+              firstButton: 'OK',
+            );
+          },
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,24 +152,42 @@ class _SignupPageState extends State<SignupPage> {
               Row(
                 children: [
                   (state.hasUpperCase)
-                      ? const Icon(BootstrapIcons.check, color: Colors.green,)
-                      : const Icon(BootstrapIcons.x, color: Colors.red,),
+                      ? const Icon(
+                          BootstrapIcons.check,
+                          color: Colors.green,
+                        )
+                      : const Icon(
+                          BootstrapIcons.x,
+                          color: Colors.red,
+                        ),
                   const Text('has Upper case')
                 ],
               ),
               Row(
                 children: [
                   (state.hasLowerCase) && (state.hasDigit)
-                      ? const Icon(BootstrapIcons.check, color: Colors.green,)
-                      : const Icon(BootstrapIcons.x, color: Colors.red,),
+                      ? const Icon(
+                          BootstrapIcons.check,
+                          color: Colors.green,
+                        )
+                      : const Icon(
+                          BootstrapIcons.x,
+                          color: Colors.red,
+                        ),
                   const Text('contains both letters and numbers')
                 ],
               ),
               Row(
                 children: [
                   (state.isAtLeast6Chars)
-                      ? const Icon(BootstrapIcons.check, color: Colors.green,)
-                      : const Icon(BootstrapIcons.x, color: Colors.red,),
+                      ? const Icon(
+                          BootstrapIcons.check,
+                          color: Colors.green,
+                        )
+                      : const Icon(
+                          BootstrapIcons.x,
+                          color: Colors.red,
+                        ),
                   const Text('6 characters or more')
                 ],
               ),
@@ -155,7 +204,8 @@ class _SignupPageState extends State<SignupPage> {
                       await viewModel.handleSignUp(
                           email: viewModel.emailController.text,
                           password: viewModel.passwordController.text,
-                          confirmPassword: viewModel.confirmPasswordController.text,
+                          confirmPassword:
+                              viewModel.confirmPasswordController.text,
                           context: context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

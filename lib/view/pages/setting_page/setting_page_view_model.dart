@@ -1,11 +1,25 @@
-
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/use_case/user_data/log_out_by_email_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
 import 'package:fmsproject/view/pages/setting_page/setting_page_state.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../data/core/result.dart';
+import '../../../utils/simple_logger.dart';
+import '../../../utils/two_answer_dialog.dart';
+
 class SettingPageViewModel with ChangeNotifier {
-  SettingPageViewModel() {
+  final LogOutByEmailUseCase _logOutByEmailUseCase;
+  final SignOutByEmailUseCase _signOutByEmailUseCase;
+  SharedPreferences? prefs;
+
+  SettingPageViewModel({
+    required LogOutByEmailUseCase logOutByEmailUseCase,
+    required SignOutByEmailUseCase signOutByEmailUseCase,
+  })  : _logOutByEmailUseCase = logOutByEmailUseCase,
+        _signOutByEmailUseCase = signOutByEmailUseCase {
     languageNames = languages.map((lang) => lang['name']!).toList();
     targetLanguageNames = languages.map((lang) => lang['name']!).toList();
   }
@@ -47,11 +61,87 @@ class SettingPageViewModel with ChangeNotifier {
     }
   }
 
-
-
-  void selectLevel(String selectedLevel) {
-    _state = state.copyWith(selectedLevel: selectedLevel);
+  // 로그아웃
+  Future<void> logOutUser(BuildContext context) async {
+    _state = state.copyWith(isLoading: true);
     notifyListeners();
+
+    try {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return TwoAnswerDialog(
+            title: 'Log Out',
+            subtitle: 'Log Out',
+            firstButton: 'OK',
+            secondButton: 'Cancel',
+            onTap: () async {
+              final result = await _logOutByEmailUseCase.execute();
+              switch (result) {
+                case Success<void>():
+                  // 로그아웃 시 로그인 페이지로 이동
+                  if (prefs != null) {
+                    final resetUser = await prefs!.remove('userEmail');
+                    if (context.mounted && resetUser) {
+                      print('로그아웃 성공');
+                      GoRouter.of(context).go('/login_page');
+                    }
+                  }
+                  break;
+                case Error<void>():
+                  logger.info(result.message);
+                  break;
+              }
+            },
+          );
+        },
+      );
+    } catch (error) {
+      logger.info('Error log out: $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
   }
 
+  // 회원탈퇴
+  Future<void> signOutUser(BuildContext context) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+
+    try {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return TwoAnswerDialog(
+            title: 'Sign Out',
+            subtitle: 'You cannot rejoin for one week.',
+            firstButton: 'OK',
+            secondButton: 'Cancel',
+            onTap: () async {
+              final result = await _signOutByEmailUseCase.execute();
+              switch (result) {
+                case Success<void>():
+                // 회원탈퇴 시 로그인 페이지로 이동
+                  if (prefs != null) {
+                    await prefs!.remove('userEmail');
+                    if (context.mounted) {
+                      GoRouter.of(context).go('/login_page');
+                    }
+                  }
+                case Error<void>():
+                  logger.info(result.message);
+                  break;
+              }
+            },
+          );
+        },
+      );
+    } catch (error) {
+      logger.info('Error log out: $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
 }

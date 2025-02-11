@@ -1,5 +1,3 @@
-//버튼 1개 다이얼로그 : 결제완료/실패
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -46,8 +44,6 @@ class OneAnswerDialog extends StatelessWidget {
                 : (result != null)
                     ? Text(result!, style: const TextStyle(fontSize: 56))
                     : const SizedBox(),
-
-
             Visibility(
                 visible: (subtitle != null), child: const SizedBox(height: 10)),
             Visibility(

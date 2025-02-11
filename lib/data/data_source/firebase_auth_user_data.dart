@@ -6,6 +6,7 @@ import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 
+import '../../domain/model/user_data_model.dart';
 import '../../utils/simple_logger.dart';
 import '../core/result.dart';
 
@@ -21,7 +22,20 @@ class FirebaseAuthUserData {
           .collection('user_data')
           .where('email', isEqualTo: email)
           .get();
-      return Result.success(query.docs.isNotEmpty); // 이미 사용 중: true, 중복아님: false
+      DateTime now = DateTime.now();
+      String isSignOut = query.docs.first.data()['signOutDate'];
+      DateTime savedDateTime =
+          DateFormat('yyyy-MM-dd HH:mm:ss').parse(isSignOut);
+
+      // 두 날짜의 차이 계산
+      Duration difference = now.difference(savedDateTime);
+      if (isSignOut != '') {
+        return const Result.success(true); // 이미 사용 중: true
+      } else if (difference.inDays > 7) {
+        return const Result.success(false); // 최근(7일 이내) 탈퇴한 유저: false
+      } else {
+        return const Result.error('you can signIn');
+      }
     } catch (e) {
       // ignore: avoid_print
       logger.info('에러: $e');
@@ -37,7 +51,11 @@ class FirebaseAuthUserData {
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
-      );
+      ).then((value) async {
+            //회원가입 성공시
+            await value.user!.sendEmailVerification();
+            return value;
+          });
 
       final docId = userCredential.user!.uid;
 
@@ -93,16 +111,32 @@ class FirebaseAuthUserData {
   }
 
   // 이메일 로그인
-  Future<Result<void>> loginByEmail(String email, String password) async {
+  Future<Result<UserDataDto>> loginByEmail(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password).then((value) async {
-        //회원가입 성공시
-        await value.user!.sendEmailVerification();
+      final result = await _auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) async {
+        final docId = value.user!.uid;
+        DocumentSnapshot docSnapshot =
+        await _firestore.collection('user_data').doc(docId).get();
+
+        final UserDataDto userData =
+        UserDataDto.fromJson(docSnapshot.data() as Map<String, dynamic>);
+
+        value.user!.emailVerified == true //이메일 인증 여부
+            ? Result.success(userData) : const Result.error('not verified');
       });
-      return const Result.success(null);
-    } catch (e) {
-      logger.info('Firestore 이메일 로그인 에러 => $e');
-      return Result.error(e.toString());
+      return result;
+    } on FirebaseAuthException catch (e) {
+      //로그인 예외처리
+      if (e.code == 'user-not-found') {
+        return Result.error(e.toString());
+      } else if (e.code == 'wrong-password') {
+        return Result.error(e.toString());
+      } else {
+        logger.info('Firestore 이메일 로그인 에러 => $e');
+        return Result.error(e.toString());
+      }
     }
   }
 

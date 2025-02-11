@@ -11,6 +11,8 @@ class UserDataRepositoryImpl implements UserDataRepository {
     final emailCheck = await FirebaseAuthUserData().checkIfEmailInUse(email);
     if (emailCheck == const Result.success(true)) {
       return const Result.error('used email');
+    } else if (emailCheck == const Result.success(false)) {
+      return const Result.error('recently deactivated user');
     }
     final result = await FirebaseAuthUserData().signUpByEmail(email, password);
 
@@ -21,24 +23,6 @@ class UserDataRepositoryImpl implements UserDataRepository {
     }, error: (message) {
       return Result.error(message);
     });
-  }
-
-  @override
-  Future<Result<void>> deleteUserData(String email) {
-    // TODO: implement deleteUserData
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Result<void>> editUserPassword(String email) {
-    // TODO: implement editUserPassword
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Result<UserDataModel>> getFirebaseUserData(String email) {
-    // TODO: implement getFirebaseUserData
-    throw UnimplementedError();
   }
 
   @override
@@ -76,4 +60,66 @@ class UserDataRepositoryImpl implements UserDataRepository {
       return Result.error(message);
     });
   }
+
+  @override
+  Future<Result<UserDataModel>> userLogIn(String email, String password) async {
+    final result = await FirebaseAuthUserData().loginByEmail(email, password);
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<Result<void>> logOutUser() async {
+    final result = await FirebaseAuthUserData().firebaseLogout();
+    return result.when(success: (data) {
+      return const Result.success(null);
+    }, error: (String message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<Result<void>> signOutUser() async {
+    final result = await FirebaseAuthUserData().firebaseSignOut();
+    return result.when(success: (data) {
+      return const Result.success(null);
+    }, error: (String message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<Result<bool>> checkEmailVerified() async {
+    final result = await FirebaseAuthUserData().checkEmailVerified();
+    return result.when(success: (data) {
+      return Result.success(data);
+    }, error: (String message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<Result<void>> deleteUserData(String email) {
+    // TODO: implement deleteUserData
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<void>> editUserPassword(String email) {
+    // TODO: implement editUserPassword
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<UserDataModel>> getFirebaseUserData(String email) {
+    // TODO: implement getFirebaseUserData
+    throw UnimplementedError();
+  }
+
+
 }

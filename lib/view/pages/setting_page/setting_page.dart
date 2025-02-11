@@ -42,23 +42,41 @@ class _SettingPageState extends State<SettingPage> {
                 splashColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 onTap: () async {
-                  //TODO: 탈퇴기능 넣기
-
-                  // if (viewModel.languageController.value != null &&
-                  //     viewModel.targetLanguageController.value != null) {
-                  //   // await viewModel.applyAndSaveSettings();
-                  //   if (context.mounted) {
-                  //     context.go('/day_sentence_page',
-                  //         extra: {'resetNavigation': widget.resetNavigation});
-                  //   }
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text('Please select a language'),
-                  //       duration: Duration(seconds: 2),
-                  //     ),
-                  //   );
-                  // }
+                  viewModel.logOutUser(context);
+                },
+                child: Ink(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          width: 2,
+                          color: (state.tapped)
+                              ? const Color(0xff4FB0C6)
+                              : const Color(0xff54D1DB)),
+                      borderRadius: BorderRadius.circular(20),
+                      color: (state.tapped)
+                          ? const Color(0xff4FB0C6)
+                          : const Color(0xFFEBF4F6)),
+                  height: 50,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Log Out',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: (state.tapped) ? Colors.white : Colors.black),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: InkWell(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                onTap: () async {
+                  viewModel.signOutUser(context);
                 },
                 child: Ink(
                   decoration: BoxDecoration(

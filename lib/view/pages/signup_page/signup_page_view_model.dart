@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/use_case/user_data/check_email_verified_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_state.dart';
 import 'package:go_router/go_router.dart';
@@ -11,11 +14,15 @@ import '../../../utils/simple_logger.dart';
 
 class SignupPageViewModel with ChangeNotifier {
   final SignUpByEmailUseCase _signUpByEmailUseCase;
+  final CheckEmailVerifiedUseCase _checkEmailVerifiedUseCase;
+  final _emailVerificationController = StreamController<bool>.broadcast();
   SharedPreferences? prefs;
 
   SignupPageViewModel({
     required SignUpByEmailUseCase signUpByEmailUseCase,
-  }) : _signUpByEmailUseCase = signUpByEmailUseCase;
+    required CheckEmailVerifiedUseCase checkEmailVerifiedUseCase,
+  })  : _signUpByEmailUseCase = signUpByEmailUseCase,
+        _checkEmailVerifiedUseCase = checkEmailVerifiedUseCase;
 
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -25,6 +32,9 @@ class SignupPageViewModel with ChangeNotifier {
 
   SignupPageState get state => _state;
 
+  Stream<bool> get emailVerificationStream =>
+      _emailVerificationController.stream;
+
   bool _disposed = false;
 
   @override
@@ -33,6 +43,7 @@ class SignupPageViewModel with ChangeNotifier {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    _emailVerificationController.close();
     super.dispose();
   }
 
@@ -107,23 +118,9 @@ class SignupPageViewModel with ChangeNotifier {
           final result = await _signUpByEmailUseCase.execute(email, password);
           switch (result) {
             case Success<UserDataModel>():
-
               await prefs!.setString('userEmail', result.data.email);
-              if (context.mounted) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return OneAnswerDialog(
-                      onTap: () {
-                        context.go('/find_WG_page');
-                      },
-                      title: 'SignUp',
-                      subtitle: 'Successfully!',
-                      firstButton: 'OK',
-                    );
-                  },
-                );
-              }
+              // 이메일 인증 체크 시작
+              await startEmailVerificationCheck();
             case Error<UserDataModel>():
               // 이메일 중복검사
               if (context.mounted && result.message == 'used email') {
@@ -136,6 +133,21 @@ class SignupPageViewModel with ChangeNotifier {
                         },
                         title: 'Signup failed!',
                         subtitle: 'E-mail in use',
+                        firstButton: 'OK');
+                  },
+                );
+                return;
+              } else if ((context.mounted &&
+                  result.message == 'recently deactivated user')) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return OneAnswerDialog(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        title: 'Signup failed!',
+                        subtitle: 'recently deactivated E-mail',
                         firstButton: 'OK');
                   },
                 );
@@ -155,6 +167,7 @@ class SignupPageViewModel with ChangeNotifier {
     }
   }
 
+  // 비밀번호 유효성 검사
   void validatePassword(String password) {
     _state = state.copyWith(
         hasUpperCase: password.contains(RegExp(r'[A-Z]')), // 대문자 포함 여부
@@ -170,5 +183,25 @@ class SignupPageViewModel with ChangeNotifier {
         RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
     _state = state.copyWith(isEmailValid: emailRegExp.hasMatch(email));
     notifyListeners();
+  }
+
+  // 이메일 인증여부 구독
+  Future<void> startEmailVerificationCheck() async {
+    while (!_emailVerificationController.isClosed) {
+      final result = await _checkEmailVerifiedUseCase.execute();
+      switch (result) {
+        case Success<bool>():
+          if (result.data == true) {
+            _emailVerificationController.add(result.data);
+            break;
+          } else {
+            _emailVerificationController.add(result.data);
+            await Future.delayed(const Duration(seconds: 3));
+          }
+        case Error<bool>():
+          logger.info(result.message);
+          break;
+      }
+    }
   }
 }
