@@ -30,8 +30,8 @@ void diSetup() {
         SignUpByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<CheckEmailVerifiedUseCase>(CheckEmailVerifiedUseCase(
         userDataRepository: getIt<UserDataRepository>()))
-    ..registerSingleton<LogInByEmailUseCase>(LogInByEmailUseCase(
-        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<LogInByEmailUseCase>(
+        LogInByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignInWithFacebookUseCase>(SignInWithFacebookUseCase(
@@ -51,7 +51,8 @@ void diSetup() {
         logInByEmailUseCase: getIt<LogInByEmailUseCase>(),
         signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
         signInWithFacebookUseCase: getIt<SignInWithFacebookUseCase>(),
-        signInWithAppleUseCase: getIt<SignInWithAppleUseCase>()))
+        signInWithAppleUseCase: getIt<SignInWithAppleUseCase>(),
+        checkEmailVerifiedUseCase: getIt<CheckEmailVerifiedUseCase>()))
     ..registerFactory<SignupPageViewModel>(() => SignupPageViewModel(
         signUpByEmailUseCase: getIt<SignUpByEmailUseCase>(),
         checkEmailVerifiedUseCase: getIt<CheckEmailVerifiedUseCase>()))
