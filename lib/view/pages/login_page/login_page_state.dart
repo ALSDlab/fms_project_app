@@ -7,6 +7,7 @@ part 'login_page_state.g.dart';
 class LoginPageState with _$LoginPageState {
   const factory LoginPageState({
     @Default(false) bool isLoading,
+    @Default(false) bool loginCheck,
     @Default('') String errorEmailText,
     @Default('') String errorPasswordText,
 

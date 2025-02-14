@@ -22,6 +22,8 @@ class SettingPageViewModel with ChangeNotifier {
         _signOutByEmailUseCase = signOutByEmailUseCase {
     languageNames = languages.map((lang) => lang['name']!).toList();
     targetLanguageNames = languages.map((lang) => lang['name']!).toList();
+
+    _initPrefs();
   }
 
   final List<Map<String, String>> languages = [
@@ -61,13 +63,17 @@ class SettingPageViewModel with ChangeNotifier {
     }
   }
 
+  Future<void> _initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   // 로그아웃
   Future<void> logOutUser(BuildContext context) async {
-    _state = state.copyWith(isLoading: true);
+    _state = state.copyWith(isLoading: true, tapped: true);
     notifyListeners();
 
     try {
-      showDialog(
+      final shouldLogOut = await showDialog<bool>(
         context: context,
         builder: (context) {
           return TwoAnswerDialog(
@@ -75,42 +81,46 @@ class SettingPageViewModel with ChangeNotifier {
             subtitle: 'Log Out',
             firstButton: 'OK',
             secondButton: 'Cancel',
-            onTap: () async {
-              final result = await _logOutByEmailUseCase.execute();
-              switch (result) {
-                case Success<void>():
-                  // 로그아웃 시 로그인 페이지로 이동
-                  if (prefs != null) {
-                    final resetUser = await prefs!.remove('userEmail');
-                    if (context.mounted && resetUser) {
-                      print('로그아웃 성공');
-                      GoRouter.of(context).go('/login_page');
-                    }
-                  }
-                  break;
-                case Error<void>():
-                  logger.info(result.message);
-                  break;
-              }
+            onTap: () {
+              // 다이얼로그를 닫고 true를 반환
+              context.pop(true);
             },
           );
         },
       );
+
+      if (shouldLogOut == true) {
+        final result = await _logOutByEmailUseCase.execute();
+        switch (result) {
+          case Success<void>():
+            // 로그아웃 시 로그인 페이지로 이동
+            if (prefs != null) {
+              final resetUser = await prefs!.remove('userEmail');
+              if (context.mounted && resetUser) {
+                GoRouter.of(context).go('/login_page');
+              }
+            }
+            break;
+          case Error<void>():
+            logger.info(result.message);
+            break;
+        }
+      }
     } catch (error) {
       logger.info('Error log out: $error');
     } finally {
-      _state = state.copyWith(isLoading: false);
+      _state = state.copyWith(isLoading: false, tapped: false);
       notifyListeners();
     }
   }
 
   // 회원탈퇴
   Future<void> signOutUser(BuildContext context) async {
-    _state = state.copyWith(isLoading: true);
+    _state = state.copyWith(isLoading: true, tapped: true);
     notifyListeners();
 
     try {
-      showDialog(
+      final shouldSignOut = await showDialog<bool>(
         context: context,
         builder: (context) {
           return TwoAnswerDialog(
@@ -118,29 +128,34 @@ class SettingPageViewModel with ChangeNotifier {
             subtitle: 'You cannot rejoin for one week.',
             firstButton: 'OK',
             secondButton: 'Cancel',
-            onTap: () async {
-              final result = await _signOutByEmailUseCase.execute();
-              switch (result) {
-                case Success<void>():
-                // 회원탈퇴 시 로그인 페이지로 이동
-                  if (prefs != null) {
-                    await prefs!.remove('userEmail');
-                    if (context.mounted) {
-                      GoRouter.of(context).go('/login_page');
-                    }
-                  }
-                case Error<void>():
-                  logger.info(result.message);
-                  break;
-              }
+            onTap: () {
+              // 다이얼로그를 닫고 true를 반환
+              context.pop(true);
             },
           );
         },
       );
+
+      if (shouldSignOut == true) {
+        final result = await _signOutByEmailUseCase.execute();
+        switch (result) {
+          case Success<void>():
+            // 회원탈퇴 시 로그인 페이지로 이동
+            if (prefs != null) {
+              await prefs!.remove('userEmail');
+              if (context.mounted) {
+                GoRouter.of(context).go('/login_page');
+              }
+            }
+          case Error<void>():
+            logger.info(result.message);
+            break;
+        }
+      }
     } catch (error) {
       logger.info('Error log out: $error');
     } finally {
-      _state = state.copyWith(isLoading: false);
+      _state = state.copyWith(isLoading: false, tapped: false);
       notifyListeners();
     }
   }

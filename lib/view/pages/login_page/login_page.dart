@@ -22,19 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
 
-  var idController = TextEditingController();
-  var idControllerFocusNode = FocusNode();
-  var passwordController = TextEditingController();
-  var passwordControllerFocusNode = FocusNode();
-
   StreamSubscription? authStateChanges;
-
-  @override
-  void dispose() {
-    super.dispose();
-    idController.dispose();
-    passwordController.dispose();
-  }
 
   @override
   void initState() {
@@ -45,13 +33,17 @@ class _LoginPageState extends State<LoginPage> {
 
         loginViewModel
             .initPreferences()
-            .then((value) => idController.text = value);
-      }
-    });
-    authStateChanges = FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null && mounted) {
-        GoRouter.of(context).go('/find_WG_page');
-        return;
+            .then((value) => loginViewModel.idController.text = value);
+        authStateChanges =
+            FirebaseAuth.instance.authStateChanges().listen((user) {
+          if (user != null &&
+              user.emailVerified &&
+              !loginViewModel.state.loginCheck &&
+              mounted) {
+            GoRouter.of(context).go('/find_WG_page');
+            return;
+          }
+        });
       }
     });
   }
@@ -157,15 +149,18 @@ class _LoginPageState extends State<LoginPage> {
                                       child: Column(
                                         children: [
                                           CustomTextFormField(
-                                            controller: idController,
-                                            focusNode: idControllerFocusNode,
+                                            controller: viewModel.idController,
+                                            focusNode:
+                                                viewModel.idControllerFocusNode,
                                             hintText: 'Enter your email',
                                             errorText: state.errorEmailText,
                                             onChanged: (value) {
                                               if (value.isEmpty) {
-                                                viewModel.changeErrorEmailText('필수항목입니다.');
+                                                viewModel.changeErrorEmailText(
+                                                    '필수항목입니다.');
                                               } else {
-                                                viewModel.changeErrorEmailText('');
+                                                viewModel
+                                                    .changeErrorEmailText('');
                                               }
                                             },
                                           ),
@@ -173,16 +168,22 @@ class _LoginPageState extends State<LoginPage> {
                                             height: 10.h,
                                           ),
                                           CustomTextFormField(
-                                            controller: passwordController,
-                                            focusNode: passwordControllerFocusNode,
+                                            controller:
+                                                viewModel.passwordController,
+                                            focusNode: viewModel
+                                                .passwordControllerFocusNode,
                                             hintText: 'Password',
                                             obscureText: true,
                                             errorText: state.errorPasswordText,
                                             onChanged: (value) {
                                               if (value.isEmpty) {
-                                                viewModel.changeErrorPasswordText('필수항목입니다.');
+                                                viewModel
+                                                    .changeErrorPasswordText(
+                                                        '필수항목입니다.');
                                               } else {
-                                                viewModel.changeErrorPasswordText('');
+                                                viewModel
+                                                    .changeErrorPasswordText(
+                                                        '');
                                               }
                                             },
                                           ),
@@ -212,9 +213,10 @@ class _LoginPageState extends State<LoginPage> {
                                                 Color(0xFF008080)),
                                       ),
                                       onPressed: () async {
-                                        // 로그인 화면 통과
-                                        GoRouter.of(context)
-                                            .go('/find_WG_page');
+                                        await viewModel.userLogIn(
+                                            viewModel.idController.text,
+                                            viewModel.passwordController.text,
+                                            context);
 
                                         // setState(() {
                                         //   _errorIdText =
@@ -280,17 +282,20 @@ class _LoginPageState extends State<LoginPage> {
                               SocialLoginButton(
                                 imagePath: 'assets/images/IOS_Google_icon.png',
                                 text: 'Sign in with Google',
-                                onTap: () => viewModel.signInAndLoginWithGoogle(context),
+                                onTap: () =>
+                                    viewModel.signInAndLoginWithGoogle(context),
                               ),
                               SocialLoginButton(
                                 imagePath: 'assets/images/Facebook_Logo.png',
                                 text: 'Sign in with Facebook',
-                                onTap: () => viewModel.signInAndLoginWithFacebook(context),
+                                onTap: () => viewModel
+                                    .signInAndLoginWithFacebook(context),
                               ),
                               SocialLoginButton(
                                 imagePath: 'assets/images/Apple_logo_black.png',
                                 text: 'Sign in with Apple',
-                                onTap: () => viewModel.signInAndLoginWithApple(context),
+                                onTap: () =>
+                                    viewModel.signInAndLoginWithApple(context),
                               ),
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(

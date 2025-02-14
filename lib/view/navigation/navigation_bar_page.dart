@@ -89,8 +89,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       _isDialogShowing = true;
       showConnectionErrorDialog();
     } else if (_status == Status.available && _isDialogShowing) {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
+      if (context.canPop()) {
+        context.pop();
         _isDialogShowing = false;
       }
     }
@@ -106,7 +106,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
         return OneAnswerDialog(
           onTap: () {
             _isDialogShowing = false;
-            Navigator.pop(context);
+            context.pop();
           },
           title: 'CHECK WIFI',
           firstButton: 'OK',
@@ -202,8 +202,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
           if (_status == Status.unavailable) {
             showConnectionErrorDialog();
           } else {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
+            if (context.canPop()) {
+              context.pop();
             }
             _goOtherTab(context, index, viewModel.resetNavigation);
           }

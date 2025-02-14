@@ -21,6 +21,7 @@ LoginPageState _$LoginPageStateFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$LoginPageState {
   bool get isLoading => throw _privateConstructorUsedError;
+  bool get loginCheck => throw _privateConstructorUsedError;
   String get errorEmailText => throw _privateConstructorUsedError;
   String get errorPasswordText => throw _privateConstructorUsedError;
 
@@ -40,7 +41,11 @@ abstract class $LoginPageStateCopyWith<$Res> {
           LoginPageState value, $Res Function(LoginPageState) then) =
       _$LoginPageStateCopyWithImpl<$Res, LoginPageState>;
   @useResult
-  $Res call({bool isLoading, String errorEmailText, String errorPasswordText});
+  $Res call(
+      {bool isLoading,
+      bool loginCheck,
+      String errorEmailText,
+      String errorPasswordText});
 }
 
 /// @nodoc
@@ -59,6 +64,7 @@ class _$LoginPageStateCopyWithImpl<$Res, $Val extends LoginPageState>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? loginCheck = null,
     Object? errorEmailText = null,
     Object? errorPasswordText = null,
   }) {
@@ -66,6 +72,10 @@ class _$LoginPageStateCopyWithImpl<$Res, $Val extends LoginPageState>
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      loginCheck: null == loginCheck
+          ? _value.loginCheck
+          : loginCheck // ignore: cast_nullable_to_non_nullable
               as bool,
       errorEmailText: null == errorEmailText
           ? _value.errorEmailText
@@ -87,7 +97,11 @@ abstract class _$$LoginPageStateImplCopyWith<$Res>
       __$$LoginPageStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isLoading, String errorEmailText, String errorPasswordText});
+  $Res call(
+      {bool isLoading,
+      bool loginCheck,
+      String errorEmailText,
+      String errorPasswordText});
 }
 
 /// @nodoc
@@ -104,6 +118,7 @@ class __$$LoginPageStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? loginCheck = null,
     Object? errorEmailText = null,
     Object? errorPasswordText = null,
   }) {
@@ -111,6 +126,10 @@ class __$$LoginPageStateImplCopyWithImpl<$Res>
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      loginCheck: null == loginCheck
+          ? _value.loginCheck
+          : loginCheck // ignore: cast_nullable_to_non_nullable
               as bool,
       errorEmailText: null == errorEmailText
           ? _value.errorEmailText
@@ -129,6 +148,7 @@ class __$$LoginPageStateImplCopyWithImpl<$Res>
 class _$LoginPageStateImpl implements _LoginPageState {
   const _$LoginPageStateImpl(
       {this.isLoading = false,
+      this.loginCheck = false,
       this.errorEmailText = '',
       this.errorPasswordText = ''});
 
@@ -140,6 +160,9 @@ class _$LoginPageStateImpl implements _LoginPageState {
   final bool isLoading;
   @override
   @JsonKey()
+  final bool loginCheck;
+  @override
+  @JsonKey()
   final String errorEmailText;
   @override
   @JsonKey()
@@ -147,7 +170,7 @@ class _$LoginPageStateImpl implements _LoginPageState {
 
   @override
   String toString() {
-    return 'LoginPageState(isLoading: $isLoading, errorEmailText: $errorEmailText, errorPasswordText: $errorPasswordText)';
+    return 'LoginPageState(isLoading: $isLoading, loginCheck: $loginCheck, errorEmailText: $errorEmailText, errorPasswordText: $errorPasswordText)';
   }
 
   @override
@@ -157,6 +180,8 @@ class _$LoginPageStateImpl implements _LoginPageState {
             other is _$LoginPageStateImpl &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.loginCheck, loginCheck) ||
+                other.loginCheck == loginCheck) &&
             (identical(other.errorEmailText, errorEmailText) ||
                 other.errorEmailText == errorEmailText) &&
             (identical(other.errorPasswordText, errorPasswordText) ||
@@ -165,8 +190,8 @@ class _$LoginPageStateImpl implements _LoginPageState {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, isLoading, errorEmailText, errorPasswordText);
+  int get hashCode => Object.hash(
+      runtimeType, isLoading, loginCheck, errorEmailText, errorPasswordText);
 
   /// Create a copy of LoginPageState
   /// with the given fields replaced by the non-null parameter values.
@@ -188,6 +213,7 @@ class _$LoginPageStateImpl implements _LoginPageState {
 abstract class _LoginPageState implements LoginPageState {
   const factory _LoginPageState(
       {final bool isLoading,
+      final bool loginCheck,
       final String errorEmailText,
       final String errorPasswordText}) = _$LoginPageStateImpl;
 
@@ -196,6 +222,8 @@ abstract class _LoginPageState implements LoginPageState {
 
   @override
   bool get isLoading;
+  @override
+  bool get loginCheck;
   @override
   String get errorEmailText;
   @override

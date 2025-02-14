@@ -10,15 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../domain/use_case/user_data/sign_in_with_apple_use_case.dart';
 import '../../../utils/one_answer_dialog.dart';
 import '../../../utils/simple_logger.dart';
+import '../../../utils/two_answer_dialog.dart';
 import 'login_page_state.dart';
-
-SharedPreferences? prefs;
 
 class LoginPageViewModel with ChangeNotifier {
   final LogInByEmailUseCase _logInByEmailUseCase;
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithFacebookUseCase _signInWithFacebookUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
+  SharedPreferences? prefs;
 
   LoginPageViewModel({
     required LogInByEmailUseCase logInByEmailUseCase,
@@ -28,7 +28,14 @@ class LoginPageViewModel with ChangeNotifier {
   })  : _logInByEmailUseCase = logInByEmailUseCase,
         _signInWithGoogleUseCase = signInWithGoogleUseCase,
         _signInWithFacebookUseCase = signInWithFacebookUseCase,
-        _signInWithAppleUseCase = signInWithAppleUseCase;
+        _signInWithAppleUseCase = signInWithAppleUseCase {
+    _initPrefs();
+  }
+
+  var idController = TextEditingController();
+  var idControllerFocusNode = FocusNode();
+  var passwordController = TextEditingController();
+  var passwordControllerFocusNode = FocusNode();
 
   LoginPageState _state = const LoginPageState();
 
@@ -40,6 +47,8 @@ class LoginPageViewModel with ChangeNotifier {
   void dispose() {
     _disposed = true;
     super.dispose();
+    idController.dispose();
+    passwordController.dispose();
   }
 
   @override
@@ -49,63 +58,98 @@ class LoginPageViewModel with ChangeNotifier {
     }
   }
 
+  // 에러 다이얼로그 표시를 위한 헬퍼 메서드
+  void _showError(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => OneAnswerDialog(
+        onTap: () => context.pop(),
+        title: title,
+        subtitle: message,
+        firstButton: 'OK',
+      ),
+    );
+  }
+
+  Future<void> _initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   void changeErrorEmailText(String errorText) {
     _state = state.copyWith(errorEmailText: errorText);
     notifyListeners();
-}
+  }
 
   void changeErrorPasswordText(String errorText) {
     _state = state.copyWith(errorPasswordText: errorText);
     notifyListeners();
   }
 
-
-  Future userLogIn(String? email, String? password, BuildContext context) async {
+  Future<void> userLogIn(
+      String? email, String? password, BuildContext context) async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
 
     try {
       if (email == null) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return OneAnswerDialog(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                title: 'Error',
-                subtitle: 'Empty e-mail',
-                firstButton: 'OK');
-          },
-        );
+        _showError(context, 'Error', 'Empty e-mail');
         return;
-      }
-      else if (password == null) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return OneAnswerDialog(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                title: 'Error',
-                subtitle: 'Empty password',
-                firstButton: 'OK');
-          },
-        );
+      } else if (password == null) {
+        _showError(context, 'Error', 'Empty password');
         return;
-      }
-      else {
+      } else {
+        _state = state.copyWith(loginCheck: true);
         final result = await _logInByEmailUseCase.execute(email, password);
+
         switch (result) {
           case Success<UserDataModel>():
-            if(context.mounted) {
-              GoRouter.of(context).go('/find_WG_page');
+            await prefs!.setString('userEmail', result.data.email);
+            if (context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return OneAnswerDialog(
+                      onTap: () {
+                        GoRouter.of(context).go('/find_WG_page');
+                      },
+                      title: 'Login',
+                      subtitle: 'Success',
+                      firstButton: 'OK');
+                },
+              );
             }
           case Error<UserDataModel>():
-            //TODO: 각종에러 표시
+            if (context.mounted) {
+              if (result.message == 'not verified') {
+                _showError(context, 'Error', 'Not verified yet');
+                return;
+              } else if (result.message == 'no email') {
+                final goToSignUp = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return TwoAnswerDialog(
+                      title: 'Not registered E-mail',
+                      subtitle: 'Go to sign-up page?',
+                      firstButton: 'OK',
+                      secondButton: 'Cancel',
+                      onTap: () {
+                        // 다이얼로그를 닫고 true를 반환
+                        context.pop(true);
+                      },
+                    );
+                  },
+                );
+                if (goToSignUp == true && context.mounted) {
+                  GoRouter.of(context).go('/login_page/signup_page');
+                }
 
+                return;
+              } else if (result.message == 'invalid-credential') {
+                _showError(context, 'Error', 'Wrong password');
 
+                return;
+              }
+            }
         }
       }
     } catch (error) {
@@ -118,7 +162,7 @@ class LoginPageViewModel with ChangeNotifier {
 
   Future<String> initPreferences() async {
     prefs = await SharedPreferences.getInstance();
-    String idMemory = prefs!.getString('_email') ?? '';
+    String idMemory = prefs!.getString('userEmail') ?? '';
     return idMemory;
   }
 

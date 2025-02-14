@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +8,6 @@ import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 
-import '../../domain/model/user_data_model.dart';
 import '../../utils/simple_logger.dart';
 import '../core/result.dart';
 
@@ -22,22 +23,29 @@ class FirebaseAuthUserData {
           .collection('user_data')
           .where('email', isEqualTo: email)
           .get();
-      DateTime now = DateTime.now();
-      String isSignOut = query.docs.first.data()['signOutDate'];
-      DateTime savedDateTime =
-          DateFormat('yyyy-MM-dd HH:mm:ss').parse(isSignOut);
 
-      // 두 날짜의 차이 계산
-      Duration difference = now.difference(savedDateTime);
-      if (isSignOut != '') {
-        return const Result.success(true); // 이미 사용 중: true
-      } else if (difference.inDays > 7) {
-        return const Result.success(false); // 최근(7일 이내) 탈퇴한 유저: false
-      } else {
-        return const Result.error('you can signIn');
+      if (query.docs.isNotEmpty) {
+        DateTime now = DateTime.now();
+        String? isSignOut = query.docs.first.data()['signOutDate'];
+        if (isSignOut != null && isSignOut != '') {
+          DateTime savedDateTime =
+              DateFormat('yyyy-MM-dd HH:mm:ss').parse(isSignOut);
+
+          // 두 날짜의 차이 계산
+          Duration difference = now.difference(savedDateTime);
+          if (difference.inDays <= 7) {
+            return const Result.success(false); // 최근(7일 이내) 탈퇴한 유저: false
+          } else {
+            String? userId = _auth.currentUser?.uid;
+            await _firestore.collection('user_data').doc(userId).delete();
+            return const Result.error('you can signIn');
+          }
+        } else if (isSignOut == '') {
+          return const Result.success(true); // 이미 사용 중: true
+        }
       }
+      return const Result.error('you can signIn');
     } catch (e) {
-      // ignore: avoid_print
       logger.info('에러: $e');
       return Result.error(e.toString());
     }
@@ -51,12 +59,10 @@ class FirebaseAuthUserData {
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
-      ).then((value) async {
-            //회원가입 성공시
-            await value.user!.sendEmailVerification();
-            return value;
-          });
+      );
+      // 이메일 인증 메일 발송
 
+      await userCredential.user!.sendEmailVerification();
       final docId = userCredential.user!.uid;
 
       // 유저데이터 id 체크
@@ -97,13 +103,32 @@ class FirebaseAuthUserData {
   // 이메일 인증확인
   Future<Result<bool>> checkEmailVerified() async {
     try {
-      await user?.reload();
-      user = _auth.currentUser;
-      if (user != null && user!.emailVerified) {
-        return const Result.success(true);
-      } else {
-        return const Result.success(false);
-      }
+      final Completer<bool> completer = Completer<bool>();
+      const Duration checkInterval = Duration(seconds: 3);
+      const int maxAttempts = 60; // 최대 3분 (60회 시도)
+
+      int attemptCount = 0;
+
+      Timer.periodic(checkInterval, (timer) async {
+        User? user = _auth.currentUser;
+        await user?.reload(); // Firebase 정보 갱신
+
+        if (user != null && user.emailVerified) {
+          timer.cancel(); // 타이머 중지
+          if (!completer.isCompleted) {
+            completer.complete(true); // 이메일 인증됨
+          }
+        } else if (attemptCount >= maxAttempts) {
+          timer.cancel(); // 타임아웃
+          if (!completer.isCompleted) {
+            completer.complete(false);
+          }
+        }
+        attemptCount++;
+      });
+
+      bool isVerified = await completer.future;
+      return Result.success(isVerified);
     } catch (e) {
       logger.info('Firestore 이메일 인증확인 에러 => $e');
       return Result.error(e.toString());
@@ -111,28 +136,36 @@ class FirebaseAuthUserData {
   }
 
   // 이메일 로그인
-  Future<Result<UserDataDto>> loginByEmail(String email, String password) async {
+  Future<Result<UserDataDto>> loginByEmail(
+      String email, String password) async {
     try {
-      final result = await _auth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((value) async {
-        final docId = value.user!.uid;
-        DocumentSnapshot docSnapshot =
-        await _firestore.collection('user_data').doc(docId).get();
+      // 이메일 존재 여부 먼저 확인
+      QuerySnapshot<Map<String, dynamic>> query = await _firestore
+          .collection('user_data')
+          .where('email', isEqualTo: email).where('signOutDate', isEqualTo: '')
+          .get();
 
-        final UserDataDto userData =
-        UserDataDto.fromJson(docSnapshot.data() as Map<String, dynamic>);
+      if (query.docs.isEmpty) {
+        return const Result.error('no email');
+      }
+      final authResult = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      final docId = authResult.user!.uid;
+      DocumentSnapshot docSnapshot =
+          await _firestore.collection('user_data').doc(docId).get();
 
-        value.user!.emailVerified == true //이메일 인증 여부
-            ? Result.success(userData) : const Result.error('not verified');
-      });
-      return result;
+      final UserDataDto userData =
+          UserDataDto.fromJson(docSnapshot.data() as Map<String, dynamic>);
+
+      // 이메일 인증 여부에 따라 Result 반환
+      return authResult.user!.emailVerified
+          ? Result.success(userData)
+          : const Result.error('not verified');
     } on FirebaseAuthException catch (e) {
       //로그인 예외처리
-      if (e.code == 'user-not-found') {
-        return Result.error(e.toString());
-      } else if (e.code == 'wrong-password') {
-        return Result.error(e.toString());
+      print(e.code);
+      if (e.code == 'invalid-credential') {
+        return Result.error(e.code);
       } else {
         logger.info('Firestore 이메일 로그인 에러 => $e');
         return Result.error(e.toString());
@@ -351,6 +384,27 @@ class FirebaseAuthUserData {
 
   // 회원탈퇴
   Future<Result<void>> firebaseSignOut() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      DateTime now = DateTime.now(); // 현재 날짜와 시간
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+
+      if (currentUser != null) {
+        await currentUser.delete();
+      }
+      await _firestore.collection('user_data').doc(currentUser?.uid).update({
+        'isSignOut': false,
+        'signOutDate': formattedDate,
+      });
+      return const Result.success(null);
+    } catch (e) {
+      logger.info('Firestore 회원탈퇴 에러 => $e');
+      return Result.error(e.toString());
+    }
+  }
+
+  // 회원정보 삭제
+  Future<Result<void>> firebaseDeleteData() async {
     try {
       User? currentUser = _auth.currentUser;
       DateTime now = DateTime.now(); // 현재 날짜와 시간
