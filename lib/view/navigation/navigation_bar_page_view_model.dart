@@ -1,8 +1,4 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 class NavigationBarPageViewModel with ChangeNotifier {
   bool badgeValue = false;
@@ -13,8 +9,8 @@ class NavigationBarPageViewModel with ChangeNotifier {
   }
 
   Future<void> generateDocId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final savedDocId = prefs.getString('my_docId');
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // final savedDocId = prefs.getString('my_docId');
 
     // if (savedDocId == null) {
     //   String letters =

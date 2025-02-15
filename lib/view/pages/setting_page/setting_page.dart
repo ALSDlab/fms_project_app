@@ -37,7 +37,7 @@ class _SettingPageState extends State<SettingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Spacer(),
-                  Center(
+                  const Center(
                     child: Text('setting page'),
                   ),
                   const Spacer(),

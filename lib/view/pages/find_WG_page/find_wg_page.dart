@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class UploadWGPage extends StatelessWidget {
-  const UploadWGPage({super.key});
+class FindWGPage extends StatelessWidget {
+  const FindWGPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,11 +10,10 @@ class UploadWGPage extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: const Color(0xFFEBF4F6),
-          title: Text('UploadWG'),
+          title: const Text('FindWG'),
         ),
-        body: Center(
-          child: Text('upload WG page'),
-        )
-    );
+        body: const Center(
+          child: Text('find WG page'),
+        ));
   }
 }

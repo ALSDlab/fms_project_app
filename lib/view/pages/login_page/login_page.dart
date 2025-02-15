@@ -200,16 +200,16 @@ class _LoginPageState extends State<LoginPage> {
                                             0, 16, 0, 0),
                                     child: TextButton(
                                       style: ButtonStyle(
-                                        minimumSize: MaterialStateProperty.all(
+                                        minimumSize: WidgetStateProperty.all(
                                           Size(double.infinity, 52.h),
                                         ),
-                                        shape: const MaterialStatePropertyAll(
+                                        shape: const WidgetStatePropertyAll(
                                           RoundedRectangleBorder(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(10))),
                                         ),
                                         backgroundColor:
-                                            const MaterialStatePropertyAll(
+                                            const WidgetStatePropertyAll(
                                                 Color(0xFF008080)),
                                       ),
                                       onPressed: () async {

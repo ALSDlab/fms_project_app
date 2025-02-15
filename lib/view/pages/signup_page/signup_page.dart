@@ -1,14 +1,10 @@
-import 'dart:async';
-
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/custom_text_form_field.dart';
 import '../../../utils/gif_progress_bar.dart';
-import '../../../utils/one_answer_dialog.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

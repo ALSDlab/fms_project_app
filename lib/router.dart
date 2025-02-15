@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fmsproject/view/navigation/navigation_bar_page.dart';
 import 'package:fmsproject/view/navigation/navigation_bar_page_view_model.dart';
-import 'package:fmsproject/view/pages/find_WG_page/find_WG_page.dart';
-import 'package:fmsproject/view/pages/find_WG_page/find_WG_page_view_model.dart';
+import 'package:fmsproject/view/pages/find_WG_page/find_wg_page.dart';
+import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_view_model.dart';
 import 'package:fmsproject/view/pages/login_page/login_page.dart';
 import 'package:fmsproject/view/pages/login_page/login_page_view_model.dart';
 import 'package:fmsproject/view/pages/my_history_page/my_history_page.dart';
@@ -12,8 +12,8 @@ import 'package:fmsproject/view/pages/setting_page/setting_page_view_model.dart'
 import 'package:fmsproject/view/pages/signup_page/signup_page.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
 import 'package:fmsproject/view/pages/splash_page/splash_page.dart';
-import 'package:fmsproject/view/pages/upload_WG_page/upload_WG_page.dart';
-import 'package:fmsproject/view/pages/upload_WG_page/upload_WG_page_view_model.dart';
+import 'package:fmsproject/view/pages/upload_WG_page/upload_wg_page.dart';
+import 'package:fmsproject/view/pages/upload_WG_page/upload_wg_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -82,12 +82,12 @@ final router = GoRouter(
           GoRoute(
             path: '/find_WG_page',
             builder: (context, state) {
-              final navigationViewModel =
-                  Provider.of<NavigationBarPageViewModel>(context,
-                      listen: false);
+              // final navigationViewModel =
+              //     Provider.of<NavigationBarPageViewModel>(context,
+              //         listen: false);
               return ChangeNotifierProvider(
                 create: (_) => getIt<FindWGPageViewModel>(),
-                child: FindWGPage(
+                child: const FindWGPage(
                     // resetNavigation: navigationViewModel.resetNavigation,
                     ),
               );
@@ -96,12 +96,12 @@ final router = GoRouter(
           GoRoute(
             path: '/upload_WG_page',
             builder: (context, state) {
-              final navigationViewModel =
-                  Provider.of<NavigationBarPageViewModel>(context,
-                      listen: false);
+              // final navigationViewModel =
+              //     Provider.of<NavigationBarPageViewModel>(context,
+              //         listen: false);
               return ChangeNotifierProvider(
                 create: (_) => getIt<UploadWGPageViewModel>(),
-                child: UploadWGPage(
+                child: const UploadWGPage(
                     // resetNavigation: navigationViewModel.resetNavigation,
                     ),
               );

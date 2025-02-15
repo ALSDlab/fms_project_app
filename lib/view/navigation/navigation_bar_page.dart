@@ -13,10 +13,6 @@ import '../../data/repository/connectivity_observer.dart';
 import '../../data/repository/network_connectivity_observer.dart';
 import '../../utils/one_answer_dialog.dart';
 import '../../utils/simple_logger.dart';
-import '../pages/find_WG_page/find_WG_page_view_model.dart';
-import '../pages/my_history_page/my_history_page_view_model.dart';
-import '../pages/setting_page/setting_page_view_model.dart';
-import '../pages/upload_WG_page/upload_WG_page_view_model.dart';
 import 'navigation_bar_page_view_model.dart';
 
 class NavigationBarPage extends StatefulWidget {
@@ -125,10 +121,10 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationBarPageViewModel>();
-    final findWGPageViewModel = context.watch<FindWGPageViewModel>();
-    final uploadWGPageViewModel = context.watch<UploadWGPageViewModel>();
-    final favoritesViewModel = context.watch<MyHistoryPageViewModel>();
-    final settingPageViewModel = context.watch<SettingPageViewModel>();
+    // final findWGPageViewModel = context.watch<FindWGPageViewModel>();
+    // final uploadWGPageViewModel = context.watch<UploadWGPageViewModel>();
+    // final favoritesViewModel = context.watch<MyHistoryPageViewModel>();
+    // final settingPageViewModel = context.watch<SettingPageViewModel>();
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: StylishBottomBar(

@@ -56,7 +56,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: Text('FMS Project'),
+                child: const Text('FMS Project'),
               ),
             ),
             const SizedBox(height: 6),
@@ -88,7 +88,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     ],
                     onFinished: () {
                       Future.delayed(const Duration(seconds: 1), () {
-                        GoRouter.of(context).go('/login_page');
+                        if (context.mounted) {
+                          GoRouter.of(context).go('/login_page');
+                        }
                       });
                     },
                   ),
