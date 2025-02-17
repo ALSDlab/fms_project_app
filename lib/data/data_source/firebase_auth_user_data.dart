@@ -7,6 +7,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../utils/simple_logger.dart';
 import '../core/result.dart';
@@ -142,7 +143,8 @@ class FirebaseAuthUserData {
       // 이메일 존재 여부 먼저 확인
       QuerySnapshot<Map<String, dynamic>> query = await _firestore
           .collection('user_data')
-          .where('email', isEqualTo: email).where('signOutDate', isEqualTo: '')
+          .where('email', isEqualTo: email)
+          .where('signOutDate', isEqualTo: '')
           .get();
 
       if (query.docs.isEmpty) {
@@ -163,7 +165,6 @@ class FirebaseAuthUserData {
           : const Result.error('not verified');
     } on FirebaseAuthException catch (e) {
       //로그인 예외처리
-      print(e.code);
       if (e.code == 'invalid-credential') {
         return Result.error(e.code);
       } else {
@@ -260,7 +261,8 @@ class FirebaseAuthUserData {
       // by default we request the email and the public profile
       // or FacebookAuth.i.login()
       if (result.status == LoginStatus.success) {
-        final userData = await FacebookAuth.instance.getUserData();
+        final userData = await FacebookAuth.instance
+            .getUserData(fields: 'name, email, picture');
         final email = userData['email'];
         final AccessToken accessToken = result.accessToken!;
         final OAuthCredential credential =
@@ -297,7 +299,7 @@ class FirebaseAuthUserData {
         await _firestore.collection('user_data').doc(docId).set({
           'id': maxId + 1,
           'signUpDate': formattedDate,
-          'email': email,
+          'email': email ?? '',
           'isSignOut': false,
           'signOutDate': '',
         });
@@ -321,9 +323,12 @@ class FirebaseAuthUserData {
   // 애플로 회원가입
   Future<Result<UserDataDto>> signUpWithApple() async {
     try {
-      //TODO: 애플로 로그인 구현
-      final appleProvider = AppleAuthProvider();
       late final UserCredential userCredential; // late 키워드로 선언
+
+      // //TODO: 애플로 로그인 구현
+      final appleProvider = AppleAuthProvider();
+      appleProvider.addScope('email');
+      appleProvider.addScope('fullName');
 
       // Firebase에 로그인
       if (kIsWeb) {
@@ -331,6 +336,23 @@ class FirebaseAuthUserData {
       } else {
         userCredential = await _auth.signInWithProvider(appleProvider);
       }
+
+      // await SignInWithApple.getAppleIDCredential(
+      //   scopes: [
+      //     AppleIDAuthorizationScopes.email,
+      //     AppleIDAuthorizationScopes.fullName,
+      //   ],
+      // ).then((AuthorizationCredentialAppleID appleCredential) async {
+      //   final OAuthCredential credential =
+      //       OAuthProvider('apple.com').credential(
+      //     idToken: appleCredential.identityToken,
+      //     accessToken: appleCredential.authorizationCode,
+      //   );
+      //   print(appleCredential.email);
+      //
+      //   userCredential =
+      //       await FirebaseAuth.instance.signInWithCredential(credential);
+      // });
 
       final docId = userCredential.user!.uid;
 
@@ -354,7 +376,7 @@ class FirebaseAuthUserData {
       await _firestore.collection('user_data').doc(docId).set({
         'id': maxId + 1,
         'signUpDate': formattedDate,
-        'email': user?.email,
+        'email': user?.email ?? '',
         'isSignOut': false,
         'signOutDate': '',
       });

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -217,23 +218,6 @@ class _LoginPageState extends State<LoginPage> {
                                             viewModel.idController.text,
                                             viewModel.passwordController.text,
                                             context);
-
-                                        // setState(() {
-                                        //   _errorIdText =
-                                        //       (idController.text.isEmpty
-                                        //           ? '필수항목입니다.'
-                                        //           : null);
-                                        //   _errorPasswordText =
-                                        //       (passwordController.text.isEmpty
-                                        //           ? '필수항목입니다.'
-                                        //           : null);
-                                        // });
-                                        // if (_formKey.currentState!.validate()) {
-                                        //   // await viewModel.signIn(
-                                        //   //     idController.text,
-                                        //   //     passwordController.text,
-                                        //   //     context);
-                                        // }
                                       },
                                       child: const Text(
                                         'Continue with email',
@@ -291,12 +275,14 @@ class _LoginPageState extends State<LoginPage> {
                                 onTap: () => viewModel
                                     .signInAndLoginWithFacebook(context),
                               ),
-                              SocialLoginButton(
-                                imagePath: 'assets/images/Apple_logo_black.png',
-                                text: 'Sign in with Apple',
-                                onTap: () =>
-                                    viewModel.signInAndLoginWithApple(context),
-                              ),
+                              if (Platform.isIOS)
+                                SocialLoginButton(
+                                  imagePath:
+                                      'assets/images/Apple_logo_black.png',
+                                  text: 'Sign in with Apple',
+                                  onTap: () => viewModel
+                                      .signInAndLoginWithApple(context),
+                                ),
                               Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     0, 0, 0, 0),
