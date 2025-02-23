@@ -45,11 +45,6 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       // 초기 연결 상태 확인
       await Future.delayed(const Duration(milliseconds: 500));
 
-      if (mounted) {
-        final viewModel = context.read<NavigationBarPageViewModel>();
-        await viewModel.generateDocId();
-      }
-
       // 초기 상태 확인 및 타입 처리
       final results = await Connectivity().checkConnectivity();
       final hasConnection = results.any((result) =>
@@ -121,6 +116,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationBarPageViewModel>();
+    final state = viewModel.state;
     // final findWGPageViewModel = context.watch<FindWGPageViewModel>();
     // final uploadWGPageViewModel = context.watch<UploadWGPageViewModel>();
     // final favoritesViewModel = context.watch<MyHistoryPageViewModel>();
@@ -160,7 +156,17 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             selectedIcon: const Icon(BootstrapIcons.bookmark_check_fill),
             selectedColor: const Color(0xFF088395),
             unSelectedColor: CupertinoColors.black,
-            showBadge: viewModel.badgeValue,
+            title: const Text(
+              'HISTORY',
+              style: TextStyle(fontFamily: 'KoPub', fontSize: 10),
+            ),
+          ),
+          BottomBarItem(
+            icon: const Icon(BootstrapIcons.chat_right),
+            selectedIcon: const Icon(BootstrapIcons.chat_right_fill),
+            selectedColor: const Color(0xFF088395),
+            unSelectedColor: CupertinoColors.black,
+            showBadge: state.badgeCount > 0,
             badgeColor: Colors.transparent,
             badge: Container(
               padding: const EdgeInsets.all(6),
@@ -168,9 +174,10 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 color: Colors.red,
                 shape: BoxShape.circle,
               ),
+              child: Text('${state.badgeCount}'),
             ),
             title: const Text(
-              'HISTORY',
+              'Message',
               style: TextStyle(fontFamily: 'KoPub', fontSize: 10),
             ),
           ),
@@ -193,7 +200,9 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 ? 1
                 : widget.location.contains('/history_page')
                     ? 2
-                    : 3,
+                    : widget.location.contains('/chat_list_page')
+                        ? 3
+                        : 4,
         onTap: (int index) {
           if (_status == Status.unavailable) {
             showConnectionErrorDialog();
@@ -201,44 +210,28 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             if (context.canPop()) {
               context.pop();
             }
-            _goOtherTab(context, index, viewModel.resetNavigation);
+            _goOtherTab(context, index);
           }
         },
       ),
     );
   }
 
-  void _goOtherTab(
-      BuildContext context, int index, Function resetNavigation) async {
+  void _goOtherTab(BuildContext context, int index) {
     // if (index == _currentIndex) return;
     GoRouter router = GoRouter.of(context);
     List<String> locations = [
       '/find_WG_page',
       '/upload_WG_page',
       '/history_page',
+      '/chat_list_page',
       '/setting_page'
     ];
     String? location = locations[index];
-    router.go(location);
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final yourLangCheck = prefs.getString('selected_language');
-    // final targetLangCheck = prefs.getString('target_language');
-    // if (yourLangCheck == null || targetLangCheck == null) {
-    //   if (context.mounted) {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(
-    //         content: Text('Please complete the settings.'),
-    //         duration: Duration(seconds: 2),
-    //       ),
-    //     );
-    //   }
-    // } else {
-    //   if (index == 3) {
-    //     router.go(location);
-    //     await resetFavorites();
-    //   } else {
-    //     router.go(location);
-    //   }
-    // }
+    if (index == 3) {
+      router.go(location);
+    } else {
+      router.go(location);
+    }
   }
 }

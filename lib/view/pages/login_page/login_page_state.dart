@@ -8,6 +8,7 @@ class LoginPageState with _$LoginPageState {
   const factory LoginPageState({
     @Default(false) bool isLoading,
     @Default(false) bool loginCheck,
+    @Default(false) bool isDialogShowing,
     @Default('') String errorEmailText,
     @Default('') String errorPasswordText,
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +9,12 @@ import 'package:fmsproject/view/pages/login_page/social_login_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/repository/connectivity_observer.dart';
+import '../../../data/repository/network_connectivity_observer.dart';
 import '../../../utils/custom_text_form_field.dart';
 import '../../../utils/gif_progress_bar.dart';
+import '../../../utils/one_answer_dialog.dart';
+import '../../../utils/simple_logger.dart';
 import 'login_page_view_model.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,9 +30,16 @@ class _LoginPageState extends State<LoginPage> {
 
   StreamSubscription? authStateChanges;
 
+  final ConnectivityObserver _connectivityObserver =
+      NetworkConnectivityObserver();
+  Status _status = Status.available;
+  StreamSubscription<Status>? _subscription;
+  bool _isDialogShowing = false;
+
   @override
   void initState() {
     super.initState();
+    _initializeConnectivity();
     Future.microtask(() {
       if (mounted) {
         final loginViewModel = context.read<LoginPageViewModel>();
@@ -47,6 +59,79 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
+  }
+
+  Future<void> _initializeConnectivity() async {
+    try {
+      // 초기 연결 상태 확인
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // 초기 상태 확인 및 타입 처리
+      final results = await Connectivity().checkConnectivity();
+      final hasConnection = results.any((result) =>
+          result == ConnectivityResult.wifi ||
+          result == ConnectivityResult.mobile);
+      _status = hasConnection ? Status.available : Status.unavailable;
+
+      if (!mounted) return;
+
+      // 상태 변화 모니터링 시작
+      _subscription = _connectivityObserver.observe().listen(
+        (status) {
+          if (!mounted) return;
+
+          setState(() {
+            if (_status != status) {
+              _status = status;
+              _handleConnectivityChange();
+            }
+          });
+        },
+        onError: (error) {
+          logger.info('Connectivity subscription error: $error');
+        },
+      );
+    } catch (e) {
+      logger.info('Connectivity initialization error: $e');
+    }
+  }
+
+  void _handleConnectivityChange() {
+    if (_status == Status.unavailable && !_isDialogShowing) {
+      _isDialogShowing = true;
+      showConnectionErrorDialog();
+    } else if (_status == Status.available && _isDialogShowing) {
+      if (context.canPop()) {
+        context.pop();
+        _isDialogShowing = false;
+      }
+    }
+  }
+
+  void showConnectionErrorDialog() {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return OneAnswerDialog(
+          onTap: () {
+            _isDialogShowing = false;
+            context.pop();
+          },
+          title: 'CHECK WIFI',
+          firstButton: 'OK',
+          imagePath: 'assets/gifs/internetLost.gif',
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   @override

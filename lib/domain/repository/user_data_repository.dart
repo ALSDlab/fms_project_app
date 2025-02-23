@@ -1,4 +1,6 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../data/core/result.dart';
 import '../model/user_data_model.dart';
 
@@ -12,6 +14,8 @@ abstract interface class UserDataRepository {
   Future<Result<void>> deleteUserData(String email);
 
   Future<Result<UserDataModel>> userLogIn(String email, String password);
+
+  Result<User> getCurrentUser();
 
   Future<Result<void>> logOutUser();
 

@@ -7,7 +7,6 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fmsproject/data/dtos/user_data_dto.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../utils/simple_logger.dart';
 import '../core/result.dart';
@@ -171,6 +170,21 @@ class FirebaseAuthUserData {
         logger.info('Firestore 이메일 로그인 에러 => $e');
         return Result.error(e.toString());
       }
+    }
+  }
+
+  // 현재 유저정보 get
+  Result<User> getCurrentUser() {
+    try {
+      final User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        return Result.success(currentUser);
+      } else {
+        return const Result.error('No user');
+      }
+    } catch (e) {
+      logger.info('Firestore 유저정보 get 에러 => $e');
+      return Result.error(e.toString());
     }
   }
 

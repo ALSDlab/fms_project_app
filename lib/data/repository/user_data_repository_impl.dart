@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fmsproject/data/core/result.dart';
 import 'package:fmsproject/data/data_source/firebase_auth_user_data.dart';
 import 'package:fmsproject/data/mappers/user_data_mapper.dart';
@@ -74,6 +75,17 @@ class UserDataRepositoryImpl implements UserDataRepository {
   }
 
   @override
+  Result<User> getCurrentUser() {
+    final result = FirebaseAuthUserData().getCurrentUser();
+
+    return result.when(success: (data) {
+      return Result.success(data);
+    }, error: (message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
   Future<Result<void>> logOutUser() async {
     final result = await FirebaseAuthUserData().firebaseLogout();
     return result.when(success: (data) {
@@ -120,6 +132,4 @@ class UserDataRepositoryImpl implements UserDataRepository {
     // TODO: implement getFirebaseUserData
     throw UnimplementedError();
   }
-
-
 }

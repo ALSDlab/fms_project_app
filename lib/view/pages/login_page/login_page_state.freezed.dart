@@ -22,6 +22,7 @@ LoginPageState _$LoginPageStateFromJson(Map<String, dynamic> json) {
 mixin _$LoginPageState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get loginCheck => throw _privateConstructorUsedError;
+  bool get isDialogShowing => throw _privateConstructorUsedError;
   String get errorEmailText => throw _privateConstructorUsedError;
   String get errorPasswordText => throw _privateConstructorUsedError;
 
@@ -44,6 +45,7 @@ abstract class $LoginPageStateCopyWith<$Res> {
   $Res call(
       {bool isLoading,
       bool loginCheck,
+      bool isDialogShowing,
       String errorEmailText,
       String errorPasswordText});
 }
@@ -65,6 +67,7 @@ class _$LoginPageStateCopyWithImpl<$Res, $Val extends LoginPageState>
   $Res call({
     Object? isLoading = null,
     Object? loginCheck = null,
+    Object? isDialogShowing = null,
     Object? errorEmailText = null,
     Object? errorPasswordText = null,
   }) {
@@ -76,6 +79,10 @@ class _$LoginPageStateCopyWithImpl<$Res, $Val extends LoginPageState>
       loginCheck: null == loginCheck
           ? _value.loginCheck
           : loginCheck // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isDialogShowing: null == isDialogShowing
+          ? _value.isDialogShowing
+          : isDialogShowing // ignore: cast_nullable_to_non_nullable
               as bool,
       errorEmailText: null == errorEmailText
           ? _value.errorEmailText
@@ -100,6 +107,7 @@ abstract class _$$LoginPageStateImplCopyWith<$Res>
   $Res call(
       {bool isLoading,
       bool loginCheck,
+      bool isDialogShowing,
       String errorEmailText,
       String errorPasswordText});
 }
@@ -119,6 +127,7 @@ class __$$LoginPageStateImplCopyWithImpl<$Res>
   $Res call({
     Object? isLoading = null,
     Object? loginCheck = null,
+    Object? isDialogShowing = null,
     Object? errorEmailText = null,
     Object? errorPasswordText = null,
   }) {
@@ -130,6 +139,10 @@ class __$$LoginPageStateImplCopyWithImpl<$Res>
       loginCheck: null == loginCheck
           ? _value.loginCheck
           : loginCheck // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isDialogShowing: null == isDialogShowing
+          ? _value.isDialogShowing
+          : isDialogShowing // ignore: cast_nullable_to_non_nullable
               as bool,
       errorEmailText: null == errorEmailText
           ? _value.errorEmailText
@@ -149,6 +162,7 @@ class _$LoginPageStateImpl implements _LoginPageState {
   const _$LoginPageStateImpl(
       {this.isLoading = false,
       this.loginCheck = false,
+      this.isDialogShowing = false,
       this.errorEmailText = '',
       this.errorPasswordText = ''});
 
@@ -163,6 +177,9 @@ class _$LoginPageStateImpl implements _LoginPageState {
   final bool loginCheck;
   @override
   @JsonKey()
+  final bool isDialogShowing;
+  @override
+  @JsonKey()
   final String errorEmailText;
   @override
   @JsonKey()
@@ -170,7 +187,7 @@ class _$LoginPageStateImpl implements _LoginPageState {
 
   @override
   String toString() {
-    return 'LoginPageState(isLoading: $isLoading, loginCheck: $loginCheck, errorEmailText: $errorEmailText, errorPasswordText: $errorPasswordText)';
+    return 'LoginPageState(isLoading: $isLoading, loginCheck: $loginCheck, isDialogShowing: $isDialogShowing, errorEmailText: $errorEmailText, errorPasswordText: $errorPasswordText)';
   }
 
   @override
@@ -182,6 +199,8 @@ class _$LoginPageStateImpl implements _LoginPageState {
                 other.isLoading == isLoading) &&
             (identical(other.loginCheck, loginCheck) ||
                 other.loginCheck == loginCheck) &&
+            (identical(other.isDialogShowing, isDialogShowing) ||
+                other.isDialogShowing == isDialogShowing) &&
             (identical(other.errorEmailText, errorEmailText) ||
                 other.errorEmailText == errorEmailText) &&
             (identical(other.errorPasswordText, errorPasswordText) ||
@@ -190,8 +209,8 @@ class _$LoginPageStateImpl implements _LoginPageState {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, isLoading, loginCheck, errorEmailText, errorPasswordText);
+  int get hashCode => Object.hash(runtimeType, isLoading, loginCheck,
+      isDialogShowing, errorEmailText, errorPasswordText);
 
   /// Create a copy of LoginPageState
   /// with the given fields replaced by the non-null parameter values.
@@ -214,6 +233,7 @@ abstract class _LoginPageState implements LoginPageState {
   const factory _LoginPageState(
       {final bool isLoading,
       final bool loginCheck,
+      final bool isDialogShowing,
       final String errorEmailText,
       final String errorPasswordText}) = _$LoginPageStateImpl;
 
@@ -224,6 +244,8 @@ abstract class _LoginPageState implements LoginPageState {
   bool get isLoading;
   @override
   bool get loginCheck;
+  @override
+  bool get isDialogShowing;
   @override
   String get errorEmailText;
   @override

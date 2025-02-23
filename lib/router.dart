@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fmsproject/view/navigation/navigation_bar_page.dart';
 import 'package:fmsproject/view/navigation/navigation_bar_page_view_model.dart';
+import 'package:fmsproject/view/pages/chat_list_page/chat_list_page.dart';
+import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_view_model.dart';
+import 'package:fmsproject/view/pages/chat_page/chat_page.dart';
+import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_view_model.dart';
 import 'package:fmsproject/view/pages/login_page/login_page.dart';
@@ -41,7 +45,7 @@ final router = GoRouter(
           GoRoute(
             path: 'signup_page',
             builder: (context, state) => ChangeNotifierProvider(
-                create: (BuildContext context) => getIt<SignupPageViewModel>(),
+                create: (_) => getIt<SignupPageViewModel>(),
                 child: const SignupPage()),
           ),
           GoRoute(
@@ -49,28 +53,31 @@ final router = GoRouter(
             builder: (context, state) => const LoginPage(),
           ),
         ]),
+    GoRoute(
+      path: '/chat_page',
+      builder: (context, state) {
+        final extra = state.extra! as Map<String, dynamic>;
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (_) => getIt<ChatPageViewModel>(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => getIt<NavigationBarPageViewModel>(),
+            ),
+          ],
+          child: ChatPage(
+            chat: extra['chatModel'],
+          ),
+        );
+      },
+    ),
     ShellRoute(
         navigatorKey: _shellNavigatorKey,
         pageBuilder: (context, state, child) {
           return NoTransitionPage(
-            child: MultiProvider(
-              providers: [
-                ChangeNotifierProvider(
-                  create: (_) => getIt<NavigationBarPageViewModel>(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => getIt<FindWGPageViewModel>(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => getIt<UploadWGPageViewModel>(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => getIt<MyHistoryPageViewModel>(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => getIt<SettingPageViewModel>(),
-                ),
-              ],
+            child: ChangeNotifierProvider(
+              create: (_) => getIt<NavigationBarPageViewModel>(),
               child: NavigationBarPage(
                 location: state.matchedLocation,
                 child: child,
@@ -154,6 +161,20 @@ final router = GoRouter(
             //     },
             //   ),
             // ],
+          ),
+          GoRoute(
+            path: '/chat_list_page',
+            builder: (context, state) {
+              final navigationViewModel =
+                  Provider.of<NavigationBarPageViewModel>(context,
+                      listen: false);
+              return ChangeNotifierProvider(
+                create: (_) => getIt<ChatListPageViewModel>(),
+                child: ChatListPage(
+                  resetNavigation: navigationViewModel.resetNavigation,
+                ),
+              );
+            },
           ),
           GoRoute(
             path: '/setting_page',

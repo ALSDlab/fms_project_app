@@ -8,7 +8,7 @@ import '../../../utils/gif_progress_bar.dart';
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key, required this.resetNavigation});
 
-  final Function(bool) resetNavigation;
+  final Function(int) resetNavigation;
 
   @override
   State<SettingPage> createState() => _SettingPageState();
