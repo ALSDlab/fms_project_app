@@ -63,7 +63,6 @@ class NavigationBarPageViewModel with ChangeNotifier {
             final getMessagesResult =
                 _streamMessageUseCase.execute(currentUserResult.data.uid);
             _messagesSubscription = getMessagesResult.listen((messages) {
-              print('상태변화 감지됨');
               int badgeCount = messages
                   .where((e) =>
                       e.senderId != state.currentUser &&

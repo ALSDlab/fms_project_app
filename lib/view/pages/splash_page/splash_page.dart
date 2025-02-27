@@ -56,7 +56,14 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: Image.asset("assets/images/fms_splash.png",),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(45),
+                  // 이미지도 컨테이너의 둥근 모서리를 따라가게 만듦
+                  child: Image.asset(
+                    "assets/images/fms_splash.png",
+                    fit: BoxFit.cover, // 이미지가 컨테이너에 맞게 채워지도록 설정
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 6),
