@@ -1,14 +1,16 @@
+import 'package:fmsproject/domain/model/chat_model.dart';
+
 import '../../../data/core/result.dart';
 import '../../repository/chat_data_repository.dart';
 
-class MarkMessagesAsReadUseCase {
-  MarkMessagesAsReadUseCase({required ChatDataRepository chatDataRepository})
+class GetChatRoomDataUseCase {
+  GetChatRoomDataUseCase({required ChatDataRepository chatDataRepository})
       : _chatDataRepository = chatDataRepository;
 
   final ChatDataRepository _chatDataRepository;
 
-  Future<Result<int>> execute(String chatId, String userId) async {
-    final result = await _chatDataRepository.markMessagesAsRead(chatId, userId);
+  Future<Result<ChatModel>> execute(String chatId) async {
+    final result = await _chatDataRepository.getChatRoomData(chatId);
     return result.when(
         success: (data) => Result.success(data),
         error: (message) => Result.error(message));

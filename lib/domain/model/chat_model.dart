@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -9,10 +10,10 @@ part 'chat_model.g.dart';
 @freezed
 class ChatModel with _$ChatModel {
   const factory ChatModel({
-    @JsonKey(name: 'chatId') String? chatId,
+    @JsonKey(name: 'chatId') required String chatId,
     @JsonKey(name: 'participants') required List<String> participants,
     @JsonKey(name: 'lastMessage')  String? lastMessage,
-    @JsonKey(name: 'createdAt')  DateTime? createdAt,
+    @JsonKey(name: 'createdAt')  required DateTime createdAt,
     @JsonKey(name: 'lastMessageId')  String? lastMessageId,
 
 

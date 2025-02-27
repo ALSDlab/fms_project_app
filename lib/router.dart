@@ -67,7 +67,7 @@ final router = GoRouter(
             ),
           ],
           child: ChatPage(
-            chat: extra['chatModel'],
+            chat: extra['chat'],
           ),
         );
       },

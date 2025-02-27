@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MessageDataDto {
   final String? messageId;
   final String? chatId;
   final String? senderId;
   final String? text;
-  final DateTime? timestamp;
+  final Timestamp? timestamp;
   final List<String>? readByUsers;
   final String? type;
 
@@ -51,7 +53,7 @@ class MessageDataDto {
     String? chatId,
     String? senderId,
     String? text,
-    DateTime? timestamp,
+    Timestamp? timestamp,
     List<String>? readByUsers,
     String? type,
   }) {
@@ -84,8 +86,11 @@ class MessageDataDto {
       chatId: map['chatId'] as String,
       senderId: map['senderId'] as String,
       text: map['text'] as String,
-      timestamp: map['timestamp'] as DateTime,
-      readByUsers: map['readByUsers'] as List<String>,
+      timestamp: map['timestamp'] as Timestamp,
+      readByUsers: (map['readByUsers'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       type: map['type'] as String,
     );
   }

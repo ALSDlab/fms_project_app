@@ -8,11 +8,15 @@ import '../../data/core/result.dart';
 abstract interface class ChatDataRepository {
   Future<Result<List<ChatModel>>> getChatList(String userId);
 
+  Future<Result<ChatModel>> getChatRoomData(String chatId);
+
   Stream<List<ChatModel>> getChatListStream(String userId);
 
   Stream<List<MessageModel>> getMessagesForUser(String userId);
 
-  Future<Result<void>> markMessagesAsRead(String chatId, String userId);
+  Future<Result<List<MessageModel>>> fetchMoreMessages(String chatId, DateTime lastTimestamp);
+
+  Future<Result<int>> markMessagesAsRead(String chatId, String userId);
 
   Future<Result<List<String>>> findOrCreateChatRoom(
       String senderId, String receiverId);

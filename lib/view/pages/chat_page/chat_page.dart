@@ -1,14 +1,35 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/model/chat_model.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../domain/model/message_model.dart';
+import '../../../utils/gif_progress_bar.dart';
 import '../../navigation/navigation_bar_page_view_model.dart';
 import 'chat_page_view_model.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
   final ChatModel chat;
 
   const ChatPage({super.key, required this.chat});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     final navigationViewModel = context.read<NavigationBarPageViewModel>();
+  //     final viewModel = context.read<ChatPageViewModel>();
+  //     viewModel.markMessagesAsRead(
+  //         widget.chat.chatId, navigationViewModel.state.currentUser);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +41,17 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFEBF4F6),
       appBar: AppBar(
-          automaticallyImplyLeading: true,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(BootstrapIcons.arrow_left),
+            onPressed: () {
+              GoRouter.of(context).pop(true);
+            },
+          ),
           elevation: 0,
           backgroundColor: const Color(0xFFEBF4F6),
           title: Text(
-            "Chat with ${chat.participants.where((userId) => userId != navigationState.currentUser).toList().join(', ')}",
+            "Chat with ${widget.chat.participants.where((userId) => userId != navigationState.currentUser).toList().join(', ')}",
             overflow: TextOverflow.ellipsis,
           )),
       body: Column(
@@ -33,12 +60,12 @@ class ChatPage extends StatelessWidget {
             child: ListView.builder(
               reverse: true,
               itemCount: navigationState.messages
-                  .where((message) => message.chatId == chat.chatId)
+                  .where((message) => message.chatId == widget.chat.chatId)
                   .toList()
                   .length,
               itemBuilder: (context, index) {
                 var message = navigationState.messages
-                    .where((message) => message.chatId == chat.chatId)
+                    .where((message) => message.chatId == widget.chat.chatId)
                     .toList()[index];
                 bool isMe = message.senderId == navigationState.currentUser;
                 bool isImage = message.type == 'image';
@@ -70,15 +97,57 @@ class ChatPage extends StatelessWidget {
             children: [
               IconButton(icon: const Icon(Icons.image), onPressed: () {}),
               Expanded(
-                child: TextField(
+                child: TextFormField(
                   minLines: 1,
                   maxLines: 5,
                   controller: viewModel.messageController,
-                  decoration:
-                      const InputDecoration(hintText: "Enter message..."),
+                  decoration: InputDecoration(
+                    hintText: 'Enter message...',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        width: 0.1,
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        width: 1,
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        width: 1,
+                        color: Color(0xFF2F362F),
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ),
-              IconButton(icon: const Icon(Icons.send), onPressed: () {}),
+              (state.isLoading)
+                  ? Center(
+                      child: GifProgressBar(),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () {
+                        final DateTime now = DateTime.now();
+                        final MessageModel message = MessageModel(
+                            messageId: now.millisecondsSinceEpoch.toString() +
+                                const Uuid().v4().substring(0, 6),
+                            chatId: widget.chat.chatId,
+                            senderId: navigationState.currentUser,
+                            text: viewModel.messageController.text,
+                            timestamp: now,
+                            readByUsers: [],
+                            type: 'text');
+                        viewModel.sendMessageToUser(
+                            widget.chat.chatId, message);
+                      }),
             ],
           ),
         ],

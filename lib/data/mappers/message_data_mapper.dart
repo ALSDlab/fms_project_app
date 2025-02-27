@@ -19,7 +19,7 @@ class MessageDataMapper {
         messageId: model.messageId,
         senderId: model.senderId,
         text: model.text,
-        timestamp: model.timestamp,
+        timestamp: Timestamp.fromDate(model.timestamp),
         chatId: model.chatId,
         readByUsers: model.readByUsers,
         type: model.type);

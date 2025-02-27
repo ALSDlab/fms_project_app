@@ -56,7 +56,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: Image.asset("assets/images/fms_splash.png"),
+                child: Image.asset("assets/images/fms_splash.png",),
               ),
             ),
             const SizedBox(height: 6),

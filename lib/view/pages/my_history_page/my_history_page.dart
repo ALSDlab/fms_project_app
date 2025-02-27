@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyHistoryPage extends StatefulWidget {
   const MyHistoryPage({super.key, required this.resetNavigation});
 
-  final Function(int) resetNavigation;
+  final Function resetNavigation;
 
   @override
   State<MyHistoryPage> createState() => _MyHistoryPageState();

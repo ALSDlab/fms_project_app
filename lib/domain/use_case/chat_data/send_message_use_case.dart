@@ -8,8 +8,8 @@ class SendMessageUseCase {
 
   final ChatDataRepository _chatDataRepository;
 
-  Future<Result<void>> execute(String receiverId, MessageModel message) async {
-    final result = await _chatDataRepository.sendMessage(receiverId, message);
+  Future<Result<void>> execute(String chatId, MessageModel message) async {
+    final result = await _chatDataRepository.sendMessage(chatId, message);
     return result.when(
         success: (data) => Result.success(data),
         error: (message) => Result.error(message));

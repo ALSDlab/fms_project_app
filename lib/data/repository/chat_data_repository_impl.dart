@@ -25,6 +25,20 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
+  Future<Result<ChatModel>> getChatRoomData(String chatId) async {
+    final chatRoomResult = await FirebaseChatData().getChatRoomData(chatId);
+    return chatRoomResult.when(
+      success: (data) {
+        ChatModel result = ChatDataMapper.fromDTO(data);
+        return Result.success(result);
+      },
+      error: (message) {
+        return Result.error(message);
+      },
+    );
+  }
+
+  @override
   Stream<List<ChatModel>> getChatListStream(String userId) {
     return FirebaseChatData().getChatListStream(userId).map((chatList) =>
         chatList.map((chatRoom) => ChatDataMapper.fromDTO(chatRoom)).toList());
@@ -49,7 +63,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
         try {
           return Result.success(data);
         } catch (e) {
-          return Result.error('sendMessageRepositoryImpl $e');
+          return Result.error('findOrCreateChatRoomRepositoryImpl $e');
         }
       },
       error: (message) {
@@ -59,10 +73,9 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<void>> sendMessage(
-      String receiverId, MessageModel message) async {
+  Future<Result<void>> sendMessage(String chatId, MessageModel message) async {
     final result = await FirebaseChatData()
-        .sendMessage(receiverId, MessageDataMapper.toDTO(message));
+        .sendMessage(chatId, MessageDataMapper.toDTO(message));
 
     return result.when(
       success: (data) {
@@ -87,7 +100,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
         try {
           return Result.success(data);
         } catch (e) {
-          return Result.error('saveImageRepositoryImpl $e');
+          return Result.error('uploadImageRepositoryImpl $e');
         }
       },
       error: (message) {
@@ -97,7 +110,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<void>> markMessagesAsRead(String chatId, String userId) async {
+  Future<Result<int>> markMessagesAsRead(String chatId, String userId) async {
     final result = await FirebaseChatData().markMessagesAsRead(chatId, userId);
 
     return result.when(
@@ -112,5 +125,12 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
         return Result.error(message);
       },
     );
+  }
+
+  @override
+  Future<Result<List<MessageModel>>> fetchMoreMessages(
+      String chatId, DateTime lastTimestamp) {
+    // TODO: implement fetchMoreMessages
+    throw UnimplementedError();
   }
 }

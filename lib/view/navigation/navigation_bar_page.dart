@@ -5,6 +5,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
@@ -117,10 +118,6 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationBarPageViewModel>();
     final state = viewModel.state;
-    // final findWGPageViewModel = context.watch<FindWGPageViewModel>();
-    // final uploadWGPageViewModel = context.watch<UploadWGPageViewModel>();
-    // final favoritesViewModel = context.watch<MyHistoryPageViewModel>();
-    // final settingPageViewModel = context.watch<SettingPageViewModel>();
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: StylishBottomBar(

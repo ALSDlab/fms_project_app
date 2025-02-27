@@ -18,7 +18,7 @@ class FirebaseChatData {
       var snapshot = await _firestore
           .collection('chats')
           .where('participants', arrayContains: userId)
-          .orderBy('lastTimestamp', descending: true)
+          .orderBy('createdAt', descending: true)
           .get();
 
       List<ChatDataDto> chatList =
@@ -37,7 +37,7 @@ class FirebaseChatData {
       return _firestore
           .collection('chats')
           .where('participants', arrayContains: userId)
-          .orderBy('lastTimestamp', descending: true)
+          .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) => ChatDataDto.fromJson(doc.data()))
@@ -46,6 +46,25 @@ class FirebaseChatData {
       logger.info(
           'Firestore Stream getting user-specific chat room data error => $e');
       return Stream.value([]); // 오류 발생 시 빈 리스트 반환
+    }
+  }
+
+  // 특정 채팅방 불러오기
+  Future<Result<ChatDataDto>> getChatRoomData(String chatId) async {
+    try {
+      DocumentSnapshot chatDoc =
+          await _firestore.collection('chats').doc(chatId).get();
+
+      if (chatDoc.exists) {
+        ChatDataDto chatData =
+            ChatDataDto.fromJson(chatDoc.data() as Map<String, dynamic>);
+        return Result.success(chatData);
+      } else {
+        return const Result.error('Chat room not found');
+      }
+    } catch (e) {
+      logger.info('Firestore getting chat room error => $e');
+      return Result.error(e.toString());
     }
   }
 
@@ -89,38 +108,65 @@ class FirebaseChatData {
     }
   }
 
+  // 이전 메시지를 로드
+  Future<Result<List<MessageDataDto>>> fetchMoreMessages(
+      String chatId, Timestamp lastTimestamp) async {
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .startAfter([lastTimestamp]) // 마지막으로 가져온 메시지 이후의 데이터
+          .limit(10)
+          .get();
+
+      List<MessageDataDto> oldMessages = snapshot.docs
+          .map((doc) => MessageDataDto.fromJson(doc.data()))
+          .toList();
+
+      return Result.success(oldMessages);
+    } catch (e) {
+      logger.info('Firestore getting old messages error => $e');
+      return Result.error(e.toString());
+    }
+  }
+
   // 특정 채팅방의 모든 메시지를 읽음 상태로 업데이트하는 메서드
-  Future<Result<void>> markMessagesAsRead(String chatId, String userId) async {
+  Future<Result<int>> markMessagesAsRead(String chatId, String userId) async {
     try {
       // 현재 사용자가 아직 읽지 않은 메시지만 가져오기
       QuerySnapshot messagesSnapshot = await _firestore
           .collection('chats')
           .doc(chatId)
           .collection('messages')
-          .where('read_by', arrayContains: userId) // 이미 읽은 메시지는 제외
+          .where('senderId', isNotEqualTo: userId)
           .get();
 
       if (messagesSnapshot.docs.isEmpty) {
-        return const Result.success(null); // 업데이트할 메시지가 없으면 바로 성공 반환
+        return const Result.success(0); // 업데이트할 메시지가 없으면 바로 성공 반환
       }
 
       // batch 작업 생성
       WriteBatch batch = _firestore.batch();
 
+      int unreadCount = 0;
       for (var doc in messagesSnapshot.docs) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        List<String> readBy = List<String>.from(data['read_by'] ?? []);
 
-        // 보낸 사람이 자신이 아니고, 아직 읽지 않은 경우에만 업데이트
-        if (data['senderId'] != userId && !readBy.contains(userId)) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        List<String> readBy = List<String>.from(data['readByUsers'] ?? []);
+
+        // 보아직 읽지 않은 경우에만 업데이트
+        if (!readBy.contains(userId)) {
           readBy.add(userId); // 읽음 상태 추가
-          batch.update(doc.reference, {'read_by': readBy});
+          batch.update(doc.reference, {'readByUsers': readBy});
+          unreadCount += 1;
         }
       }
 
       // batch 실행
       await batch.commit();
-      return const Result.success(null);
+      return Result.success(unreadCount);
     } catch (e) {
       logger.info('Marking messages as read error => $e');
       return Result.error(e.toString());
@@ -134,8 +180,8 @@ class FirebaseChatData {
       final chatRef = _firestore.collection('chats');
 
       // 기존 채팅방 검색
-      QuerySnapshot existingChats =
-          await chatRef.where('participants', arrayContains: senderId).get();
+      QuerySnapshot existingChats = await chatRef
+          .where('participants', isEqualTo: [senderId, receiverId]).get();
       List<String> chatRooms = [];
 
       for (var doc in existingChats.docs) {
@@ -151,13 +197,14 @@ class FirebaseChatData {
         // 채팅방 없음. 새 채팅방 생성(chatId 를 새로 생성)
         DocumentReference newChatRef = chatRef.doc();
         final String newChatId = newChatRef.id;
-        // 첫 메시지 작성
-        // await newChatRef.set({
-        //   'chatId': chatId,
-        //   'participants': [senderId, receiverId],
-        //   'lastMessage': initialMessage,
-        //   'lastTimestamp': FieldValue.serverTimestamp(),
-        // });
+        // 파이어베이스에 채팅방 생성
+        await newChatRef.set({
+          'chatId': newChatId,
+          'participants': [senderId, receiverId],
+          'createdAt': DateTime.now(),
+          'lastMessageId': '',
+          'lastMessage': '',
+        });
 
         return Result.success([newChatId]);
       }
@@ -184,7 +231,7 @@ class FirebaseChatData {
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage':
             messageData.type == 'image' ? "[Image]" : messageData.text,
-        'lastTimestamp': FieldValue.serverTimestamp(),
+        'lastMessageId': messageData.messageId,
       });
 
       return const Result.success(null);

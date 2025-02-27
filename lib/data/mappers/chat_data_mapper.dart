@@ -6,7 +6,7 @@ import '../dtos/chat_data_dto.dart';
 class ChatDataMapper {
   static ChatModel fromDTO(ChatDataDto dto) {
     return ChatModel(
-      chatId: dto.chatId,
+      chatId: dto.chatId ?? '',
       participants: dto.participants ?? [],
       lastMessage: dto.lastMessage,
       createdAt: (dto.createdAt as Timestamp).toDate(),
@@ -19,7 +19,7 @@ class ChatDataMapper {
         chatId: model.chatId,
         participants: model.participants,
         lastMessage: model.lastMessage,
-        createdAt: model.createdAt,
+        createdAt: Timestamp.fromDate(model.createdAt),
         lastMessageId: model.lastMessageId);
   }
 }

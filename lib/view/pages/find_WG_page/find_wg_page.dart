@@ -28,11 +28,18 @@ class FindWGPage extends StatelessWidget {
             splashColor: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
-              const String receiverId = '호스트 유저';
-              final List<String> participants = [state.currentUser, receiverId];
-              final ChatModel chat = ChatModel(participants: participants);
-              GoRouter.of(context).push('/chat_page',
-                  extra: {'chatModel': chat});
+              const String receiverId = 'kMtq3Dn0W1X9IEhjcmqItzLZZBH2';
+              final chatId = await viewModel.findOrCreateChatRoom(
+                  state.currentUser, receiverId);
+              final ChatModel? chat = await viewModel.loadChatRoom(chatId);
+              if (chat != null) {
+                GoRouter.of(context)
+                    .push('/chat_page', extra: {'chat': chat});
+              }
+              // final ChatModel chat = ChatModel(
+              //     chatId: chatId,
+              //     participants: [state.currentUser, receiverId],
+              //     createdAt: DateTime.now());
             },
             child: Ink(
               decoration: BoxDecoration(
@@ -52,9 +59,7 @@ class FindWGPage extends StatelessWidget {
                   'Send Message',
                   style: TextStyle(
                       fontSize: 18,
-                      color: (state.tapped)
-                          ? Colors.white
-                          : Colors.black),
+                      color: (state.tapped) ? Colors.white : Colors.black),
                 ),
               ),
             ),

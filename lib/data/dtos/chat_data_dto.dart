@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ChatDataDto {
   final String? chatId;
   final List<String>? participants;
   final String? lastMessage;
-  final DateTime? createdAt;
+  final Timestamp? createdAt;
   final String? lastMessageId;
 
 //<editor-fold desc="Data Methods">
@@ -42,7 +44,7 @@ class ChatDataDto {
     String? chatId,
     List<String>? participants,
     String? lastMessage,
-    DateTime? createdAt,
+    Timestamp? createdAt,
     String? lastMessageId,
   }) {
     return ChatDataDto(
@@ -67,9 +69,12 @@ class ChatDataDto {
   factory ChatDataDto.fromJson(Map<String, dynamic> map) {
     return ChatDataDto(
       chatId: map['chatId'] as String,
-      participants: map['participants'] as List<String>,
+      participants: (map['participants'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       lastMessage: map['lastMessage'] as String,
-      createdAt: map['createdAt'] as DateTime,
+      createdAt: map['createdAt'] as Timestamp,
       lastMessageId: map['lastMessageId'] as String,
     );
   }
