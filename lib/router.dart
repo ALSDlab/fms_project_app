@@ -62,6 +62,7 @@ final router = GoRouter(
           child: ChatPage(
             chat: extra['chat'],
             resetNavigation: extra['resetNavigation'],
+            resetChatList: extra['resetChatList'],
           ),
         );
       },
@@ -78,6 +79,9 @@ final router = GoRouter(
                 ChangeNotifierProvider(
                   create: (_) => getIt<ChatPageViewModel>(),
                 ),
+                ChangeNotifierProvider(
+                  create: (_) => getIt<ChatListPageViewModel>(),
+                ),
               ],
               child: NavigationBarPage(
                 location: state.matchedLocation,
@@ -93,11 +97,14 @@ final router = GoRouter(
               final navigationViewModel =
                   Provider.of<NavigationBarPageViewModel>(context,
                       listen: false);
+              final chatListPageViewModel =
+                  Provider.of<ChatListPageViewModel>(context, listen: false);
               return ChangeNotifierProvider(
                 create: (_) => getIt<FindWGPageViewModel>(),
                 child: FindWGPage(
-                    resetNavigation: navigationViewModel.resetNavigation,
-                    ),
+                  resetNavigation: navigationViewModel.resetNavigation,
+                  resetChatList: chatListPageViewModel.resetChatList,
+                ),
               );
             },
           ),

@@ -12,9 +12,13 @@ import 'chat_page_view_model.dart';
 class ChatPage extends StatefulWidget {
   final ChatModel chat;
   final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetChatList;
 
   const ChatPage(
-      {super.key, required this.chat, required this.resetNavigation});
+      {super.key,
+      required this.chat,
+      required this.resetNavigation,
+      required this.resetChatList});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -26,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
     Future.microtask(() {
       if (mounted) {
         final viewModel = context.read<ChatPageViewModel>();
-        viewModel.loadMessages(widget.resetNavigation);
+        viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
       }
     });
     super.initState();

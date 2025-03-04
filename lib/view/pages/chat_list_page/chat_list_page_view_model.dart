@@ -47,7 +47,9 @@ class ChatListPageViewModel with ChangeNotifier {
     }
   }
 
-  void resetChatList() {
+  void resetChatList(Map<String, int> updatedChatRoomBadge) {
+    _state = state.copyWith(chatRoomBadge: updatedChatRoomBadge);
+
     notifyListeners();
   }
 
@@ -88,6 +90,7 @@ class ChatListPageViewModel with ChangeNotifier {
       switch (markMessagesResult) {
         case Success<int>():
           logger.info('all messages here were marked as read!');
+          print(markMessagesResult.data);
           resetNavigation(markMessagesResult.data);
           break;
         case Error<String>():

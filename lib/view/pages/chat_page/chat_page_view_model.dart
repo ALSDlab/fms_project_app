@@ -53,7 +53,8 @@ class ChatPageViewModel with ChangeNotifier {
     }
   }
 
-  Future<int> loadMessages(Function(int) resetNavigation) async{
+  Future<int> loadMessages(Function(int) resetNavigation,
+      Function(Map<String, int>) resetChatList) async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -65,21 +66,30 @@ class ChatPageViewModel with ChangeNotifier {
 
           _messagesSubscription?.cancel();
           try {
-            print('스트림 시작');
             final getMessagesResult =
                 _streamMessageUseCase.execute(currentUserResult.data.uid);
             _messagesSubscription = getMessagesResult.listen((messages) {
-              print('메시지 감지');
-              int badgeCount = messages
-                  .where((e) =>
-                      e.senderId != state.currentUser &&
-                      !e.readByUsers.contains(state.currentUser))
-                  .length;
+              Map<String, int> badgeCounts = {};
 
-              resetNavigation(-badgeCount);
+              for (var message in messages) {
+                if (message.senderId != state.currentUser &&
+                    !message.readByUsers.contains(state.currentUser)) {
+                  // chatId별 카운트 증가
+                  badgeCounts[message.chatId] =
+                      (badgeCounts[message.chatId] ?? 0) + 1;
+                }
+                _state = state.copyWith(
+                    messages: messages,
+                    badgeCount: badgeCounts[message.chatId] ?? 0);
+              }
 
-              _state =
-                  state.copyWith(messages: messages, badgeCount: badgeCount);
+              resetChatList(badgeCounts);
+
+              // 총 badgeCount 계산 후 resetNavigation 호출
+              int totalBadgeCount =
+                  badgeCounts.values.fold(0, (sum, count) => sum + count);
+              resetNavigation(-totalBadgeCount);
+
               notifyListeners();
               print(_state.messages.length);
             });

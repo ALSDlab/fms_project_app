@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 
 class FindWGPage extends StatelessWidget {
   final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetChatList;
 
-  const FindWGPage({super.key, required this.resetNavigation});
+
+  const FindWGPage({super.key, required this.resetNavigation, required this.resetChatList});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class FindWGPage extends StatelessWidget {
               final ChatModel? chat = await viewModel.loadChatRoom(chatId);
               if (chat != null) {
                 GoRouter.of(context)
-                    .push('/chat_page', extra: {'chat': chat, 'resetNavigation': resetNavigation});
+                    .push('/chat_page', extra: {'chat': chat, 'resetNavigation': resetNavigation, 'resetChatList' : resetChatList});
               }
               // final ChatModel chat = ChatModel(
               //     chatId: chatId,

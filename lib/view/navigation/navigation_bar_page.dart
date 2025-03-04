@@ -5,6 +5,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_view_model.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -40,9 +41,10 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     _initializeConnectivity();
     Future.microtask(() {
       if (mounted) {
+        final chatListPageViewModel = context.read<ChatListPageViewModel>();
         final chatPageViewModel = context.read<ChatPageViewModel>();
         final viewModel = context.read<NavigationBarPageViewModel>();
-        chatPageViewModel.loadMessages(viewModel.resetNavigation);
+        chatPageViewModel.loadMessages(viewModel.resetNavigation, chatListPageViewModel.resetChatList);
       }
     });
   }

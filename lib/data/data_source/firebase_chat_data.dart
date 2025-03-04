@@ -86,7 +86,7 @@ class FirebaseChatData {
               .doc(chatDoc.id)
               .collection('messages')
               .orderBy('timestamp', descending: true)
-              .limit(10)
+              .limit(15)
               .snapshots();
 
           // 각 채팅방의 메시지를 스트림으로 변환
@@ -118,7 +118,7 @@ class FirebaseChatData {
           .collection('messages')
           .orderBy('timestamp', descending: true)
           .startAfter([lastTimestamp]) // 마지막으로 가져온 메시지 이후의 데이터
-          .limit(10)
+          .limit(15)
           .get();
 
       List<MessageDataDto> oldMessages = snapshot.docs
@@ -152,14 +152,17 @@ class FirebaseChatData {
 
       int unreadCount = 0;
       for (var doc in messagesSnapshot.docs) {
-
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        List<String> readBy = List<String>.from(data['readByUsers'] ?? []);
 
-        // 보아직 읽지 않은 경우에만 업데이트
+        var readByRaw = data['readByUsers'];
+        List<String> readBy = (readByRaw is List)
+            ? readByRaw.map((e) => e.toString()).toList()  // `String` 변환
+            : [];
+
         if (!readBy.contains(userId)) {
-          readBy.add(userId); // 읽음 상태 추가
-          batch.update(doc.reference, {'readByUsers': readBy});
+          batch.update(doc.reference, {
+            'readByUsers': FieldValue.arrayUnion([userId]) // 안전한 업데이트 방식
+          });
           unreadCount += 1;
         }
       }

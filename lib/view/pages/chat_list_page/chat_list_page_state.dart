@@ -9,7 +9,7 @@ class ChatListPageState with _$ChatListPageState {
   const factory ChatListPageState({
     @Default(false) bool isLoading,
     @Default([]) List<ChatModel> chats,
-    @Default([]) List<int> chatRoomBadge,
+    @Default({}) Map<String, int> chatRoomBadge,
   }) = _ChatListPageState;
 
   factory ChatListPageState.fromJson(Map<String, dynamic> json) =>
