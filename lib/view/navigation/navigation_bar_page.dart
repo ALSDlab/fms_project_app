@@ -41,7 +41,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     Future.microtask(() {
       if (mounted) {
         final chatPageViewModel = context.read<ChatPageViewModel>();
-        chatPageViewModel.loadMessages();
+        final viewModel = context.read<NavigationBarPageViewModel>();
+        chatPageViewModel.loadMessages(viewModel.resetNavigation);
       }
     });
   }
@@ -122,9 +123,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationBarPageViewModel>();
-    final chatPageViewModel = context.watch<ChatPageViewModel>();
     final state = viewModel.state;
-    final chatPageState = chatPageViewModel.state;
     bool isChatPage = widget.location.contains('chat_page');
     return Scaffold(
       body: widget.child,

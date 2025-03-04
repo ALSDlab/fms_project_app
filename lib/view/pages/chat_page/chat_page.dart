@@ -26,7 +26,7 @@ class _ChatPageState extends State<ChatPage> {
     Future.microtask(() {
       if (mounted) {
         final viewModel = context.read<ChatPageViewModel>();
-        viewModel.loadMessages().then((value) => widget.resetNavigation(value));
+        viewModel.loadMessages(widget.resetNavigation);
       }
     });
     super.initState();
@@ -44,7 +44,7 @@ class _ChatPageState extends State<ChatPage> {
           leading: IconButton(
             icon: const Icon(BootstrapIcons.arrow_left),
             onPressed: () {
-              GoRouter.of(context).pop();
+              GoRouter.of(context).go('/chat_list_page');
             },
           ),
           elevation: 0,

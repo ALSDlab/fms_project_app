@@ -66,7 +66,7 @@ class ChatListPage extends StatelessWidget {
                               print(chatPageState.messages);
                               // navigationViewModel.loadMessages();
                               GoRouter.of(context)
-                                  .push('/chat_page', extra: {'chat': chat, 'resetNavigation' : resetNavigation});
+                                  .go('/chat_page', extra: {'chat': chat, 'resetNavigation' : resetNavigation});
                             },
                           );
                         },
