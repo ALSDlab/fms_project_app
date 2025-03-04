@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fmsproject/utils/gif_progress_bar.dart';
 import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_view_model.dart';
+import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import '../../navigation/navigation_bar_page_view_model.dart';
 
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key, required this.resetNavigation});
@@ -13,10 +12,10 @@ class ChatListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navigationViewModel = context.watch<NavigationBarPageViewModel>();
-    final navigationState = navigationViewModel.state;
     final viewModel = context.watch<ChatListPageViewModel>();
     final state = viewModel.state;
+    final chatPageViewModel = context.watch<ChatPageViewModel>();
+    final chatPageState = chatPageViewModel.state;
     return Scaffold(
         appBar: AppBar(title: const Text("Messages")),
         body: SafeArea(
@@ -39,13 +38,13 @@ class ChatListPage extends StatelessWidget {
                           return ListTile(
                             title: Text(chat.participants.join(", ")),
                             subtitle: Text(chat.lastMessage ?? ''),
-                            trailing: (navigationState.messages
+                            trailing: (chatPageState.messages
                                     .where((e) =>
                                         e.chatId == chat.chatId &&
                                         e.senderId !=
-                                            navigationState.currentUser &&
+                                            chatPageState.currentUser &&
                                         !e.readByUsers.contains(
-                                            navigationState.currentUser))
+                                            chatPageState.currentUser))
                                     .isNotEmpty)
                                 ? Container(
                                     padding: const EdgeInsets.all(6),
@@ -54,16 +53,20 @@ class ChatListPage extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Text(
-                                      '${navigationState.messages.where((e) => e.chatId == chat.chatId && e.senderId != navigationState.currentUser && !e.readByUsers.contains(navigationState.currentUser)).length}',
-                                      style: const TextStyle(color: Colors.white),
+                                      '${chatPageState.messages.where((e) => e.chatId == chat.chatId && e.senderId != chatPageState.currentUser && !e.readByUsers.contains(chatPageState.currentUser)).length}',
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
                                   )
                                 : null,
                             onTap: () {
-                              viewModel.markMessagesAsRead(chat.chatId, navigationState.currentUser, resetNavigation);
-                              navigationViewModel.loadMessages();
+                              viewModel.markMessagesAsRead(chat.chatId,
+                                  chatPageState.currentUser, resetNavigation);
+                              print(chatPageState.currentUser);
+                              print(chatPageState.messages);
+                              // navigationViewModel.loadMessages();
                               GoRouter.of(context)
-                                  .push('/chat_page', extra: {'chat': chat});
+                                  .push('/chat_page', extra: {'chat': chat, 'resetNavigation' : resetNavigation});
                             },
                           );
                         },

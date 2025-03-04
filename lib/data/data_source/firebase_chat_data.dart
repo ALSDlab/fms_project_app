@@ -225,7 +225,8 @@ class FirebaseChatData {
           .collection('chats')
           .doc(chatId)
           .collection('messages')
-          .add(saveMessage);
+          .doc(messageData.messageId) // 문서 ID를 messageId로 설정
+          .set(saveMessage);
 
       // 채팅방 마지막 메시지 업데이트
       await _firestore.collection('chats').doc(chatId).update({

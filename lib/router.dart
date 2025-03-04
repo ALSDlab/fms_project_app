@@ -57,17 +57,11 @@ final router = GoRouter(
       path: '/chat_page',
       builder: (context, state) {
         final extra = state.extra! as Map<String, dynamic>;
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider(
-              create: (_) => getIt<ChatPageViewModel>(),
-            ),
-            ChangeNotifierProvider(
-              create: (_) => getIt<NavigationBarPageViewModel>(),
-            ),
-          ],
+        return ChangeNotifierProvider(
+          create: (_) => getIt<ChatPageViewModel>(),
           child: ChatPage(
             chat: extra['chat'],
+            resetNavigation: extra['resetNavigation'],
           ),
         );
       },
@@ -76,8 +70,15 @@ final router = GoRouter(
         navigatorKey: _shellNavigatorKey,
         pageBuilder: (context, state, child) {
           return NoTransitionPage(
-            child: ChangeNotifierProvider(
-              create: (_) => getIt<NavigationBarPageViewModel>(),
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider(
+                  create: (_) => getIt<NavigationBarPageViewModel>(),
+                ),
+                ChangeNotifierProvider(
+                  create: (_) => getIt<ChatPageViewModel>(),
+                ),
+              ],
               child: NavigationBarPage(
                 location: state.matchedLocation,
                 child: child,
@@ -89,13 +90,13 @@ final router = GoRouter(
           GoRoute(
             path: '/find_WG_page',
             builder: (context, state) {
-              // final navigationViewModel =
-              //     Provider.of<NavigationBarPageViewModel>(context,
-              //         listen: false);
+              final navigationViewModel =
+                  Provider.of<NavigationBarPageViewModel>(context,
+                      listen: false);
               return ChangeNotifierProvider(
                 create: (_) => getIt<FindWGPageViewModel>(),
-                child: const FindWGPage(
-                    // resetNavigation: navigationViewModel.resetNavigation,
+                child: FindWGPage(
+                    resetNavigation: navigationViewModel.resetNavigation,
                     ),
               );
             },
@@ -127,40 +128,6 @@ final router = GoRouter(
                 ),
               );
             },
-            // routes: [
-            //   GoRoute(
-            //     path: 'my_sentences_page',
-            //     builder: (context, state) {
-            //       final extra = state.extra! as Map<String, dynamic>;
-            //       return ChangeNotifierProvider(
-            //         create: (_) => getIt<MyFavoritePageViewModel>(),
-            //         child: MySentencesPage(
-            //             mySentencesItems: extra['mySentencesItems']),
-            //       );
-            //     },
-            //   ),
-            //   GoRoute(
-            //     path: 'my_quiz_page',
-            //     builder: (context, state) {
-            //       final extra = state.extra! as Map<String, dynamic>;
-            //       return ChangeNotifierProvider(
-            //         create: (_) => getIt<MyFavoritePageViewModel>(),
-            //         child: MyQuizPage(myQuizItems: extra['myQuizItems']),
-            //       );
-            //     },
-            //   ),
-            //   GoRoute(
-            //     path: 'my_search_page',
-            //     builder: (context, state) {
-            //       final extra = state.extra! as Map<String, dynamic>;
-            //       return ChangeNotifierProvider(
-            //         create: (_) => getIt<MyFavoritePageViewModel>(),
-            //         child:
-            //             MySearchPage(mySearchesItems: extra['mySearchesItems']),
-            //       );
-            //     },
-            //   ),
-            // ],
           ),
           GoRoute(
             path: '/chat_list_page',
@@ -168,8 +135,15 @@ final router = GoRouter(
               final navigationViewModel =
                   Provider.of<NavigationBarPageViewModel>(context,
                       listen: false);
-              return ChangeNotifierProvider(
-                create: (_) => getIt<ChatListPageViewModel>(),
+              return MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(
+                    create: (_) => getIt<ChatListPageViewModel>(),
+                  ),
+                  ChangeNotifierProvider(
+                    create: (_) => getIt<ChatPageViewModel>(),
+                  ),
+                ],
                 child: ChatListPage(
                   resetNavigation: navigationViewModel.resetNavigation,
                 ),

@@ -7,34 +7,33 @@ import 'package:uuid/uuid.dart';
 
 import '../../../domain/model/message_model.dart';
 import '../../../utils/gif_progress_bar.dart';
-import '../../navigation/navigation_bar_page_view_model.dart';
 import 'chat_page_view_model.dart';
 
 class ChatPage extends StatefulWidget {
   final ChatModel chat;
+  final Function(int) resetNavigation;
 
-  const ChatPage({super.key, required this.chat});
+  const ChatPage(
+      {super.key, required this.chat, required this.resetNavigation});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     final navigationViewModel = context.read<NavigationBarPageViewModel>();
-  //     final viewModel = context.read<ChatPageViewModel>();
-  //     viewModel.markMessagesAsRead(
-  //         widget.chat.chatId, navigationViewModel.state.currentUser);
-  //   });
-  // }
+  @override
+  void initState() {
+    Future.microtask(() {
+      if (mounted) {
+        final viewModel = context.read<ChatPageViewModel>();
+        viewModel.loadMessages().then((value) => widget.resetNavigation(value));
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final navigationViewModel = context.watch<NavigationBarPageViewModel>();
-    final navigationState = navigationViewModel.state;
     final viewModel = context.watch<ChatPageViewModel>();
     final state = viewModel.state;
 
@@ -45,13 +44,13 @@ class _ChatPageState extends State<ChatPage> {
           leading: IconButton(
             icon: const Icon(BootstrapIcons.arrow_left),
             onPressed: () {
-              GoRouter.of(context).pop(true);
+              GoRouter.of(context).pop();
             },
           ),
           elevation: 0,
           backgroundColor: const Color(0xFFEBF4F6),
           title: Text(
-            "Chat with ${widget.chat.participants.where((userId) => userId != navigationState.currentUser).toList().join(', ')}",
+            "Chat with ${widget.chat.participants.where((userId) => userId != state.currentUser).toList().join(', ')}",
             overflow: TextOverflow.ellipsis,
           )),
       body: Column(
@@ -59,15 +58,15 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: ListView.builder(
               reverse: true,
-              itemCount: navigationState.messages
+              itemCount: state.messages
                   .where((message) => message.chatId == widget.chat.chatId)
                   .toList()
                   .length,
               itemBuilder: (context, index) {
-                var message = navigationState.messages
+                var message = state.messages
                     .where((message) => message.chatId == widget.chat.chatId)
                     .toList()[index];
-                bool isMe = message.senderId == navigationState.currentUser;
+                bool isMe = message.senderId == state.currentUser;
                 bool isImage = message.type == 'image';
 
                 return Align(
@@ -140,7 +139,7 @@ class _ChatPageState extends State<ChatPage> {
                             messageId: now.millisecondsSinceEpoch.toString() +
                                 const Uuid().v4().substring(0, 6),
                             chatId: widget.chat.chatId,
-                            senderId: navigationState.currentUser,
+                            senderId: state.currentUser,
                             text: viewModel.messageController.text,
                             timestamp: now,
                             readByUsers: [],

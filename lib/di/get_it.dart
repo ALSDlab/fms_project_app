@@ -82,10 +82,8 @@ void diSetup() {
 
   // ViewModel
   getIt
-    ..registerFactory<NavigationBarPageViewModel>(() =>
-        NavigationBarPageViewModel(
-            getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
-            streamMessageUseCase: getIt<StreamMessageUseCase>()))
+    ..registerFactory<NavigationBarPageViewModel>(
+        () => NavigationBarPageViewModel())
     ..registerFactory<LoginPageViewModel>(() => LoginPageViewModel(
         logInByEmailUseCase: getIt<LogInByEmailUseCase>(),
         signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
@@ -107,6 +105,8 @@ void diSetup() {
         streamChatListUseCase: getIt<StreamChatListUseCase>(),
         markMessagesAsReadUseCase: getIt<MarkMessagesAsReadUseCase>()))
     ..registerFactory<ChatPageViewModel>(() => ChatPageViewModel(
+        getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+        streamMessageUseCase: getIt<StreamMessageUseCase>(),
         sendMessageUseCase: getIt<SendMessageUseCase>(),
         uploadImageUseCase: getIt<UploadImageUseCase>()))
     ..registerFactory<SettingPageViewModel>(() => SettingPageViewModel(

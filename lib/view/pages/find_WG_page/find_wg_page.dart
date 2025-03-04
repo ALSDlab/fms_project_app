@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class FindWGPage extends StatelessWidget {
-  const FindWGPage({super.key});
+  final Function(int) resetNavigation;
+
+  const FindWGPage({super.key, required this.resetNavigation});
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +30,13 @@ class FindWGPage extends StatelessWidget {
             splashColor: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
-              const String receiverId = 'kMtq3Dn0W1X9IEhjcmqItzLZZBH2';
+              const String receiverId = '2coIOGzCahfxEYOkLy33be2kEAN2';
               final chatId = await viewModel.findOrCreateChatRoom(
                   state.currentUser, receiverId);
               final ChatModel? chat = await viewModel.loadChatRoom(chatId);
               if (chat != null) {
                 GoRouter.of(context)
-                    .push('/chat_page', extra: {'chat': chat});
+                    .push('/chat_page', extra: {'chat': chat, 'resetNavigation': resetNavigation});
               }
               // final ChatModel chat = ChatModel(
               //     chatId: chatId,
