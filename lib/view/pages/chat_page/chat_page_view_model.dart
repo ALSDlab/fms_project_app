@@ -70,17 +70,17 @@ class ChatPageViewModel with ChangeNotifier {
                 _streamMessageUseCase.execute(currentUserResult.data.uid);
             _messagesSubscription = getMessagesResult.listen((messages) {
               Map<String, int> badgeCounts = {};
+              List<MessageModel> updatedMessages = List.from(messages);
 
-              for (var message in messages) {
+              _state = state.copyWith(messages: updatedMessages);
+
+              for (var message in updatedMessages) {
                 if (message.senderId != state.currentUser &&
                     !message.readByUsers.contains(state.currentUser)) {
                   // chatId별 카운트 증가
                   badgeCounts[message.chatId] =
                       (badgeCounts[message.chatId] ?? 0) + 1;
                 }
-                _state = state.copyWith(
-                    messages: messages,
-                    badgeCount: badgeCounts[message.chatId] ?? 0);
               }
 
               resetChatList(badgeCounts);
