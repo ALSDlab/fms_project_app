@@ -39,13 +39,15 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   void initState() {
     super.initState();
     _initializeConnectivity();
-    if (mounted) {
-      final chatListPageViewModel = context.read<ChatListPageViewModel>();
-      final chatPageViewModel = context.read<ChatPageViewModel>();
-      final viewModel = context.read<NavigationBarPageViewModel>();
-      chatPageViewModel.loadMessages(
-          viewModel.resetNavigation, chatListPageViewModel.resetChatList);
-    }
+    Future.microtask(() {
+      if (mounted) {
+        final chatListPageViewModel = context.read<ChatListPageViewModel>();
+        final chatPageViewModel = context.read<ChatPageViewModel>();
+        final viewModel = context.read<NavigationBarPageViewModel>();
+        chatPageViewModel.loadMessages(
+            viewModel.resetNavigation, chatListPageViewModel.resetChatList);
+      }
+    });
   }
 
   Future<void> _initializeConnectivity() async {

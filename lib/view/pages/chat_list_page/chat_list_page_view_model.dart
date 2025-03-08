@@ -56,7 +56,7 @@ class ChatListPageViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadChats() async {
+  Future<void> loadChats() async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -74,6 +74,7 @@ class ChatListPageViewModel with ChangeNotifier {
               List<ChatModel> updatedChatLists = List.from(chatLists);
 
               _state = state.copyWith(chats: updatedChatLists);
+              notifyListeners();
             });
           } catch (error) {
             logger.info('Error fetching FIREBASE data(loadChatLists): $error');

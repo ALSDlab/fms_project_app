@@ -62,11 +62,12 @@ class ChatListPage extends StatelessWidget {
                             onTap: () {
                               viewModel.markMessagesAsRead(chat.chatId,
                                   chatPageState.currentUser, resetNavigation);
-                              print(chatPageState.currentUser);
-                              print(chatPageState.messages);
                               // navigationViewModel.loadMessages();
-                              GoRouter.of(context)
-                                  .go('/chat_page', extra: {'chat': chat, 'resetNavigation' : resetNavigation, 'resetChatList' : viewModel.resetChatList});
+                              GoRouter.of(context).go('/chat_page', extra: {
+                                'chat': chat,
+                                'resetNavigation': resetNavigation,
+                                'resetChatList': viewModel.resetChatList
+                              });
                             },
                           );
                         },

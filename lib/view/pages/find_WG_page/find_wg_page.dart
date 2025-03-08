@@ -8,8 +8,8 @@ class FindWGPage extends StatelessWidget {
   final Function(int) resetNavigation;
   final Function(Map<String, int>) resetChatList;
 
-
-  const FindWGPage({super.key, required this.resetNavigation, required this.resetChatList});
+  const FindWGPage(
+      {super.key, required this.resetNavigation, required this.resetChatList});
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +36,13 @@ class FindWGPage extends StatelessWidget {
               final chatId = await viewModel.findOrCreateChatRoom(
                   state.currentUser, receiverId);
               final ChatModel? chat = await viewModel.loadChatRoom(chatId);
-              if (chat != null) {
-                GoRouter.of(context)
-                    .push('/chat_page', extra: {'chat': chat, 'resetNavigation': resetNavigation, 'resetChatList' : resetChatList});
+              if (chat != null && context.mounted) {
+                GoRouter.of(context).push('/chat_page', extra: {
+                  'chat': chat,
+                  'resetNavigation': resetNavigation,
+                  'resetChatList': resetChatList
+                });
               }
-              // final ChatModel chat = ChatModel(
-              //     chatId: chatId,
-              //     participants: [state.currentUser, receiverId],
-              //     createdAt: DateTime.now());
             },
             child: Ink(
               decoration: BoxDecoration(

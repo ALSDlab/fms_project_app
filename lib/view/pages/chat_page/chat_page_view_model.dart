@@ -53,8 +53,8 @@ class ChatPageViewModel with ChangeNotifier {
     }
   }
 
-  void loadMessages(Function(int) resetNavigation,
-      Function(Map<String, int>) resetChatList) {
+  Future<void> loadMessages(Function(int) resetNavigation,
+      Function(Map<String, int>) resetChatList) async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -74,6 +74,9 @@ class ChatPageViewModel with ChangeNotifier {
 
               _state = state.copyWith(messages: updatedMessages);
 
+              print(_state.currentUser);
+              print(_state.messages);
+
               for (var message in updatedMessages) {
                 if (message.senderId != state.currentUser &&
                     !message.readByUsers.contains(state.currentUser)) {
@@ -91,7 +94,6 @@ class ChatPageViewModel with ChangeNotifier {
               resetNavigation(-totalBadgeCount);
 
               notifyListeners();
-              print(_state.messages.length);
             });
           } catch (error) {
             logger.info('Error fetching FIREBASE data(loadMessages): $error');
