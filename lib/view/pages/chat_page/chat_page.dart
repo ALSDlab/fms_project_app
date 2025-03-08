@@ -27,12 +27,10 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
-    Future.microtask(() {
-      if (mounted) {
-        final viewModel = context.read<ChatPageViewModel>();
-        viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
-      }
-    });
+    if (mounted) {
+      final viewModel = context.read<ChatPageViewModel>();
+      viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
+    }
     super.initState();
   }
 

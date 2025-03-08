@@ -53,8 +53,8 @@ class ChatPageViewModel with ChangeNotifier {
     }
   }
 
-  Future<int> loadMessages(Function(int) resetNavigation,
-      Function(Map<String, int>) resetChatList) async {
+  void loadMessages(Function(int) resetNavigation,
+      Function(Map<String, int>) resetChatList) {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -100,10 +100,8 @@ class ChatPageViewModel with ChangeNotifier {
           logger.info(currentUserResult.message);
           break;
       }
-      return _state.badgeCount;
     } catch (error) {
       logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
-      return 0;
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

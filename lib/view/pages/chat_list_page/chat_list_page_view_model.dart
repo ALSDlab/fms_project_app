@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/model/chat_model.dart';
@@ -15,6 +17,7 @@ class ChatListPageViewModel with ChangeNotifier {
   final GetChatListUseCase _getChatListUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final StreamChatListUseCase _streamChatListUseCase;
+  StreamSubscription<List<ChatModel>>? _chatsSubscription;
 
   ChatListPageViewModel({
     required MarkMessagesAsReadUseCase markMessagesAsReadUseCase,
@@ -53,7 +56,41 @@ class ChatListPageViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadChats() async {
+  void loadChats() async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final currentUserResult = _getCurrentUserUseCase.execute();
+      switch (currentUserResult) {
+        case Success<User>():
+          _state = state.copyWith(currentUser: currentUserResult.data.uid);
+          notifyListeners();
+
+          _chatsSubscription?.cancel();
+          try {
+            final getChatListsResult =
+                _streamChatListUseCase.execute(currentUserResult.data.uid);
+            _chatsSubscription = getChatListsResult.listen((chatLists) {
+              List<ChatModel> updatedChatLists = List.from(chatLists);
+
+              _state = state.copyWith(chats: updatedChatLists);
+            });
+          } catch (error) {
+            logger.info('Error fetching FIREBASE data(loadChatLists): $error');
+          }
+        case Error<User>():
+          logger.info(currentUserResult.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchChats() async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -90,7 +127,6 @@ class ChatListPageViewModel with ChangeNotifier {
       switch (markMessagesResult) {
         case Success<int>():
           logger.info('all messages here were marked as read!');
-          print(markMessagesResult.data);
           resetNavigation(markMessagesResult.data);
           break;
         case Error<String>():

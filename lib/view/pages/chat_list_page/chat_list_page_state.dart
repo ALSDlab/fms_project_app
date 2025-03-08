@@ -8,6 +8,7 @@ part 'chat_list_page_state.g.dart';
 class ChatListPageState with _$ChatListPageState {
   const factory ChatListPageState({
     @Default(false) bool isLoading,
+    @Default('') String currentUser,
     @Default([]) List<ChatModel> chats,
     @Default({}) Map<String, int> chatRoomBadge,
   }) = _ChatListPageState;
