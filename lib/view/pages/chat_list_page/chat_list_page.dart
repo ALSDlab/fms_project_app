@@ -38,14 +38,7 @@ class ChatListPage extends StatelessWidget {
                           return ListTile(
                             title: Text(chat.participants.join(", ")),
                             subtitle: Text(chat.lastMessage ?? ''),
-                            trailing: (chatPageState.messages
-                                    .where((e) =>
-                                        e.chatId == chat.chatId &&
-                                        e.senderId !=
-                                            chatPageState.currentUser &&
-                                        !e.readByUsers.contains(
-                                            chatPageState.currentUser))
-                                    .isNotEmpty)
+                            trailing: (state.chatRoomBadge[chat.chatId]) != null
                                 ? Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
@@ -53,7 +46,7 @@ class ChatListPage extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Text(
-                                      '${chatPageState.messages.where((e) => e.chatId == chat.chatId && e.senderId != chatPageState.currentUser && !e.readByUsers.contains(chatPageState.currentUser)).length}',
+                                      '${state.chatRoomBadge[chat.chatId]}',
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),
@@ -61,7 +54,7 @@ class ChatListPage extends StatelessWidget {
                                 : null,
                             onTap: () {
                               viewModel.markMessagesAsRead(chat.chatId,
-                                  chatPageState.currentUser, resetNavigation);
+                                  state.currentUser, resetNavigation);
                               // navigationViewModel.loadMessages();
                               GoRouter.of(context).go('/chat_page', extra: {
                                 'chat': chat,

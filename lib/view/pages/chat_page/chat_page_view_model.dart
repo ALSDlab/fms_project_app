@@ -74,9 +74,6 @@ class ChatPageViewModel with ChangeNotifier {
 
               _state = state.copyWith(messages: updatedMessages);
 
-              print(_state.currentUser);
-              print(_state.messages);
-
               for (var message in updatedMessages) {
                 if (message.senderId != state.currentUser &&
                     !message.readByUsers.contains(state.currentUser)) {
