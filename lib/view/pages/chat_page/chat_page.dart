@@ -12,7 +12,7 @@ import 'chat_page_view_model.dart';
 class ChatPage extends StatefulWidget {
   final bool isMakeRoom;
   final ChatModel chat;
-  final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetNavigation;
   final Function(Map<String, int>) resetChatList;
 
   const ChatPage(
@@ -32,7 +32,10 @@ class _ChatPageState extends State<ChatPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         final viewModel = context.read<ChatPageViewModel>();
+        await viewModel.markMessagesAsRead(widget.chat.chatId,
+            widget.resetNavigation);
         await viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
+
       }
     });
 

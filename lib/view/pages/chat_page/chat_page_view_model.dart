@@ -10,6 +10,7 @@ import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart'
 import 'package:image_picker/image_picker.dart';
 
 import '../../../data/core/result.dart';
+import '../../../domain/use_case/chat_data/mark_messages_as_read_use_case.dart';
 import '../../../domain/use_case/chat_data/stream_message_use_case.dart';
 import '../../../domain/use_case/user_data/get_current_user_use_case.dart';
 import '../../../utils/simple_logger.dart';
@@ -17,6 +18,7 @@ import 'chat_page_state.dart';
 
 class ChatPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final MarkMessagesAsReadUseCase _markMessagesAsReadUseCase;
   final CreateChatRoomUseCase _createChatRoomUseCase;
   final StreamMessageUseCase _streamMessageUseCase;
   StreamSubscription<List<MessageModel>>? _messagesSubscription;
@@ -25,11 +27,13 @@ class ChatPageViewModel with ChangeNotifier {
 
   ChatPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required MarkMessagesAsReadUseCase markMessagesAsReadUseCase,
     required CreateChatRoomUseCase createChatRoomUseCase,
     required StreamMessageUseCase streamMessageUseCase,
     required SendMessageUseCase sendMessageUseCase,
     required UploadImageUseCase uploadImageUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
+        _markMessagesAsReadUseCase = markMessagesAsReadUseCase,
         _createChatRoomUseCase = createChatRoomUseCase,
         _streamMessageUseCase = streamMessageUseCase,
         _sendMessageUseCase = sendMessageUseCase,
@@ -59,7 +63,7 @@ class ChatPageViewModel with ChangeNotifier {
     }
   }
 
-  Future<void> loadMessages(Function(int) resetNavigation,
+  Future<void> loadMessages(Function(Map<String, int>) resetNavigation,
       Function(Map<String, int>) resetChatList) async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
@@ -83,22 +87,61 @@ class ChatPageViewModel with ChangeNotifier {
               notifyListeners();
 
               for (var message in updatedMessages) {
-                if (message.senderId != currentUserResult.data.uid &&
-                    !message.readByUsers.contains(currentUserResult.data.uid)) {
-                  // chatId별 카운트 증가
+                if (message.senderId != currentUserResult.data.uid) {
+                  // 맵에 기본값 0 설정 (없으면 0)
                   badgeCounts[message.chatId] =
-                      (badgeCounts[message.chatId] ?? 0) + 1;
+                      (badgeCounts[message.chatId] ?? 0);
+
+                  // 읽지 않은 메시지라면 카운트 증가
+                  if (!message.readByUsers
+                      .contains(currentUserResult.data.uid)) {
+                    badgeCounts[message.chatId] =
+                        badgeCounts[message.chatId]! + 1;
+                  }
                 }
               }
-              // 총 badgeCount 계산 후 resetNavigation 호출
-              int totalBadgeCount =
-                  badgeCounts.values.fold(0, (sum, count) => sum + count);
-
               resetChatList(badgeCounts);
-              resetNavigation(totalBadgeCount);
+              resetNavigation(badgeCounts);
             });
           } catch (error) {
             logger.info('Error fetching FIREBASE data(loadMessages): $error');
+          }
+        case Error<User>():
+          logger.info(currentUserResult.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> markMessagesAsRead(
+      String chatId, Function resetNavigation) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final currentUserResult = _getCurrentUserUseCase.execute();
+      switch (currentUserResult) {
+        case Success<User>():
+          _state = state.copyWith(currentUser: currentUserResult.data.uid);
+          notifyListeners();
+          try {
+            final markMessagesResult = await _markMessagesAsReadUseCase.execute(
+                chatId, currentUserResult.data.uid);
+            switch (markMessagesResult) {
+              case Success<int>():
+                logger.info('all messages here were marked as read!');
+
+              case Error<String>():
+                logger.info('Error occurred marking as read');
+                break;
+            }
+          } catch (error) {
+            logger.info(
+                'Error fetching FIREBASE data(markMessagesAsRead): $error');
           }
         case Error<User>():
           logger.info(currentUserResult.message);

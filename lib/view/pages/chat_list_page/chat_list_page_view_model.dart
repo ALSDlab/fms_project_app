@@ -9,25 +9,21 @@ import 'package:fmsproject/domain/use_case/user_data/get_current_user_use_case.d
 import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_state.dart';
 
 import '../../../data/core/result.dart';
-import '../../../domain/use_case/chat_data/mark_messages_as_read_use_case.dart';
 import '../../../utils/simple_logger.dart';
 
 class ChatListPageViewModel with ChangeNotifier {
-  final MarkMessagesAsReadUseCase _markMessagesAsReadUseCase;
   final GetChatListUseCase _getChatListUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final StreamChatListUseCase _streamChatListUseCase;
   StreamSubscription<List<ChatModel>>? _chatsSubscription;
 
   ChatListPageViewModel({
-    required MarkMessagesAsReadUseCase markMessagesAsReadUseCase,
     required GetChatListUseCase getChatListUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required StreamChatListUseCase streamChatListUseCase,
-  })  : _markMessagesAsReadUseCase = markMessagesAsReadUseCase,
-        _getChatListUseCase = getChatListUseCase,
+  })  : _getChatListUseCase = getChatListUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
-        _streamChatListUseCase = streamChatListUseCase ;
+        _streamChatListUseCase = streamChatListUseCase;
 
   ChatListPageState _state = const ChatListPageState();
 
@@ -52,7 +48,7 @@ class ChatListPageViewModel with ChangeNotifier {
   Map<String, int> chatRoomBadge = {};
 
   void resetChatList(Map<String, int> updatedChatRoomBadge) {
-    chatRoomBadge =  updatedChatRoomBadge;
+    chatRoomBadge = updatedChatRoomBadge;
     notifyListeners();
   }
 
@@ -112,33 +108,6 @@ class ChatListPageViewModel with ChangeNotifier {
       }
     } catch (error) {
       logger.info('Error fetching FIREBASE data(loadChats): $error');
-    } finally {
-      _state = state.copyWith(isLoading: false);
-      notifyListeners();
-    }
-  }
-
-  Future<void> markMessagesAsRead(
-      String chatId, String userId, Function resetNavigation) async {
-    _state = state.copyWith(isLoading: true);
-    notifyListeners();
-    try {
-      final markMessagesResult =
-          await _markMessagesAsReadUseCase.execute(chatId, userId);
-      switch (markMessagesResult) {
-        case Success<int>():
-          logger.info('all messages here were marked as read!');
-          Map<String, int> updatedBadge = {};
-          updatedBadge[chatId] = markMessagesResult.data;
-          resetNavigation(updatedBadge);
-          notifyListeners();
-          break;
-        case Error<String>():
-          logger.info('Error occurred marking as read');
-          break;
-      }
-    } catch (error) {
-      logger.info('Error fetching FIREBASE data(markMessagesAsRead): $error');
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

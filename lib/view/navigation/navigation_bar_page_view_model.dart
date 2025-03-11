@@ -22,10 +22,18 @@ class NavigationBarPageViewModel with ChangeNotifier {
     }
   }
 
-  void resetNavigation(int newValue) {
-    _state = state.copyWith(badgeCount: newValue);
-    print('네비게이션:'+_state.badgeCount.toString());
-    notifyListeners();
+  void resetNavigation(Map<String, int> newValue) {
+    final Map<String, int> originalBadge = Map.from(_state.chatRoomBadge);
+    newValue.forEach((key, value) {
+      originalBadge[key] = value; // 키가 있으면 값을 업데이트, 없으면 새로 추가
+    });
+    final totalBadgeCount =
+        originalBadge.values.reduce((sum, element) => sum + element);
+    _state = state.copyWith(
+        badgeCount: totalBadgeCount, chatRoomBadge: originalBadge);
+    print(totalBadgeCount);
+    print('네비게이션:' + _state.badgeCount.toString());
+    Future.delayed(Duration.zero, () => notifyListeners());
   }
 
 // Future<void> loadMessages(String userId) async {

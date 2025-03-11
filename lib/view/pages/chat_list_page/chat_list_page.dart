@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fmsproject/utils/gif_progress_bar.dart';
 import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_view_model.dart';
-import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../navigation/navigation_bar_page_view_model.dart';
+
 class ChatListPage extends StatefulWidget {
-  const ChatListPage({super.key, required this.resetNavigation, required this.resetChatList});
+  const ChatListPage(
+      {super.key, required this.resetNavigation, required this.resetChatList});
 
-  final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetNavigation;
   final Function(Map<String, int>) resetChatList;
-
 
   @override
   State<ChatListPage> createState() => _ChatListPageState();
@@ -33,10 +34,10 @@ class _ChatListPageState extends State<ChatListPage> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChatListPageViewModel>();
     final state = viewModel.state;
-    final chatPageViewModel = context.watch<ChatPageViewModel>();
-    final chatPageState = chatPageViewModel.state;
+    final navigationBarPageViewModel =
+        context.watch<NavigationBarPageViewModel>();
+    final navigationBarPageState = navigationBarPageViewModel.state;
 
-    print("🔄 ChatlistPage - chatRoomBadge 변경 감지: ${viewModel.chatRoomBadge}");
     return Scaffold(
         appBar: AppBar(title: const Text("Messages")),
         body: SafeArea(
@@ -60,9 +61,12 @@ class _ChatListPageState extends State<ChatListPage> {
                             key: ValueKey(chat.chatId),
                             title: Text(chat.participants.join(", ")),
                             subtitle: Text(chat.lastMessage ?? ''),
-                            trailing: (viewModel.chatRoomBadge[chat.chatId] !=
+                            trailing: (navigationBarPageState
+                                            .chatRoomBadge[chat.chatId] !=
                                         null &&
-                                    viewModel.chatRoomBadge[chat.chatId]! > 0)
+                                    navigationBarPageState
+                                            .chatRoomBadge[chat.chatId]! >
+                                        0)
                                 ? Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
@@ -70,23 +74,20 @@ class _ChatListPageState extends State<ChatListPage> {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Text(
-                                      '${viewModel.chatRoomBadge[chat.chatId]}',
+                                      '${navigationBarPageState.chatRoomBadge[chat.chatId]}',
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),
                                   )
                                 : null,
-                            onTap: () async {
-                              final result = await GoRouter.of(context)
-                                  .push('/chat_page', extra: {
-                                'isMakeRoom': false,
-                                'chat': chat,
-                                'resetNavigation': widget.resetNavigation,
-                                'resetChatList': widget.resetChatList
-                              });
-                              if (result == true) {
-                                await viewModel.markMessagesAsRead(chat.chatId,
-                                    state.currentUser, widget.resetNavigation);
+                            onTap: () {
+                              if (context.mounted) {
+                                GoRouter.of(context).push('/chat_page', extra: {
+                                  'isMakeRoom': false,
+                                  'chat': chat,
+                                  'resetNavigation': widget.resetNavigation,
+                                  'resetChatList': widget.resetChatList
+                                });
                               }
                             },
                           );

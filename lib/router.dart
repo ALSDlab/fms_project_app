@@ -142,10 +142,18 @@ final router = GoRouter(
             path: '/chat_list_page',
             builder: (context, state) {
               final extra = state.extra! as Map<String, dynamic>;
-              return ChangeNotifierProvider(
-                create: (_) => getIt<ChatListPageViewModel>(),
+              return MultiProvider(
+                providers: [
+                  ChangeNotifierProvider.value(  // 기존 ViewModel 인스턴스 유지
+                    value: context.read<NavigationBarPageViewModel>(),
+                  ),
+                  ChangeNotifierProvider(
+                    create: (_) => getIt<ChatListPageViewModel>(),
+                  ),
+                ],
                 child: ChatListPage(
-                  resetNavigation: extra['resetNavigation'], resetChatList: extra['resetChatList'],
+                  resetNavigation: extra['resetNavigation'],
+                  resetChatList: extra['resetChatList'],
                 ),
               );
             },

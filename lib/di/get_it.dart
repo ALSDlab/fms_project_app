@@ -104,10 +104,10 @@ void diSetup() {
     ..registerFactory<ChatListPageViewModel>(() => ChatListPageViewModel(
         getChatListUseCase: getIt<GetChatListUseCase>(),
         getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
-        streamChatListUseCase: getIt<StreamChatListUseCase>(),
-        markMessagesAsReadUseCase: getIt<MarkMessagesAsReadUseCase>()))
+        streamChatListUseCase: getIt<StreamChatListUseCase>()))
     ..registerFactory<ChatPageViewModel>(() => ChatPageViewModel(
         getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+        markMessagesAsReadUseCase: getIt<MarkMessagesAsReadUseCase>(),
         streamMessageUseCase: getIt<StreamMessageUseCase>(),
         sendMessageUseCase: getIt<SendMessageUseCase>(),
         uploadImageUseCase: getIt<UploadImageUseCase>(),

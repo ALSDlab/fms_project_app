@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class FindWGPage extends StatelessWidget {
-  final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetNavigation;
   final Function(Map<String, int>) resetChatList;
 
   const FindWGPage(
