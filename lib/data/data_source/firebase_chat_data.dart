@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fmsproject/data/dtos/chat_data_dto.dart';
 import 'package:fmsproject/data/dtos/message_data_dto.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../utils/simple_logger.dart';
 import '../core/result.dart';
@@ -68,38 +69,47 @@ class FirebaseChatData {
     }
   }
 
-  // 유저별 메시지 실시간 로드
   Stream<List<MessageDataDto>> getMessagesForUser(String userId) {
     try {
       return _firestore
           .collection('chats')
-          .where('participants', arrayContains: userId) // userId가 포함된 채팅방 필터링
+          .where('participants', arrayContains: userId)
           .snapshots()
-          .asyncMap((chatSnapshot) async {
-        List<MessageDataDto> allMessages = [];
+          .switchMap((chatSnapshot) {
+        // 채팅방이 없는 경우
+        if (chatSnapshot.docs.isEmpty) {
+          return Stream.value(<MessageDataDto>[]);
+        }
 
-        // 채팅방 목록 가져오기
-        for (var chatDoc in chatSnapshot.docs) {
-          // 각 채팅방의 메시지를 실시간으로 가져오기
-          var messagesStream = _firestore
+        // 모든 채팅방의 메시지 스트림을 합치기
+        List<Stream<List<MessageDataDto>>> messageStreams =
+            chatSnapshot.docs.map((chatDoc) {
+          return _firestore
               .collection('chats')
               .doc(chatDoc.id)
               .collection('messages')
               .orderBy('timestamp', descending: true)
               .limit(15)
-              .snapshots();
+              .snapshots()
+              .map((messagesSnapshot) => messagesSnapshot.docs
+                  .map((doc) => MessageDataDto.fromJson(doc.data()))
+                  .toList());
+        }).toList();
 
-          // 각 채팅방의 메시지를 스트림으로 변환
-          await for (var messagesSnapshot in messagesStream) {
-            var messages = messagesSnapshot.docs
-                .map((doc) => MessageDataDto.fromJson(doc.data()))
-                .toList();
+        // 여러 스트림을 하나로 합치기 (모든 채팅방의 메시지를 포함)
+        return CombineLatestStream.list(messageStreams).map((listOfMessages) {
+          List<MessageDataDto> allMessages = [];
+          for (var messages in listOfMessages) {
             allMessages.addAll(messages);
-            break; // 최신 메시지만 가져오고 루프 종료
           }
-        }
-
-        return allMessages;
+          // 전체 메시지를 타임스탬프 기준으로 정렬
+          allMessages.sort((a, b) {
+            int secondsDiff = b.timestamp!.seconds - a.timestamp!.seconds;
+            if (secondsDiff != 0) return secondsDiff;
+            return b.timestamp!.nanoseconds - a.timestamp!.nanoseconds;
+          });
+          return allMessages;
+        });
       });
     } catch (e) {
       logger.info(
@@ -156,7 +166,7 @@ class FirebaseChatData {
 
         var readByRaw = data['readByUsers'];
         List<String> readBy = (readByRaw is List)
-            ? readByRaw.map((e) => e.toString()).toList()  // `String` 변환
+            ? readByRaw.map((e) => e.toString()).toList() // `String` 변환
             : [];
 
         if (!readBy.contains(userId)) {
@@ -166,9 +176,12 @@ class FirebaseChatData {
           unreadCount += 1;
         }
       }
-
       // batch 실행
-      await batch.commit();
+      batch.commit().then((_) {
+        logger.info('Firestore update completed!');
+      }).catchError((error) {
+        logger.info('Firestore update Failed: $error');
+      });
       return Result.success(unreadCount);
     } catch (e) {
       logger.info('Marking messages as read error => $e');
@@ -177,7 +190,7 @@ class FirebaseChatData {
   }
 
   // 채팅방 검색 메서드
-  Future<Result<List<String>>> findOrCreateChatRoom(
+  Future<Result<List<String>>> findChatRoom(
       String senderId, String receiverId) async {
     try {
       final chatRef = _firestore.collection('chats');
@@ -194,25 +207,42 @@ class FirebaseChatData {
           chatRooms.add(doc['chatId']);
         }
       }
+
+      // 기존 채팅방이 있으면 해당 chatId를 반환
       if (chatRooms.isNotEmpty) {
         return Result.success(chatRooms);
       } else {
-        // 채팅방 없음. 새 채팅방 생성(chatId 를 새로 생성)
+        // 채팅방이 없으면 새로운 chatId만 생성하여 반환
         DocumentReference newChatRef = chatRef.doc();
         final String newChatId = newChatRef.id;
-        // 파이어베이스에 채팅방 생성
-        await newChatRef.set({
-          'chatId': newChatId,
-          'participants': [senderId, receiverId],
-          'createdAt': DateTime.now(),
-          'lastMessageId': '',
-          'lastMessage': '',
-        });
-
         return Result.success([newChatId]);
       }
     } catch (e) {
-      logger.info('Firestore find or create chat room error => $e');
+      logger.info('Firestore find chat room error => $e');
+      return Result.error(e.toString());
+    }
+  }
+
+  // 채팅방 생성 메서드
+  Future<Result<void>> createChatRoom(ChatDataDto chat) async {
+    try {
+      final chatRef = _firestore.collection('chats');
+
+      // 새로운 채팅방 생성
+      DocumentReference newChatRef = chatRef.doc(chat.chatId);
+
+      // 파이어베이스에 채팅방 생성
+      await newChatRef.set({
+        'chatId': chat.chatId,
+        'participants': chat.participants,
+        'createdAt': chat.createdAt,
+        'lastMessageId': chat.lastMessageId,
+        'lastMessage': chat.lastMessage,
+      });
+
+      return const Result.success(null); // 성공적으로 생성됨
+    } catch (e) {
+      logger.info('Firestore create chat room error => $e');
       return Result.error(e.toString());
     }
   }

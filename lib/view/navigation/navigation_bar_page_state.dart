@@ -8,6 +8,8 @@ class NavigationBarPageState with _$NavigationBarPageState {
   const factory NavigationBarPageState({
     @Default(false) bool isLoading,
     @Default(0) int badgeCount,
+    @Default({}) Map<String, int> chatRoomBadge,
+
   }) = _NavigationBarPageState;
 
   factory NavigationBarPageState.fromJson(Map<String, dynamic> json) =>

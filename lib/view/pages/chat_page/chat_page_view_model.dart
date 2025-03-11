@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/model/chat_model.dart';
 import 'package:fmsproject/domain/model/message_model.dart';
+import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/send_message_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,6 +17,7 @@ import 'chat_page_state.dart';
 
 class ChatPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final CreateChatRoomUseCase _createChatRoomUseCase;
   final StreamMessageUseCase _streamMessageUseCase;
   StreamSubscription<List<MessageModel>>? _messagesSubscription;
   final SendMessageUseCase _sendMessageUseCase;
@@ -22,10 +25,12 @@ class ChatPageViewModel with ChangeNotifier {
 
   ChatPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required CreateChatRoomUseCase createChatRoomUseCase,
     required StreamMessageUseCase streamMessageUseCase,
     required SendMessageUseCase sendMessageUseCase,
     required UploadImageUseCase uploadImageUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
+        _createChatRoomUseCase = createChatRoomUseCase,
         _streamMessageUseCase = streamMessageUseCase,
         _sendMessageUseCase = sendMessageUseCase,
         _uploadImageUseCase = uploadImageUseCase;
@@ -43,6 +48,7 @@ class ChatPageViewModel with ChangeNotifier {
   void dispose() {
     _disposed = true;
     messageController.dispose();
+    _messagesSubscription?.cancel();
     super.dispose();
   }
 
@@ -74,23 +80,22 @@ class ChatPageViewModel with ChangeNotifier {
 
               _state = state.copyWith(messages: updatedMessages);
 
+              notifyListeners();
+
               for (var message in updatedMessages) {
-                if (message.senderId != state.currentUser &&
-                    !message.readByUsers.contains(state.currentUser)) {
+                if (message.senderId != currentUserResult.data.uid &&
+                    !message.readByUsers.contains(currentUserResult.data.uid)) {
                   // chatId별 카운트 증가
                   badgeCounts[message.chatId] =
                       (badgeCounts[message.chatId] ?? 0) + 1;
                 }
               }
-
-              resetChatList(badgeCounts);
-
               // 총 badgeCount 계산 후 resetNavigation 호출
               int totalBadgeCount =
                   badgeCounts.values.fold(0, (sum, count) => sum + count);
-              resetNavigation(-totalBadgeCount);
 
-              notifyListeners();
+              resetChatList(badgeCounts);
+              resetNavigation(totalBadgeCount);
             });
           } catch (error) {
             logger.info('Error fetching FIREBASE data(loadMessages): $error');
@@ -101,6 +106,27 @@ class ChatPageViewModel with ChangeNotifier {
       }
     } catch (error) {
       logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> createNewChatRoom(ChatModel chat) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final createChatRoom = await _createChatRoomUseCase.execute(chat);
+      switch (createChatRoom) {
+        case Success<void>():
+          logger.info('new Chat Room was made successfully!');
+          break;
+        case Error<void>():
+          logger.info('Chat Room was not made~~~!!');
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(createChatRoom): $error');
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

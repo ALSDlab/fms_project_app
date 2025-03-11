@@ -23,7 +23,8 @@ class NavigationBarPageViewModel with ChangeNotifier {
   }
 
   void resetNavigation(int newValue) {
-    _state = state.copyWith(badgeCount: _state.badgeCount - newValue);
+    _state = state.copyWith(badgeCount: newValue);
+    print('네비게이션:'+_state.badgeCount.toString());
     notifyListeners();
   }
 

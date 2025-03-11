@@ -10,7 +10,6 @@ class ChatListPageState with _$ChatListPageState {
     @Default(false) bool isLoading,
     @Default('') String currentUser,
     @Default([]) List<ChatModel> chats,
-    @Default({}) Map<String, int> chatRoomBadge,
   }) = _ChatListPageState;
 
   factory ChatListPageState.fromJson(Map<String, dynamic> json) =>

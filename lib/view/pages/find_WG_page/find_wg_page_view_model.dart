@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/model/chat_model.dart';
-import 'package:fmsproject/domain/use_case/chat_data/find_or_create_chat_room_use_case.dart';
+import 'package:fmsproject/domain/use_case/chat_data/find_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_room_data_use_case.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_state.dart';
 
@@ -12,15 +12,15 @@ import '../../../utils/simple_logger.dart';
 class FindWGPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final GetChatRoomDataUseCase _getChatRoomDataUseCase;
-  final FindOrCreateChatRoomUseCase _findOrCreateChatRoomUseCase;
+  final FindChatRoomUseCase _findChatRoomUseCase;
 
   FindWGPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required GetChatRoomDataUseCase getChatRoomDataUseCase,
-    required FindOrCreateChatRoomUseCase findOrCreateChatRoomUseCase,
+    required FindChatRoomUseCase findChatRoomUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
         _getChatRoomDataUseCase = getChatRoomDataUseCase,
-        _findOrCreateChatRoomUseCase = findOrCreateChatRoomUseCase;
+        _findChatRoomUseCase = findChatRoomUseCase;
   FindWgPageState _state = const FindWgPageState();
 
   FindWgPageState get state => _state;
@@ -77,16 +77,16 @@ class FindWGPageViewModel with ChangeNotifier {
     return null;
   }
 
-  Future<String> findOrCreateChatRoom(
+  Future<String> findChatRoom(
       String senderId, String receiverId) async {
     try {
-      final findOrCreateChatResult =
-          await _findOrCreateChatRoomUseCase.execute(senderId, receiverId);
-      switch (findOrCreateChatResult) {
+      final findChatResult =
+          await _findChatRoomUseCase.execute(senderId, receiverId);
+      switch (findChatResult) {
         case Success<List<String>>():
-          return findOrCreateChatResult.data.first;
+          return findChatResult.data.first;
         case Error<List<String>>():
-          logger.info(findOrCreateChatResult.message);
+          logger.info(findChatResult.message);
           return '';
       }
       return '';

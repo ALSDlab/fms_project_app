@@ -27,9 +27,7 @@ class ChatListPageViewModel with ChangeNotifier {
   })  : _markMessagesAsReadUseCase = markMessagesAsReadUseCase,
         _getChatListUseCase = getChatListUseCase,
         _getCurrentUserUseCase = getCurrentUserUseCase,
-        _streamChatListUseCase = streamChatListUseCase {
-    loadChats();
-  }
+        _streamChatListUseCase = streamChatListUseCase ;
 
   ChatListPageState _state = const ChatListPageState();
 
@@ -40,6 +38,7 @@ class ChatListPageViewModel with ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _chatsSubscription?.cancel();
     super.dispose();
   }
 
@@ -50,9 +49,10 @@ class ChatListPageViewModel with ChangeNotifier {
     }
   }
 
-  void resetChatList(Map<String, int> updatedChatRoomBadge) {
-    _state = state.copyWith(chatRoomBadge: updatedChatRoomBadge);
+  Map<String, int> chatRoomBadge = {};
 
+  void resetChatList(Map<String, int> updatedChatRoomBadge) {
+    chatRoomBadge =  updatedChatRoomBadge;
     notifyListeners();
   }
 
@@ -119,7 +119,7 @@ class ChatListPageViewModel with ChangeNotifier {
   }
 
   Future<void> markMessagesAsRead(
-      String chatId, String userId, Function(int) resetNavigation) async {
+      String chatId, String userId, Function resetNavigation) async {
     _state = state.copyWith(isLoading: true);
     notifyListeners();
     try {
@@ -128,7 +128,10 @@ class ChatListPageViewModel with ChangeNotifier {
       switch (markMessagesResult) {
         case Success<int>():
           logger.info('all messages here were marked as read!');
-          resetNavigation(markMessagesResult.data);
+          Map<String, int> updatedBadge = {};
+          updatedBadge[chatId] = markMessagesResult.data;
+          resetNavigation(updatedBadge);
+          notifyListeners();
           break;
         case Error<String>():
           logger.info('Error occurred marking as read');

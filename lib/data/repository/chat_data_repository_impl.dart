@@ -53,10 +53,9 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<List<String>>> findOrCreateChatRoom(
+  Future<Result<List<String>>> findChatRoom(
       String senderId, String receiverId) async {
-    final result =
-        await FirebaseChatData().findOrCreateChatRoom(senderId, receiverId);
+    final result = await FirebaseChatData().findChatRoom(senderId, receiverId);
 
     return result.when(
       success: (data) async {
@@ -64,6 +63,26 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
           return Result.success(data);
         } catch (e) {
           return Result.error('findOrCreateChatRoomRepositoryImpl $e');
+        }
+      },
+      error: (message) {
+        return Result.error(message);
+      },
+    );
+  }
+
+  @override
+  Future<Result<void>> createChatRoom(
+      ChatModel chat) async {
+    final result =
+        await FirebaseChatData().createChatRoom(ChatDataMapper.toDTO(chat));
+
+    return result.when(
+      success: (data) async {
+        try {
+          return Result.success(data);
+        } catch (e) {
+          return Result.error('createChatRoomRepositoryImpl $e');
         }
       },
       error: (message) {

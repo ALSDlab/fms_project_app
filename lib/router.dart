@@ -63,6 +63,7 @@ final router = GoRouter(
             chat: extra['chat'],
             resetNavigation: extra['resetNavigation'],
             resetChatList: extra['resetChatList'],
+            isMakeRoom: extra['isMakeRoom'],
           ),
         );
       },
@@ -78,6 +79,7 @@ final router = GoRouter(
                 ),
                 ChangeNotifierProvider(
                   create: (_) => getIt<ChatPageViewModel>(),
+                  lazy: false,
                 ),
                 ChangeNotifierProvider(
                   create: (_) => getIt<ChatListPageViewModel>(),
@@ -139,20 +141,11 @@ final router = GoRouter(
           GoRoute(
             path: '/chat_list_page',
             builder: (context, state) {
-              final navigationViewModel =
-                  Provider.of<NavigationBarPageViewModel>(context,
-                      listen: false);
-              return MultiProvider(
-                providers: [
-                  ChangeNotifierProvider(
-                    create: (_) => getIt<ChatListPageViewModel>(),
-                  ),
-                  ChangeNotifierProvider(
-                    create: (_) => getIt<ChatPageViewModel>(),
-                  ),
-                ],
+              final extra = state.extra! as Map<String, dynamic>;
+              return ChangeNotifierProvider(
+                create: (_) => getIt<ChatListPageViewModel>(),
                 child: ChatListPage(
-                  resetNavigation: navigationViewModel.resetNavigation,
+                  resetNavigation: extra['resetNavigation'], resetChatList: extra['resetChatList'],
                 ),
               );
             },

@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _initializeConnectivity();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final loginViewModel = context.read<LoginPageViewModel>();
 

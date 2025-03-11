@@ -5,10 +5,29 @@ import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class ChatListPage extends StatelessWidget {
-  const ChatListPage({super.key, required this.resetNavigation});
+class ChatListPage extends StatefulWidget {
+  const ChatListPage({super.key, required this.resetNavigation, required this.resetChatList});
 
   final Function(int) resetNavigation;
+  final Function(Map<String, int>) resetChatList;
+
+
+  @override
+  State<ChatListPage> createState() => _ChatListPageState();
+}
+
+class _ChatListPageState extends State<ChatListPage> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        final viewModel = context.read<ChatListPageViewModel>();
+        await viewModel.loadChats();
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +35,15 @@ class ChatListPage extends StatelessWidget {
     final state = viewModel.state;
     final chatPageViewModel = context.watch<ChatPageViewModel>();
     final chatPageState = chatPageViewModel.state;
+
+    print("🔄 ChatlistPage - chatRoomBadge 변경 감지: ${viewModel.chatRoomBadge}");
     return Scaffold(
         appBar: AppBar(title: const Text("Messages")),
         body: SafeArea(
           child: Align(
             alignment: const AlignmentDirectional(0, 0),
             child: (state.isLoading)
-                ? GifProgressBar()
+                ? Center(child: GifProgressBar())
                 : (state.chats.isEmpty)
                     ? const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -36,9 +57,12 @@ class ChatListPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           var chat = state.chats[index];
                           return ListTile(
+                            key: ValueKey(chat.chatId),
                             title: Text(chat.participants.join(", ")),
                             subtitle: Text(chat.lastMessage ?? ''),
-                            trailing: (state.chatRoomBadge[chat.chatId]) != null
+                            trailing: (viewModel.chatRoomBadge[chat.chatId] !=
+                                        null &&
+                                    viewModel.chatRoomBadge[chat.chatId]! > 0)
                                 ? Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
@@ -46,21 +70,24 @@ class ChatListPage extends StatelessWidget {
                                       shape: BoxShape.circle,
                                     ),
                                     child: Text(
-                                      '${state.chatRoomBadge[chat.chatId]}',
+                                      '${viewModel.chatRoomBadge[chat.chatId]}',
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),
                                   )
                                 : null,
-                            onTap: () {
-                              viewModel.markMessagesAsRead(chat.chatId,
-                                  state.currentUser, resetNavigation);
-                              // navigationViewModel.loadMessages();
-                              GoRouter.of(context).go('/chat_page', extra: {
+                            onTap: () async {
+                              final result = await GoRouter.of(context)
+                                  .push('/chat_page', extra: {
+                                'isMakeRoom': false,
                                 'chat': chat,
-                                'resetNavigation': resetNavigation,
-                                'resetChatList': viewModel.resetChatList
+                                'resetNavigation': widget.resetNavigation,
+                                'resetChatList': widget.resetChatList
                               });
+                              if (result == true) {
+                                await viewModel.markMessagesAsRead(chat.chatId,
+                                    state.currentUser, widget.resetNavigation);
+                              }
                             },
                           );
                         },

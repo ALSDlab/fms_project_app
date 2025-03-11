@@ -2,7 +2,8 @@ import 'package:fmsproject/data/repository/chat_data_repository_impl.dart';
 import 'package:fmsproject/data/repository/user_data_repository_impl.dart';
 import 'package:fmsproject/domain/repository/chat_data_repository.dart';
 import 'package:fmsproject/domain/repository/user_data_repository.dart';
-import 'package:fmsproject/domain/use_case/chat_data/find_or_create_chat_room_use_case.dart';
+import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.dart';
+import 'package:fmsproject/domain/use_case/chat_data/find_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_list_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_room_data_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/mark_messages_as_read_use_case.dart';
@@ -72,9 +73,10 @@ void diSetup() {
         StreamMessageUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<MarkMessagesAsReadUseCase>(MarkMessagesAsReadUseCase(
         chatDataRepository: getIt<ChatDataRepository>()))
-    ..registerSingleton<FindOrCreateChatRoomUseCase>(
-        FindOrCreateChatRoomUseCase(
-            chatDataRepository: getIt<ChatDataRepository>()))
+    ..registerSingleton<FindChatRoomUseCase>(
+        FindChatRoomUseCase(chatDataRepository: getIt<ChatDataRepository>()))
+    ..registerSingleton<CreateChatRoomUseCase>(
+        CreateChatRoomUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<SendMessageUseCase>(
         SendMessageUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<UploadImageUseCase>(
@@ -95,7 +97,7 @@ void diSetup() {
         checkEmailVerifiedUseCase: getIt<CheckEmailVerifiedUseCase>()))
     ..registerFactory<FindWGPageViewModel>(() => FindWGPageViewModel(
         getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
-        findOrCreateChatRoomUseCase: getIt<FindOrCreateChatRoomUseCase>(),
+        findChatRoomUseCase: getIt<FindChatRoomUseCase>(),
         getChatRoomDataUseCase: getIt<GetChatRoomDataUseCase>()))
     ..registerFactory<UploadWGPageViewModel>(() => UploadWGPageViewModel())
     ..registerFactory<MyHistoryPageViewModel>(() => MyHistoryPageViewModel())
@@ -108,7 +110,8 @@ void diSetup() {
         getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
         streamMessageUseCase: getIt<StreamMessageUseCase>(),
         sendMessageUseCase: getIt<SendMessageUseCase>(),
-        uploadImageUseCase: getIt<UploadImageUseCase>()))
+        uploadImageUseCase: getIt<UploadImageUseCase>(),
+        createChatRoomUseCase: getIt<CreateChatRoomUseCase>()))
     ..registerFactory<SettingPageViewModel>(() => SettingPageViewModel(
         logOutByEmailUseCase: getIt<LogOutByEmailUseCase>(),
         signOutByEmailUseCase: getIt<SignOutByEmailUseCase>()));

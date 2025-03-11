@@ -39,12 +39,12 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   void initState() {
     super.initState();
     _initializeConnectivity();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         final chatListPageViewModel = context.read<ChatListPageViewModel>();
         final chatPageViewModel = context.read<ChatPageViewModel>();
         final viewModel = context.read<NavigationBarPageViewModel>();
-        chatPageViewModel.loadMessages(
+        await chatPageViewModel.loadMessages(
             viewModel.resetNavigation, chatListPageViewModel.resetChatList);
       }
     });
@@ -126,7 +126,9 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationBarPageViewModel>();
+    final chatListPageViewModel = context.watch<ChatListPageViewModel>();
     final state = viewModel.state;
+
     bool isChatPage = widget.location.contains('chat_page');
     return Scaffold(
       body: widget.child,
@@ -219,14 +221,16 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   if (context.canPop()) {
                     context.pop();
                   }
-                  _goOtherTab(context, index);
+                  _goOtherTab(context, index, viewModel.resetNavigation,
+                      chatListPageViewModel.resetChatList);
                 }
               },
             ),
     );
   }
 
-  void _goOtherTab(BuildContext context, int index) {
+  void _goOtherTab(BuildContext context, int index, Function resetNavigation,
+      Function resetChatList) {
     // if (index == _currentIndex) return;
     GoRouter router = GoRouter.of(context);
     List<String> locations = [
@@ -237,8 +241,11 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       '/setting_page'
     ];
     String? location = locations[index];
-    if (index == 3) {
-      router.go(location);
+    if (index == 0 || index == 3) {
+      router.go(location, extra: {
+        'resetNavigation': resetNavigation,
+        'resetChatList': resetChatList,
+      });
     } else {
       router.go(location);
     }

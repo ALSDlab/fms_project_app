@@ -10,6 +10,7 @@ import '../../../utils/gif_progress_bar.dart';
 import 'chat_page_view_model.dart';
 
 class ChatPage extends StatefulWidget {
+  final bool isMakeRoom;
   final ChatModel chat;
   final Function(int) resetNavigation;
   final Function(Map<String, int>) resetChatList;
@@ -18,7 +19,8 @@ class ChatPage extends StatefulWidget {
       {super.key,
       required this.chat,
       required this.resetNavigation,
-      required this.resetChatList});
+      required this.resetChatList,
+      required this.isMakeRoom});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -27,10 +29,10 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         final viewModel = context.read<ChatPageViewModel>();
-        viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
+        await viewModel.loadMessages(widget.resetNavigation, widget.resetChatList);
       }
     });
 
@@ -49,7 +51,7 @@ class _ChatPageState extends State<ChatPage> {
           leading: IconButton(
             icon: const Icon(BootstrapIcons.arrow_left),
             onPressed: () {
-              GoRouter.of(context).go('/chat_list_page');
+              GoRouter.of(context).pop(true);
             },
           ),
           elevation: 0,
@@ -139,18 +141,23 @@ class _ChatPageState extends State<ChatPage> {
                   : IconButton(
                       icon: const Icon(Icons.send),
                       onPressed: () {
-                        final DateTime now = DateTime.now();
-                        final MessageModel message = MessageModel(
-                            messageId: now.millisecondsSinceEpoch.toString() +
-                                const Uuid().v4().substring(0, 6),
-                            chatId: widget.chat.chatId,
-                            senderId: state.currentUser,
-                            text: viewModel.messageController.text,
-                            timestamp: now,
-                            readByUsers: [],
-                            type: 'text');
-                        viewModel.sendMessageToUser(
-                            widget.chat.chatId, message);
+                        if (viewModel.messageController.text.isNotEmpty) {
+                          if (widget.isMakeRoom) {
+                            viewModel.createNewChatRoom(widget.chat);
+                          }
+                          final DateTime now = DateTime.now();
+                          final MessageModel message = MessageModel(
+                              messageId: now.millisecondsSinceEpoch.toString() +
+                                  const Uuid().v4().substring(0, 6),
+                              chatId: widget.chat.chatId,
+                              senderId: state.currentUser,
+                              text: viewModel.messageController.text,
+                              timestamp: now,
+                              readByUsers: [],
+                              type: 'text');
+                          viewModel.sendMessageToUser(
+                              widget.chat.chatId, message);
+                        }
                       }),
             ],
           ),

@@ -33,11 +33,23 @@ class FindWGPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
               const String receiverId = '2coIOGzCahfxEYOkLy33be2kEAN2';
-              final chatId = await viewModel.findOrCreateChatRoom(
-                  state.currentUser, receiverId);
-              final ChatModel? chat = await viewModel.loadChatRoom(chatId);
-              if (chat != null && context.mounted) {
+              final chatId =
+                  await viewModel.findChatRoom(state.currentUser, receiverId);
+              ChatModel? chat = await viewModel.loadChatRoom(chatId);
+              bool isMakeRoom = false;
+              if (chat == null) {
+                isMakeRoom = true;
+                chat = ChatModel(
+                    chatId: chatId,
+                    participants: [state.currentUser, receiverId],
+                    createdAt: DateTime.now(),
+                    lastMessageId: '',
+                    lastMessage: '');
+              }
+
+              if (context.mounted) {
                 GoRouter.of(context).push('/chat_page', extra: {
+                  'isMakeRoom': isMakeRoom,
                   'chat': chat,
                   'resetNavigation': resetNavigation,
                   'resetChatList': resetChatList

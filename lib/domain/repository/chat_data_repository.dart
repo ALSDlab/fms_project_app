@@ -14,12 +14,15 @@ abstract interface class ChatDataRepository {
 
   Stream<List<MessageModel>> getMessagesForUser(String userId);
 
-  Future<Result<List<MessageModel>>> fetchMoreMessages(String chatId, DateTime lastTimestamp);
+  Future<Result<List<MessageModel>>> fetchMoreMessages(
+      String chatId, DateTime lastTimestamp);
 
   Future<Result<int>> markMessagesAsRead(String chatId, String userId);
 
-  Future<Result<List<String>>> findOrCreateChatRoom(
-      String senderId, String receiverId);
+  Future<Result<List<String>>> findChatRoom(String senderId, String receiverId);
+
+  Future<Result<void>> createChatRoom(
+      ChatModel chat);
 
   Future<Result<void>> sendMessage(String receiverId, MessageModel message);
 
