@@ -28,7 +28,7 @@ class NavigationBarPageViewModel with ChangeNotifier {
       originalBadge[key] = value; // 키가 있으면 값을 업데이트, 없으면 새로 추가
     });
     final totalBadgeCount =
-        originalBadge.values.reduce((sum, element) => sum + element);
+        originalBadge.values.fold(0, (sum, element) => sum + element);
     _state = state.copyWith(
         badgeCount: totalBadgeCount, chatRoomBadge: originalBadge);
     print(totalBadgeCount);

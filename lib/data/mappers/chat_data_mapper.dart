@@ -8,18 +8,23 @@ class ChatDataMapper {
     return ChatModel(
       chatId: dto.chatId ?? '',
       participants: dto.participants ?? [],
-      lastMessage: dto.lastMessage,
       createdAt: (dto.createdAt as Timestamp).toDate(),
+      lastMessage: dto.lastMessage,
       lastMessageId: dto.lastMessageId,
+      lastMessageAt: (dto.lastMessageAt as Timestamp).toDate(),
     );
   }
 
   static ChatDataDto toDTO(ChatModel model) {
     return ChatDataDto(
-        chatId: model.chatId,
-        participants: model.participants,
-        lastMessage: model.lastMessage,
-        createdAt: Timestamp.fromDate(model.createdAt),
-        lastMessageId: model.lastMessageId);
+      chatId: model.chatId,
+      participants: model.participants,
+      createdAt: Timestamp.fromDate(model.createdAt),
+      lastMessage: model.lastMessage,
+      lastMessageId: model.lastMessageId,
+      lastMessageAt: model.lastMessageAt != null
+          ? Timestamp.fromDate(model.lastMessageAt!)
+          : null,
+    );
   }
 }

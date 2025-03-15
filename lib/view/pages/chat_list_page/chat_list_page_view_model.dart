@@ -7,6 +7,7 @@ import 'package:fmsproject/domain/use_case/chat_data/get_chat_list_use_case.dart
 import 'package:fmsproject/domain/use_case/chat_data/stream_chat_list_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_current_user_use_case.dart';
 import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_state.dart';
+import 'package:intl/intl.dart';
 
 import '../../../data/core/result.dart';
 import '../../../utils/simple_logger.dart';
@@ -112,5 +113,19 @@ class ChatListPageViewModel with ChangeNotifier {
       _state = state.copyWith(isLoading: false);
       notifyListeners();
     }
+  }
+
+  // 메시지 날짜 표시 메서드
+  String formatLastMessageTime(DateTime? dateTime) {
+    if (dateTime == null) return '';
+
+    DateTime now = DateTime.now();
+    bool isToday = now.year == dateTime.year &&
+        now.month == dateTime.month &&
+        now.day == dateTime.day;
+
+    return isToday
+        ? DateFormat('HH:mm').format(dateTime)  // 오늘이면 시:분 표시
+        : DateFormat('dd.MM.yy').format(dateTime);  // 아니면 날짜 표시
   }
 }

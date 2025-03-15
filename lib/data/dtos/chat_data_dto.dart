@@ -3,17 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatDataDto {
   final String? chatId;
   final List<String>? participants;
-  final String? lastMessage;
   final Timestamp? createdAt;
+  final String? lastMessage;
   final String? lastMessageId;
+  final Timestamp? lastMessageAt;
 
 //<editor-fold desc="Data Methods">
   const ChatDataDto({
     this.chatId,
     this.participants,
-    this.lastMessage,
     this.createdAt,
+    this.lastMessage,
     this.lastMessageId,
+    this.lastMessageAt,
   });
 
   @override
@@ -23,36 +25,40 @@ class ChatDataDto {
           runtimeType == other.runtimeType &&
           chatId == other.chatId &&
           participants == other.participants &&
-          lastMessage == other.lastMessage &&
           createdAt == other.createdAt &&
-          lastMessageId == other.lastMessageId);
+          lastMessage == other.lastMessage &&
+          lastMessageId == other.lastMessageId &&
+          lastMessageAt == other.lastMessageAt);
 
   @override
   int get hashCode =>
       chatId.hashCode ^
       participants.hashCode ^
-      lastMessage.hashCode ^
       createdAt.hashCode ^
-      lastMessageId.hashCode;
+      lastMessage.hashCode ^
+      lastMessageId.hashCode ^
+      lastMessageAt.hashCode;
 
   @override
   String toString() {
-    return 'ChatDataDto{ chatId: $chatId, participants: $participants, lastMessage: $lastMessage, createdAt: $createdAt, lastMessageId: $lastMessageId,}';
+    return 'ChatDataDto{ chatId: $chatId, participants: $participants, createdAt: $createdAt, lastMessage: $lastMessage, lastMessageId: $lastMessageId, lastMessageAt: $lastMessageAt,}';
   }
 
   ChatDataDto copyWith({
     String? chatId,
     List<String>? participants,
-    String? lastMessage,
     Timestamp? createdAt,
+    String? lastMessage,
     String? lastMessageId,
+    Timestamp? lastMessageAt,
   }) {
     return ChatDataDto(
       chatId: chatId ?? this.chatId,
       participants: participants ?? this.participants,
-      lastMessage: lastMessage ?? this.lastMessage,
       createdAt: createdAt ?? this.createdAt,
+      lastMessage: lastMessage ?? this.lastMessage,
       lastMessageId: lastMessageId ?? this.lastMessageId,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
     );
   }
 
@@ -60,22 +66,21 @@ class ChatDataDto {
     return {
       'chatId': chatId,
       'participants': participants,
-      'lastMessage': lastMessage,
       'createdAt': createdAt,
+      'lastMessage': lastMessage,
       'lastMessageId': lastMessageId,
+      'lastMessageAt': lastMessageAt,
     };
   }
 
   factory ChatDataDto.fromJson(Map<String, dynamic> map) {
     return ChatDataDto(
       chatId: map['chatId'] as String,
-      participants: (map['participants'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-      lastMessage: map['lastMessage'] as String,
+      participants: (map['participants'] as List<dynamic>).map<String>((e) => e as String).toList(),
       createdAt: map['createdAt'] as Timestamp,
+      lastMessage: map['lastMessage'] as String,
       lastMessageId: map['lastMessageId'] as String,
+      lastMessageAt: map['lastMessageAt'] as Timestamp,
     );
   }
 

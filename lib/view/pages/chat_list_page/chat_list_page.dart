@@ -59,8 +59,18 @@ class _ChatListPageState extends State<ChatListPage> {
                           var chat = state.chats[index];
                           return ListTile(
                             key: ValueKey(chat.chatId),
-                            title: Text(chat.participants.join(", ")),
-                            subtitle: Text(chat.lastMessage ?? ''),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  chat.participants.join(",\n"),
+                                  overflow: TextOverflow.visible,
+                                ),
+                                Text(viewModel
+                                    .formatLastMessageTime(chat.lastMessageAt)),
+                              ],
+                            ),
+                            subtitle: Text(chat.lastMessage ?? '', style: const TextStyle(fontSize: 18, color: Colors.grey),),
                             trailing: (navigationBarPageState
                                             .chatRoomBadge[chat.chatId] !=
                                         null &&

@@ -12,9 +12,11 @@ class ChatModel with _$ChatModel {
   const factory ChatModel({
     @JsonKey(name: 'chatId') required String chatId,
     @JsonKey(name: 'participants') required List<String> participants,
-    @JsonKey(name: 'lastMessage')  String? lastMessage,
     @JsonKey(name: 'createdAt')  required DateTime createdAt,
+    @JsonKey(name: 'lastMessage')  String? lastMessage,
     @JsonKey(name: 'lastMessageId')  String? lastMessageId,
+    @JsonKey(name: 'lastMessageAt')  DateTime? lastMessageAt,
+
 
 
   }) = _ChatModel;

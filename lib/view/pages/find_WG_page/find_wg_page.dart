@@ -40,11 +40,13 @@ class FindWGPage extends StatelessWidget {
               if (chat == null) {
                 isMakeRoom = true;
                 chat = ChatModel(
-                    chatId: chatId,
-                    participants: [state.currentUser, receiverId],
-                    createdAt: DateTime.now(),
-                    lastMessageId: '',
-                    lastMessage: '');
+                  chatId: chatId,
+                  participants: [state.currentUser, receiverId],
+                  createdAt: DateTime.now(),
+                  lastMessageId: '',
+                  lastMessage: '',
+                  lastMessageAt: null,
+                );
               }
 
               if (context.mounted) {

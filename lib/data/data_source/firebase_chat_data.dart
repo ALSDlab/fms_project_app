@@ -38,7 +38,7 @@ class FirebaseChatData {
       return _firestore
           .collection('chats')
           .where('participants', arrayContains: userId)
-          .orderBy('createdAt', descending: true)
+          .orderBy('lastMessageAt', descending: true)
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) => ChatDataDto.fromJson(doc.data()))
@@ -238,6 +238,7 @@ class FirebaseChatData {
         'createdAt': chat.createdAt,
         'lastMessageId': chat.lastMessageId,
         'lastMessage': chat.lastMessage,
+        'lastMessageAt': chat.lastMessageAt,
       });
 
       return const Result.success(null); // 성공적으로 생성됨
@@ -266,6 +267,7 @@ class FirebaseChatData {
         'lastMessage':
             messageData.type == 'image' ? "[Image]" : messageData.text,
         'lastMessageId': messageData.messageId,
+        'lastMessageAt': messageData.timestamp,
       });
 
       return const Result.success(null);
