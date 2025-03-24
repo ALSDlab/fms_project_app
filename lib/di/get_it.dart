@@ -13,6 +13,8 @@ import 'package:fmsproject/domain/use_case/chat_data/stream_message_use_case.dar
 import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/check_email_verified_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_current_user_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/get_user_profile_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/get_user_thumbnail_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_in_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_case.dart';
@@ -20,6 +22,7 @@ import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_cas
 import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
+import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
 import 'package:get_it/get_it.dart';
 
@@ -56,6 +59,10 @@ void diSetup() {
         SignInWithAppleUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<GetCurrentUserUseCase>(
         GetCurrentUserUseCase(userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<GetUserProfileUseCase>(
+        GetUserProfileUseCase(userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<GetUserThumbnailUseCase>(GetUserThumbnailUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<LogOutByEmailUseCase>(
         LogOutByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignOutByEmailUseCase>(
@@ -113,6 +120,13 @@ void diSetup() {
         uploadImageUseCase: getIt<UploadImageUseCase>(),
         createChatRoomUseCase: getIt<CreateChatRoomUseCase>()))
     ..registerFactory<SettingPageViewModel>(() => SettingPageViewModel(
-        logOutByEmailUseCase: getIt<LogOutByEmailUseCase>(),
-        signOutByEmailUseCase: getIt<SignOutByEmailUseCase>()));
+          logOutByEmailUseCase: getIt<LogOutByEmailUseCase>(),
+          signOutByEmailUseCase: getIt<SignOutByEmailUseCase>(),
+          getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          getUserThumbnailUseCase: getIt<GetUserThumbnailUseCase>(),
+        ))
+    ..registerFactory<EditProfilePageViewModel>(() => EditProfilePageViewModel(
+          getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          getUserProfileUseCase: getIt<GetUserProfileUseCase>(),
+        ));
 }

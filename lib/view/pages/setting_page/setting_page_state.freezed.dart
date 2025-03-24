@@ -22,6 +22,9 @@ SettingPageState _$SettingPageStateFromJson(Map<String, dynamic> json) {
 mixin _$SettingPageState {
   bool get tapped => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
+  String get currentUser => throw _privateConstructorUsedError;
+  String get userName => throw _privateConstructorUsedError;
+  String get thumbnailUrl => throw _privateConstructorUsedError;
 
   /// Serializes this SettingPageState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +42,12 @@ abstract class $SettingPageStateCopyWith<$Res> {
           SettingPageState value, $Res Function(SettingPageState) then) =
       _$SettingPageStateCopyWithImpl<$Res, SettingPageState>;
   @useResult
-  $Res call({bool tapped, bool isLoading});
+  $Res call(
+      {bool tapped,
+      bool isLoading,
+      String currentUser,
+      String userName,
+      String thumbnailUrl});
 }
 
 /// @nodoc
@@ -59,6 +67,9 @@ class _$SettingPageStateCopyWithImpl<$Res, $Val extends SettingPageState>
   $Res call({
     Object? tapped = null,
     Object? isLoading = null,
+    Object? currentUser = null,
+    Object? userName = null,
+    Object? thumbnailUrl = null,
   }) {
     return _then(_value.copyWith(
       tapped: null == tapped
@@ -69,6 +80,18 @@ class _$SettingPageStateCopyWithImpl<$Res, $Val extends SettingPageState>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      currentUser: null == currentUser
+          ? _value.currentUser
+          : currentUser // ignore: cast_nullable_to_non_nullable
+              as String,
+      userName: null == userName
+          ? _value.userName
+          : userName // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: null == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -81,7 +104,12 @@ abstract class _$$SettingPageStateImplCopyWith<$Res>
       __$$SettingPageStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool tapped, bool isLoading});
+  $Res call(
+      {bool tapped,
+      bool isLoading,
+      String currentUser,
+      String userName,
+      String thumbnailUrl});
 }
 
 /// @nodoc
@@ -99,6 +127,9 @@ class __$$SettingPageStateImplCopyWithImpl<$Res>
   $Res call({
     Object? tapped = null,
     Object? isLoading = null,
+    Object? currentUser = null,
+    Object? userName = null,
+    Object? thumbnailUrl = null,
   }) {
     return _then(_$SettingPageStateImpl(
       tapped: null == tapped
@@ -109,6 +140,18 @@ class __$$SettingPageStateImplCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      currentUser: null == currentUser
+          ? _value.currentUser
+          : currentUser // ignore: cast_nullable_to_non_nullable
+              as String,
+      userName: null == userName
+          ? _value.userName
+          : userName // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnailUrl: null == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -116,7 +159,12 @@ class __$$SettingPageStateImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$SettingPageStateImpl implements _SettingPageState {
-  const _$SettingPageStateImpl({this.tapped = false, this.isLoading = false});
+  const _$SettingPageStateImpl(
+      {this.tapped = false,
+      this.isLoading = false,
+      this.currentUser = '',
+      this.userName = '',
+      this.thumbnailUrl = ''});
 
   factory _$SettingPageStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$SettingPageStateImplFromJson(json);
@@ -127,10 +175,19 @@ class _$SettingPageStateImpl implements _SettingPageState {
   @override
   @JsonKey()
   final bool isLoading;
+  @override
+  @JsonKey()
+  final String currentUser;
+  @override
+  @JsonKey()
+  final String userName;
+  @override
+  @JsonKey()
+  final String thumbnailUrl;
 
   @override
   String toString() {
-    return 'SettingPageState(tapped: $tapped, isLoading: $isLoading)';
+    return 'SettingPageState(tapped: $tapped, isLoading: $isLoading, currentUser: $currentUser, userName: $userName, thumbnailUrl: $thumbnailUrl)';
   }
 
   @override
@@ -140,12 +197,19 @@ class _$SettingPageStateImpl implements _SettingPageState {
             other is _$SettingPageStateImpl &&
             (identical(other.tapped, tapped) || other.tapped == tapped) &&
             (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading));
+                other.isLoading == isLoading) &&
+            (identical(other.currentUser, currentUser) ||
+                other.currentUser == currentUser) &&
+            (identical(other.userName, userName) ||
+                other.userName == userName) &&
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, tapped, isLoading);
+  int get hashCode => Object.hash(
+      runtimeType, tapped, isLoading, currentUser, userName, thumbnailUrl);
 
   /// Create a copy of SettingPageState
   /// with the given fields replaced by the non-null parameter values.
@@ -165,8 +229,12 @@ class _$SettingPageStateImpl implements _SettingPageState {
 }
 
 abstract class _SettingPageState implements SettingPageState {
-  const factory _SettingPageState({final bool tapped, final bool isLoading}) =
-      _$SettingPageStateImpl;
+  const factory _SettingPageState(
+      {final bool tapped,
+      final bool isLoading,
+      final String currentUser,
+      final String userName,
+      final String thumbnailUrl}) = _$SettingPageStateImpl;
 
   factory _SettingPageState.fromJson(Map<String, dynamic> json) =
       _$SettingPageStateImpl.fromJson;
@@ -175,6 +243,12 @@ abstract class _SettingPageState implements SettingPageState {
   bool get tapped;
   @override
   bool get isLoading;
+  @override
+  String get currentUser;
+  @override
+  String get userName;
+  @override
+  String get thumbnailUrl;
 
   /// Create a copy of SettingPageState
   /// with the given fields replaced by the non-null parameter values.

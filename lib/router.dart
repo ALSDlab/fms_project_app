@@ -5,6 +5,8 @@ import 'package:fmsproject/view/pages/chat_list_page/chat_list_page.dart';
 import 'package:fmsproject/view/pages/chat_list_page/chat_list_page_view_model.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
+import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page.dart';
+import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_view_model.dart';
 import 'package:fmsproject/view/pages/login_page/login_page.dart';
@@ -173,6 +175,18 @@ final router = GoRouter(
                 ),
               );
             },
+            routes: [
+              GoRoute(
+                path: 'edit_profile_page',
+                builder: (context, state) {
+                  return ChangeNotifierProvider(
+                    create: (_) => getIt<EditProfilePageViewModel>(),
+                    child: const EditProfilePage(
+                    ),
+                  );
+                },
+              ),
+            ]
           ),
         ]),
   ],

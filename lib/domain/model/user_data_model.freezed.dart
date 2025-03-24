@@ -26,6 +26,14 @@ mixin _$UserDataModel {
   String get signUpDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'email')
   String get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
+  String get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'comment')
+  String get comment => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail')
+  String get thumbnail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'imageUrl')
+  String get imageUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'isSignOut')
   bool get isSignOut => throw _privateConstructorUsedError;
   @JsonKey(name: 'signOutDate')
@@ -51,6 +59,10 @@ abstract class $UserDataModelCopyWith<$Res> {
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'signUpDate') String signUpDate,
       @JsonKey(name: 'email') String email,
+      @JsonKey(name: 'name') String name,
+      @JsonKey(name: 'comment') String comment,
+      @JsonKey(name: 'thumbnail') String thumbnail,
+      @JsonKey(name: 'imageUrl') String imageUrl,
       @JsonKey(name: 'isSignOut') bool isSignOut,
       @JsonKey(name: 'signOutDate') String signOutDate});
 }
@@ -73,6 +85,10 @@ class _$UserDataModelCopyWithImpl<$Res, $Val extends UserDataModel>
     Object? id = null,
     Object? signUpDate = null,
     Object? email = null,
+    Object? name = null,
+    Object? comment = null,
+    Object? thumbnail = null,
+    Object? imageUrl = null,
     Object? isSignOut = null,
     Object? signOutDate = null,
   }) {
@@ -88,6 +104,22 @@ class _$UserDataModelCopyWithImpl<$Res, $Val extends UserDataModel>
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      comment: null == comment
+          ? _value.comment
+          : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnail: null == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String,
+      imageUrl: null == imageUrl
+          ? _value.imageUrl
+          : imageUrl // ignore: cast_nullable_to_non_nullable
               as String,
       isSignOut: null == isSignOut
           ? _value.isSignOut
@@ -113,6 +145,10 @@ abstract class _$$UserDataModelImplCopyWith<$Res>
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'signUpDate') String signUpDate,
       @JsonKey(name: 'email') String email,
+      @JsonKey(name: 'name') String name,
+      @JsonKey(name: 'comment') String comment,
+      @JsonKey(name: 'thumbnail') String thumbnail,
+      @JsonKey(name: 'imageUrl') String imageUrl,
       @JsonKey(name: 'isSignOut') bool isSignOut,
       @JsonKey(name: 'signOutDate') String signOutDate});
 }
@@ -133,6 +169,10 @@ class __$$UserDataModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? signUpDate = null,
     Object? email = null,
+    Object? name = null,
+    Object? comment = null,
+    Object? thumbnail = null,
+    Object? imageUrl = null,
     Object? isSignOut = null,
     Object? signOutDate = null,
   }) {
@@ -148,6 +188,22 @@ class __$$UserDataModelImplCopyWithImpl<$Res>
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      comment: null == comment
+          ? _value.comment
+          : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      thumbnail: null == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String,
+      imageUrl: null == imageUrl
+          ? _value.imageUrl
+          : imageUrl // ignore: cast_nullable_to_non_nullable
               as String,
       isSignOut: null == isSignOut
           ? _value.isSignOut
@@ -168,6 +224,10 @@ class _$UserDataModelImpl implements _UserDataModel {
       {@JsonKey(name: 'id') required this.id,
       @JsonKey(name: 'signUpDate') required this.signUpDate,
       @JsonKey(name: 'email') required this.email,
+      @JsonKey(name: 'name') required this.name,
+      @JsonKey(name: 'comment') required this.comment,
+      @JsonKey(name: 'thumbnail') required this.thumbnail,
+      @JsonKey(name: 'imageUrl') required this.imageUrl,
       @JsonKey(name: 'isSignOut') required this.isSignOut,
       @JsonKey(name: 'signOutDate') required this.signOutDate});
 
@@ -184,6 +244,18 @@ class _$UserDataModelImpl implements _UserDataModel {
   @JsonKey(name: 'email')
   final String email;
   @override
+  @JsonKey(name: 'name')
+  final String name;
+  @override
+  @JsonKey(name: 'comment')
+  final String comment;
+  @override
+  @JsonKey(name: 'thumbnail')
+  final String thumbnail;
+  @override
+  @JsonKey(name: 'imageUrl')
+  final String imageUrl;
+  @override
   @JsonKey(name: 'isSignOut')
   final bool isSignOut;
   @override
@@ -192,7 +264,7 @@ class _$UserDataModelImpl implements _UserDataModel {
 
   @override
   String toString() {
-    return 'UserDataModel(id: $id, signUpDate: $signUpDate, email: $email, isSignOut: $isSignOut, signOutDate: $signOutDate)';
+    return 'UserDataModel(id: $id, signUpDate: $signUpDate, email: $email, name: $name, comment: $comment, thumbnail: $thumbnail, imageUrl: $imageUrl, isSignOut: $isSignOut, signOutDate: $signOutDate)';
   }
 
   @override
@@ -204,6 +276,12 @@ class _$UserDataModelImpl implements _UserDataModel {
             (identical(other.signUpDate, signUpDate) ||
                 other.signUpDate == signUpDate) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.thumbnail, thumbnail) ||
+                other.thumbnail == thumbnail) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
             (identical(other.isSignOut, isSignOut) ||
                 other.isSignOut == isSignOut) &&
             (identical(other.signOutDate, signOutDate) ||
@@ -212,8 +290,8 @@ class _$UserDataModelImpl implements _UserDataModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, signUpDate, email, isSignOut, signOutDate);
+  int get hashCode => Object.hash(runtimeType, id, signUpDate, email, name,
+      comment, thumbnail, imageUrl, isSignOut, signOutDate);
 
   /// Create a copy of UserDataModel
   /// with the given fields replaced by the non-null parameter values.
@@ -236,6 +314,10 @@ abstract class _UserDataModel implements UserDataModel {
           {@JsonKey(name: 'id') required final int id,
           @JsonKey(name: 'signUpDate') required final String signUpDate,
           @JsonKey(name: 'email') required final String email,
+          @JsonKey(name: 'name') required final String name,
+          @JsonKey(name: 'comment') required final String comment,
+          @JsonKey(name: 'thumbnail') required final String thumbnail,
+          @JsonKey(name: 'imageUrl') required final String imageUrl,
           @JsonKey(name: 'isSignOut') required final bool isSignOut,
           @JsonKey(name: 'signOutDate') required final String signOutDate}) =
       _$UserDataModelImpl;
@@ -252,6 +334,18 @@ abstract class _UserDataModel implements UserDataModel {
   @override
   @JsonKey(name: 'email')
   String get email;
+  @override
+  @JsonKey(name: 'name')
+  String get name;
+  @override
+  @JsonKey(name: 'comment')
+  String get comment;
+  @override
+  @JsonKey(name: 'thumbnail')
+  String get thumbnail;
+  @override
+  @JsonKey(name: 'imageUrl')
+  String get imageUrl;
   @override
   @JsonKey(name: 'isSignOut')
   bool get isSignOut;

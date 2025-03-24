@@ -1,5 +1,7 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/use_case/user_data/get_user_thumbnail_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
 import 'package:fmsproject/view/pages/setting_page/setting_page_state.dart';
@@ -7,22 +9,29 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/core/result.dart';
+import '../../../domain/use_case/user_data/get_current_user_use_case.dart';
 import '../../../utils/simple_logger.dart';
 import '../../../utils/two_answer_dialog.dart';
 
 class SettingPageViewModel with ChangeNotifier {
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final GetUserThumbnailUseCase _getUserThumbnailUseCase;
   final LogOutByEmailUseCase _logOutByEmailUseCase;
   final SignOutByEmailUseCase _signOutByEmailUseCase;
   SharedPreferences? prefs;
 
   SettingPageViewModel({
+    required GetCurrentUserUseCase getCurrentUserUseCase,
+    required GetUserThumbnailUseCase getUserThumbnailUseCase,
     required LogOutByEmailUseCase logOutByEmailUseCase,
     required SignOutByEmailUseCase signOutByEmailUseCase,
-  })  : _logOutByEmailUseCase = logOutByEmailUseCase,
+  })  : _getCurrentUserUseCase = getCurrentUserUseCase,
+        _getUserThumbnailUseCase = getUserThumbnailUseCase,
+        _logOutByEmailUseCase = logOutByEmailUseCase,
         _signOutByEmailUseCase = signOutByEmailUseCase {
     languageNames = languages.map((lang) => lang['name']!).toList();
     targetLanguageNames = languages.map((lang) => lang['name']!).toList();
-
+    loadUser();
     _initPrefs();
   }
 
@@ -60,6 +69,32 @@ class SettingPageViewModel with ChangeNotifier {
   notifyListeners() {
     if (!_disposed) {
       super.notifyListeners();
+    }
+  }
+
+  Future<void> loadUser() async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final currentUserResult = _getCurrentUserUseCase.execute();
+      switch (currentUserResult) {
+        case Success<User>():
+          final userThumbnail = await _getUserThumbnailUseCase
+              .execute(currentUserResult.data.uid);
+          _state = state.copyWith(
+              currentUser: currentUserResult.data.uid,
+              userName: currentUserResult.data.displayName ?? '',
+              thumbnailUrl: userThumbnail ?? '');
+          notifyListeners();
+        case Error<User>():
+          logger.info(currentUserResult.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
     }
   }
 

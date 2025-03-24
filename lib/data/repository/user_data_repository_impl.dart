@@ -86,6 +86,24 @@ class UserDataRepositoryImpl implements UserDataRepository {
   }
 
   @override
+  Future<Result<UserDataModel>> getUserProfile(String userId) async {
+    final result = await FirebaseAuthUserData().getUserProfile(userId);
+
+    return result.when(success: (data) {
+      UserDataModel userDataModel = UserDataMapper.fromDTO(data);
+      return Result.success(userDataModel);
+    }, error: (message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<String?> getThumbnailUrl(String userId) async {
+    final result = await FirebaseAuthUserData().getThumbnailUrl(userId);
+    return result;
+  }
+
+  @override
   Future<Result<void>> logOutUser() async {
     final result = await FirebaseAuthUserData().firebaseLogout();
     return result.when(success: (data) {

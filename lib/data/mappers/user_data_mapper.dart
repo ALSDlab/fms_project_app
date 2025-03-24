@@ -7,6 +7,10 @@ class UserDataMapper {
       id: dto.id ?? 0,
       signUpDate: dto.signUpDate ?? '',
       email: dto.email ?? '',
+      name: dto.name ?? '',
+      comment: dto.comment ?? '',
+      thumbnail: dto.thumbnail ?? '',
+      imageUrl: dto.imageUrl ?? '',
       isSignOut: dto.isSignOut ?? false,
       signOutDate: dto.signOutDate ?? '',
     );
@@ -17,6 +21,10 @@ class UserDataMapper {
       id: model.id,
       signUpDate: model.signUpDate,
       email: model.email,
+      name: model.name,
+      comment: model.comment,
+      thumbnail: model.thumbnail,
+      imageUrl: model.imageUrl,
       isSignOut: model.isSignOut,
       signOutDate: model.signOutDate,
     );

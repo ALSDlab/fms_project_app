@@ -17,6 +17,10 @@ abstract interface class UserDataRepository {
 
   Result<User> getCurrentUser();
 
+  Future<Result<UserDataModel>> getUserProfile(String userId);
+
+  Future<String?> getThumbnailUrl(String userId);
+
   Future<Result<void>> logOutUser();
 
   Future<Result<void>> signOutUser();

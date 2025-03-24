@@ -11,6 +11,9 @@ _$SettingPageStateImpl _$$SettingPageStateImplFromJson(
     _$SettingPageStateImpl(
       tapped: json['tapped'] as bool? ?? false,
       isLoading: json['isLoading'] as bool? ?? false,
+      currentUser: json['currentUser'] as String? ?? '',
+      userName: json['userName'] as String? ?? '',
+      thumbnailUrl: json['thumbnailUrl'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$SettingPageStateImplToJson(
@@ -18,4 +21,7 @@ Map<String, dynamic> _$$SettingPageStateImplToJson(
     <String, dynamic>{
       'tapped': instance.tapped,
       'isLoading': instance.isLoading,
+      'currentUser': instance.currentUser,
+      'userName': instance.userName,
+      'thumbnailUrl': instance.thumbnailUrl,
     };

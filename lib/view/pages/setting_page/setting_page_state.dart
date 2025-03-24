@@ -8,6 +8,10 @@ class SettingPageState with _$SettingPageState {
   const factory SettingPageState({
     @Default(false) bool tapped,
     @Default(false) bool isLoading,
+    @Default('') String currentUser,
+    @Default('') String userName,
+    @Default('') String thumbnailUrl,
+
   }) = _SettingPageState;
 
   factory SettingPageState.fromJson(Map<String, dynamic> json) =>
