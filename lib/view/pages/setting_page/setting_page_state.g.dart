@@ -14,6 +14,7 @@ _$SettingPageStateImpl _$$SettingPageStateImplFromJson(
       currentUser: json['currentUser'] as String? ?? '',
       userName: json['userName'] as String? ?? '',
       thumbnailUrl: json['thumbnailUrl'] as String? ?? '',
+      fullImageUrl: json['fullImageUrl'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$SettingPageStateImplToJson(
@@ -24,4 +25,5 @@ Map<String, dynamic> _$$SettingPageStateImplToJson(
       'currentUser': instance.currentUser,
       'userName': instance.userName,
       'thumbnailUrl': instance.thumbnailUrl,
+      'fullImageUrl': instance.fullImageUrl,
     };

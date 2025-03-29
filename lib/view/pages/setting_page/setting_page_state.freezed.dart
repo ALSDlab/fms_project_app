@@ -25,6 +25,7 @@ mixin _$SettingPageState {
   String get currentUser => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
   String get thumbnailUrl => throw _privateConstructorUsedError;
+  String get fullImageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this SettingPageState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -47,7 +48,8 @@ abstract class $SettingPageStateCopyWith<$Res> {
       bool isLoading,
       String currentUser,
       String userName,
-      String thumbnailUrl});
+      String thumbnailUrl,
+      String fullImageUrl});
 }
 
 /// @nodoc
@@ -70,6 +72,7 @@ class _$SettingPageStateCopyWithImpl<$Res, $Val extends SettingPageState>
     Object? currentUser = null,
     Object? userName = null,
     Object? thumbnailUrl = null,
+    Object? fullImageUrl = null,
   }) {
     return _then(_value.copyWith(
       tapped: null == tapped
@@ -92,6 +95,10 @@ class _$SettingPageStateCopyWithImpl<$Res, $Val extends SettingPageState>
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      fullImageUrl: null == fullImageUrl
+          ? _value.fullImageUrl
+          : fullImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -109,7 +116,8 @@ abstract class _$$SettingPageStateImplCopyWith<$Res>
       bool isLoading,
       String currentUser,
       String userName,
-      String thumbnailUrl});
+      String thumbnailUrl,
+      String fullImageUrl});
 }
 
 /// @nodoc
@@ -130,6 +138,7 @@ class __$$SettingPageStateImplCopyWithImpl<$Res>
     Object? currentUser = null,
     Object? userName = null,
     Object? thumbnailUrl = null,
+    Object? fullImageUrl = null,
   }) {
     return _then(_$SettingPageStateImpl(
       tapped: null == tapped
@@ -152,6 +161,10 @@ class __$$SettingPageStateImplCopyWithImpl<$Res>
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      fullImageUrl: null == fullImageUrl
+          ? _value.fullImageUrl
+          : fullImageUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -164,7 +177,8 @@ class _$SettingPageStateImpl implements _SettingPageState {
       this.isLoading = false,
       this.currentUser = '',
       this.userName = '',
-      this.thumbnailUrl = ''});
+      this.thumbnailUrl = '',
+      this.fullImageUrl = ''});
 
   factory _$SettingPageStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$SettingPageStateImplFromJson(json);
@@ -184,10 +198,13 @@ class _$SettingPageStateImpl implements _SettingPageState {
   @override
   @JsonKey()
   final String thumbnailUrl;
+  @override
+  @JsonKey()
+  final String fullImageUrl;
 
   @override
   String toString() {
-    return 'SettingPageState(tapped: $tapped, isLoading: $isLoading, currentUser: $currentUser, userName: $userName, thumbnailUrl: $thumbnailUrl)';
+    return 'SettingPageState(tapped: $tapped, isLoading: $isLoading, currentUser: $currentUser, userName: $userName, thumbnailUrl: $thumbnailUrl, fullImageUrl: $fullImageUrl)';
   }
 
   @override
@@ -203,13 +220,15 @@ class _$SettingPageStateImpl implements _SettingPageState {
             (identical(other.userName, userName) ||
                 other.userName == userName) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
-                other.thumbnailUrl == thumbnailUrl));
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.fullImageUrl, fullImageUrl) ||
+                other.fullImageUrl == fullImageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, tapped, isLoading, currentUser, userName, thumbnailUrl);
+  int get hashCode => Object.hash(runtimeType, tapped, isLoading, currentUser,
+      userName, thumbnailUrl, fullImageUrl);
 
   /// Create a copy of SettingPageState
   /// with the given fields replaced by the non-null parameter values.
@@ -234,7 +253,8 @@ abstract class _SettingPageState implements SettingPageState {
       final bool isLoading,
       final String currentUser,
       final String userName,
-      final String thumbnailUrl}) = _$SettingPageStateImpl;
+      final String thumbnailUrl,
+      final String fullImageUrl}) = _$SettingPageStateImpl;
 
   factory _SettingPageState.fromJson(Map<String, dynamic> json) =
       _$SettingPageStateImpl.fromJson;
@@ -249,6 +269,8 @@ abstract class _SettingPageState implements SettingPageState {
   String get userName;
   @override
   String get thumbnailUrl;
+  @override
+  String get fullImageUrl;
 
   /// Create a copy of SettingPageState
   /// with the given fields replaced by the non-null parameter values.

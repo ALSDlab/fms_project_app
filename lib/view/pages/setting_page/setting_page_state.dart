@@ -11,6 +11,7 @@ class SettingPageState with _$SettingPageState {
     @Default('') String currentUser,
     @Default('') String userName,
     @Default('') String thumbnailUrl,
+    @Default('') String fullImageUrl,
 
   }) = _SettingPageState;
 

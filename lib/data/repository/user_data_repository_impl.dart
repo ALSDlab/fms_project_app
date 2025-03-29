@@ -104,6 +104,12 @@ class UserDataRepositoryImpl implements UserDataRepository {
   }
 
   @override
+  Future<String?> getFullImageUrl(String userId) async {
+    final result = await FirebaseAuthUserData().getFullImageUrl(userId);
+    return result;
+  }
+
+  @override
   Future<Result<void>> logOutUser() async {
     final result = await FirebaseAuthUserData().firebaseLogout();
     return result.when(success: (data) {

@@ -13,6 +13,7 @@ import 'package:fmsproject/domain/use_case/chat_data/stream_message_use_case.dar
 import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/check_email_verified_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_current_user_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/get_user_full_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_user_profile_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_user_thumbnail_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_in_by_email_use_case.dart';
@@ -62,6 +63,8 @@ void diSetup() {
     ..registerSingleton<GetUserProfileUseCase>(
         GetUserProfileUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<GetUserThumbnailUseCase>(GetUserThumbnailUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<GetUserFullImageUseCase>(GetUserFullImageUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<LogOutByEmailUseCase>(
         LogOutByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
@@ -124,6 +127,7 @@ void diSetup() {
           signOutByEmailUseCase: getIt<SignOutByEmailUseCase>(),
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
           getUserThumbnailUseCase: getIt<GetUserThumbnailUseCase>(),
+          getUserFullImageUseCase: getIt<GetUserFullImageUseCase>(),
         ))
     ..registerFactory<EditProfilePageViewModel>(() => EditProfilePageViewModel(
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),

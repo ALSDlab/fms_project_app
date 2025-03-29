@@ -1,6 +1,7 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/use_case/user_data/get_user_full_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/get_user_thumbnail_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
@@ -16,6 +17,7 @@ import '../../../utils/two_answer_dialog.dart';
 class SettingPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final GetUserThumbnailUseCase _getUserThumbnailUseCase;
+  final GetUserFullImageUseCase _getUserFullImageUseCase;
   final LogOutByEmailUseCase _logOutByEmailUseCase;
   final SignOutByEmailUseCase _signOutByEmailUseCase;
   SharedPreferences? prefs;
@@ -23,10 +25,12 @@ class SettingPageViewModel with ChangeNotifier {
   SettingPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required GetUserThumbnailUseCase getUserThumbnailUseCase,
+    required GetUserFullImageUseCase getUserFullImageUseCase,
     required LogOutByEmailUseCase logOutByEmailUseCase,
     required SignOutByEmailUseCase signOutByEmailUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
         _getUserThumbnailUseCase = getUserThumbnailUseCase,
+        _getUserFullImageUseCase = getUserFullImageUseCase,
         _logOutByEmailUseCase = logOutByEmailUseCase,
         _signOutByEmailUseCase = signOutByEmailUseCase {
     languageNames = languages.map((lang) => lang['name']!).toList();
@@ -81,10 +85,13 @@ class SettingPageViewModel with ChangeNotifier {
         case Success<User>():
           final userThumbnail = await _getUserThumbnailUseCase
               .execute(currentUserResult.data.uid);
+          final userFullImage = await _getUserFullImageUseCase
+              .execute(currentUserResult.data.uid);
           _state = state.copyWith(
               currentUser: currentUserResult.data.uid,
               userName: currentUserResult.data.displayName ?? '',
-              thumbnailUrl: userThumbnail ?? '');
+              thumbnailUrl: userThumbnail ?? '',
+              fullImageUrl: userFullImage ?? '');
           notifyListeners();
         case Error<User>():
           logger.info(currentUserResult.message);

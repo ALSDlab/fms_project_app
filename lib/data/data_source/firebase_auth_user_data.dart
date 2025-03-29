@@ -596,6 +596,28 @@ class FirebaseAuthUserData {
     }
   }
 
+  // 현재 Full이미지 get
+  Future<String?> getFullImageUrl(String userId) async {
+    try {
+      final Reference fullImageRef =
+      _storage.ref().child('users').child(userId).child('imageUrl');
+
+      final ListResult result = await fullImageRef.listAll();
+
+      if (result.items.isEmpty) {
+        return null;
+      }
+
+      final String fullImageUrl = await result.items.first.getDownloadURL();
+
+      return fullImageUrl;
+    } catch (e) {
+      logger.info('Full image URL 가져오기 오류: $e');
+      return null; // 오류 발생 시 null 반환
+    }
+  }
+
+
   // 프로필 정보 get
   Future<Result<UserDataDto>> getUserProfile(String userId) async {
     try{

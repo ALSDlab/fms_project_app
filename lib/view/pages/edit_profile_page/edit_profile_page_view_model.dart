@@ -83,4 +83,22 @@ class EditProfilePageViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> updateName(String name) async {
+    _state = state.copyWith(name: name);
+    notifyListeners();
+  }
+
+  Future<void> updateEmail(String email) async {
+    _state = state.copyWith(email: email);
+    notifyListeners();
+  }
+
+
+
+  Future<void> updateComment(String comment) async {
+    _state = state.copyWith(comment: comment);
+    notifyListeners();
+  }
+
 }
