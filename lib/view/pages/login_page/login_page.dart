@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                                           image: DecorationImage(
                                             fit: BoxFit.cover,
                                             image: Image.asset(
-                                              'assets/images/myk_market_logo.png',
+                                              'assets/images/person.png',
                                             ).image,
                                           ),
                                           boxShadow: const [

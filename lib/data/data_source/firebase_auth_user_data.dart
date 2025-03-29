@@ -204,7 +204,8 @@ class FirebaseAuthUserData {
       final UserCredential userCredential =
           await _auth.signInWithCredential(googleCredential);
 
-      final docId = userCredential.user!.uid;
+      final User? user = userCredential.user;
+      final docId = user!.uid;
 
       // 유저데이터 id 체크
       QuerySnapshot querySnapshot =
@@ -226,8 +227,8 @@ class FirebaseAuthUserData {
       String imageUrl = googleUser?.photoUrl ?? '';
 
       // Authentication 사용자 프로필 업데이트
-      if (user != null && imageUrl.isNotEmpty) {
-        await user?.updateProfile(
+      if (imageUrl.isNotEmpty) {
+        await user.updateProfile(
             displayName: googleUser?.displayName,
             photoURL: imageUrl // 구글 제공 원본 이미지 URL 저장
             );
