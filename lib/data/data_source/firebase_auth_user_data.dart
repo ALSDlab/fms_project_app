@@ -210,6 +210,7 @@ class FirebaseAuthUserData {
       // 유저데이터 id 체크
       QuerySnapshot querySnapshot =
           await _firestore.collection('user_data').get();
+      bool userExists = querySnapshot.docs.any((doc) => doc.id == docId);
 
       List<int> idList = querySnapshot.docs
           .map((doc) => doc['id'] as int) // id를 int로 캐스팅
@@ -286,17 +287,19 @@ class FirebaseAuthUserData {
         }
       }
 
-      await _firestore.collection('user_data').doc(docId).set({
-        'id': maxId + 1,
-        'signUpDate': formattedDate,
-        'email': googleUser?.email,
-        'name': googleUser?.displayName,
-        'comment': '',
-        'thumbnail': thumbnailUrl,
-        'imageUrl': imageUrl,
-        'isSignOut': false,
-        'signOutDate': '',
-      });
+      if (!userExists) {
+        await _firestore.collection('user_data').doc(docId).set({
+          'id': maxId + 1,
+          'signUpDate': formattedDate,
+          'email': googleUser?.email,
+          'name': googleUser?.displayName,
+          'comment': '',
+          'thumbnail': thumbnailUrl,
+          'imageUrl': imageUrl,
+          'isSignOut': false,
+          'signOutDate': '',
+        });
+      }
 
       DocumentSnapshot docSnapshot =
           await _firestore.collection('user_data').doc(docId).get();
@@ -336,6 +339,7 @@ class FirebaseAuthUserData {
         // 유저데이터 id 체크
         QuerySnapshot querySnapshot =
             await _firestore.collection('user_data').get();
+        bool userExists = querySnapshot.docs.any((doc) => doc.id == docId);
 
         List<int> idList =
             querySnapshot.docs.map((doc) => doc['id'] as int).toList();
@@ -394,7 +398,7 @@ class FirebaseAuthUserData {
                     .writeAsBytes(img.encodeJpg(thumbnailImage, quality: 85));
 
                 // Firebase Storage에 썸네일만 업로드
-                final Reference thumbnailRef = FirebaseStorage.instance
+                final Reference thumbnailRef = _storage
                     .ref()
                     .child('users')
                     .child(docId)
@@ -417,17 +421,19 @@ class FirebaseAuthUserData {
           // 이미지 처리 실패시에도 회원가입은 계속 진행
         }
 
-        await _firestore.collection('user_data').doc(docId).set({
-          'id': maxId + 1,
-          'signUpDate': formattedDate,
-          'email': email ?? '',
-          'name': name ?? '',
-          'comment': '',
-          'thumbnail': thumbnailUrl,
-          'imageUrl': imageUrl,
-          'isSignOut': false,
-          'signOutDate': '',
-        });
+        if (!userExists) {
+          await _firestore.collection('user_data').doc(docId).set({
+            'id': maxId + 1,
+            'signUpDate': formattedDate,
+            'email': email ?? '',
+            'name': name ?? '',
+            'comment': '',
+            'thumbnail': thumbnailUrl,
+            'imageUrl': imageUrl,
+            'isSignOut': false,
+            'signOutDate': '',
+          });
+        }
 
         DocumentSnapshot docSnapshot =
             await _firestore.collection('user_data').doc(docId).get();
@@ -467,6 +473,7 @@ class FirebaseAuthUserData {
       // 유저데이터 id 체크
       QuerySnapshot querySnapshot =
           await _firestore.collection('user_data').get();
+      bool userExists = querySnapshot.docs.any((doc) => doc.id == docId);
 
       List<int> idList =
           querySnapshot.docs.map((doc) => doc['id'] as int).toList();
@@ -536,17 +543,19 @@ class FirebaseAuthUserData {
         await user.updateProfile(displayName: user.displayName ?? "Apple User");
       }
 
-      await _firestore.collection('user_data').doc(docId).set({
-        'id': maxId + 1,
-        'signUpDate': formattedDate,
-        'email': user.email ?? '',
-        'name': user.displayName ?? 'Apple User',
-        'comment': '',
-        'thumbnail': thumbnailUrl,
-        'imageUrl': imageUrl,
-        'isSignOut': false,
-        'signOutDate': '',
-      });
+      if (!userExists) {
+        await _firestore.collection('user_data').doc(docId).set({
+          'id': maxId + 1,
+          'signUpDate': formattedDate,
+          'email': user.email ?? '',
+          'name': user.displayName ?? 'Apple User',
+          'comment': '',
+          'thumbnail': thumbnailUrl,
+          'imageUrl': imageUrl,
+          'isSignOut': false,
+          'signOutDate': '',
+        });
+      }
 
       DocumentSnapshot docSnapshot =
           await _firestore.collection('user_data').doc(docId).get();
@@ -600,34 +609,102 @@ class FirebaseAuthUserData {
   // 현재 Full이미지 get
   Future<String?> getFullImageUrl(String userId) async {
     try {
-      final Reference fullImageRef =
-      _storage.ref().child('users').child(userId).child('imageUrl');
+      // Firestore에서 users 컬렉션의 해당 userId 문서 참조
+      final DocumentSnapshot userDoc =
+          await _firestore.collection('user_data').doc(userId).get();
 
-      final ListResult result = await fullImageRef.listAll();
+      // 문서가 존재하고 imageUrl 필드가 있는지 확인
+      if (userDoc.exists && userDoc.data() != null) {
+        final userData = userDoc.data() as Map<String, dynamic>;
 
-      if (result.items.isEmpty) {
-        return null;
+        if (userData.containsKey('imageUrl')) {
+          return userData['imageUrl'] as String?;
+        }
       }
 
-      final String fullImageUrl = await result.items.first.getDownloadURL();
-
-      return fullImageUrl;
+      return null;
     } catch (e) {
       logger.info('Full image URL 가져오기 오류: $e');
       return null; // 오류 발생 시 null 반환
     }
   }
 
-
   // 프로필 정보 get
   Future<Result<UserDataDto>> getUserProfile(String userId) async {
-    try{
-      DocumentSnapshot doc = await _firestore.collection('user_data').doc(userId).get();
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('user_data').doc(userId).get();
       final UserDataDto userData =
-      UserDataDto.fromJson(doc.data() as Map<String, dynamic>);
+          UserDataDto.fromJson(doc.data() as Map<String, dynamic>);
       return Result.success(userData);
-    }catch (e) {
+    } catch (e) {
       logger.info('Firestore 유저프로필 get 에러 => $e');
+      return Result.error(e.toString());
+    }
+  }
+
+  //프로필 이미지 업데이트
+  Future<Result<void>> updateProfileImage(String userId, File imageFile) async {
+    String fileName = "profile_$userId.png";
+    String thumbnailFileName =
+        'thumbnail_$userId.png';
+    Reference storageReference =
+        _storage.ref().child('users/$userId/$fileName');
+    final Reference thumbnailRef =
+        _storage.ref().child('users/$userId/thumbnails/$thumbnailFileName');
+
+    try {
+      try {
+        await storageReference.delete();
+        await thumbnailRef.delete();
+        logger.info("기존 파일 삭제 완료");
+      } catch (e) {
+        logger.info("삭제할 기존 파일이 없음: $e");
+      }
+
+      // 새 파일 업로드
+      UploadTask uploadTask = storageReference.putFile(imageFile);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String imageUrl = await taskSnapshot.ref.getDownloadURL();
+      img.Image? originalImage = img.decodeImage(await imageFile.readAsBytes());
+      if (originalImage != null) {
+        img.Image thumbnail =
+            img.copyResize(originalImage, width: 150, height: 150);
+        Uint8List thumbnailData =
+            Uint8List.fromList(img.encodeJpg(thumbnail, quality: 85));
+
+        // 썸네일 업로드
+        UploadTask thumbUploadTask = thumbnailRef.putData(thumbnailData);
+        TaskSnapshot thumbTaskSnapshot = await thumbUploadTask;
+        String thumbnailUrl = await thumbTaskSnapshot.ref.getDownloadURL();
+
+        // Firestore에 원본 및 썸네일 URL 저장
+        await FirebaseFirestore.instance.collection('user_data ').doc(userId).set({
+          'imageUrl': imageUrl,
+          'thumbnail': thumbnailUrl,
+        }, SetOptions(merge: true));
+      }
+      logger.info("새로운 파일 업로드 및 URL 저장 완료: $imageUrl");
+      return const Result.success(null);
+    } catch (e) {
+      logger.info('프로필 이미지 업데이트 오류: $e');
+      return Result.error(e.toString());
+    }
+  }
+
+  // 필드 업데이트
+  Future<Result<bool>> updateField(String field, dynamic value) async {
+    try {
+      String? userId = _auth.currentUser?.uid;
+      if (userId == null) return const Result.success(false);
+
+      await _firestore
+          .collection('user_data')
+          .doc(userId)
+          .update({field: value});
+      return const Result.success(true);
+    } catch (e) {
+      logger.info('필드 업데이트 오류: $e');
       return Result.error(e.toString());
     }
   }

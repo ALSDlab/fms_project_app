@@ -70,6 +70,16 @@ final router = GoRouter(
         );
       },
     ),
+    GoRoute(
+      path: '/edit_profile_page',
+      builder: (context, state) {
+        return ChangeNotifierProvider(
+          create: (_) => getIt<EditProfilePageViewModel>(),
+          child: const EditProfilePage(
+          ),
+        );
+      },
+    ),
     ShellRoute(
         navigatorKey: _shellNavigatorKey,
         pageBuilder: (context, state, child) {
@@ -175,18 +185,6 @@ final router = GoRouter(
                 ),
               );
             },
-            routes: [
-              GoRoute(
-                path: 'edit_profile_page',
-                builder: (context, state) {
-                  return ChangeNotifierProvider(
-                    create: (_) => getIt<EditProfilePageViewModel>(),
-                    child: const EditProfilePage(
-                    ),
-                  );
-                },
-              ),
-            ]
           ),
         ]),
   ],

@@ -1,5 +1,6 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/utils/gif_progress_bar.dart';
 import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -11,9 +12,10 @@ class EditProfilePage extends StatelessWidget {
     final viewModel = context.watch<EditProfilePageViewModel>();
     final state = viewModel.state;
     return Scaffold(
+      backgroundColor: const Color(0xFFEBF4F6),
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFEBF4F6),
         foregroundColor: Colors.black,
         elevation: 0,
       ),
@@ -25,29 +27,126 @@ class EditProfilePage extends StatelessWidget {
             children: [
               Center(
                 child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: (state.thumbnail != '')
-                          ? NetworkImage(state.thumbnail)
-                          : null,
-                      child: (state.thumbnail == '')
-                          ? Image.asset(
-                              'assets/images/person1.png',
-                              fit: BoxFit.cover,
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                      child: (state.isLoading)
+                          ? Center(
+                              child: GifProgressBar(),
                             )
-                          : null,
+                          : CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.lightGreenAccent,
+                              child: ClipOval(
+                                child: (state.thumbnail == '')
+                                    ? Image.asset(
+                                        'assets/images/person1.png',
+                                        width: 100, // 지름을 명시적으로 설정 (radius*2)
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.network(
+                                        state.thumbnail,
+                                        width: 100, // 지름을 명시적으로 설정 (radius*2)
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
                     ),
                     Positioned(
                       bottom: 0,
-                      right: 0,
+                      right: -5,
                       child: GestureDetector(
                         onTap: () {
                           // 프로필 이미지 변경 로직
+                          showModalBottomSheet(
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                            ),
+                            builder: (context) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20)),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading:
+                                                const Icon(Icons.photo_library),
+                                            title: const Text('라이브러리에서 선택'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              viewModel.pickImageFromGallery(
+                                                  state.currentUser);
+                                            },
+                                          ),
+                                          const Divider(),
+                                          ListTile(
+                                            leading:
+                                                const Icon(Icons.camera_alt),
+                                            title: const Text('사진 찍기'),
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              viewModel
+                                                  .takePhoto(state.currentUser);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // 취소 버튼 (별도 박스)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, right: 8.0),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20)),
+                                      ),
+                                      child: ListTile(
+                                        leading: const Icon(Icons.close,
+                                            color: Colors.red),
+                                        title: const Text('취소',
+                                            style:
+                                                TextStyle(color: Colors.red)),
+                                        onTap: () {
+                                          Navigator.pop(context); // 모달 닫기
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2,
+                            ),
                             color: Colors.pink,
                             shape: BoxShape.circle,
                           ),
@@ -172,7 +271,7 @@ class EditProfilePage extends StatelessWidget {
               ),
             ),
             const Icon(
-              Icons.chevron_right,
+              BootstrapIcons.chevron_right,
               color: Colors.grey,
             ),
           ],

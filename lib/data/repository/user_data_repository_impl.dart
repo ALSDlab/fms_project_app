@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fmsproject/data/core/result.dart';
 import 'package:fmsproject/data/data_source/firebase_auth_user_data.dart';
@@ -107,6 +109,27 @@ class UserDataRepositoryImpl implements UserDataRepository {
   Future<String?> getFullImageUrl(String userId) async {
     final result = await FirebaseAuthUserData().getFullImageUrl(userId);
     return result;
+  }
+
+  @override
+  Future<Result<bool>> updateField(String field, value) async {
+    final result = await FirebaseAuthUserData().updateField(field, value);
+    return result.when(success: (data) {
+      return Result.success(data);
+    }, error: (String message) {
+      return Result.error(message);
+    });
+  }
+
+  @override
+  Future<Result<void>> updateProfileImage(String userId, File imageFile) async {
+    final result =
+        await FirebaseAuthUserData().updateProfileImage(userId, imageFile);
+    return result.when(success: (data) {
+      return const Result.success(null);
+    }, error: (String message) {
+      return Result.error(message);
+    });
   }
 
   @override

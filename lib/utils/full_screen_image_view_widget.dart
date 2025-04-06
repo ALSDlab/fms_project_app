@@ -1,27 +1,25 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/utils/simple_logger.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
+import 'package:photo_view/photo_view.dart';
 
 class FullScreenImageViewWidget extends StatefulWidget {
   final String imageUrl;
   final String heroTag;
 
-  const FullScreenImageViewWidget({
-    super.key,
-    required this.imageUrl,
-    required this.heroTag
-  });
+  const FullScreenImageViewWidget(
+      {super.key, required this.imageUrl, required this.heroTag});
 
   @override
-  _FullScreenImageViewWidgetState createState() => _FullScreenImageViewWidgetState();
+  _FullScreenImageViewWidgetState createState() =>
+      _FullScreenImageViewWidgetState();
 }
 
 class _FullScreenImageViewWidgetState extends State<FullScreenImageViewWidget> {
   double _downloadProgress = 0.0;
   int? _totalBytes;
-  int _receivedBytes = 0;
+  // int _receivedBytes = 0;
 
   @override
   void initState() {
@@ -37,7 +35,7 @@ class _FullScreenImageViewWidgetState extends State<FullScreenImageViewWidget> {
       if (_totalBytes != null) {
         setState(() {
           _downloadProgress = 1.0;
-          _receivedBytes = _totalBytes!;
+          // _receivedBytes = _totalBytes!;
         });
       }
     } catch (e) {
@@ -60,11 +58,14 @@ class _FullScreenImageViewWidgetState extends State<FullScreenImageViewWidget> {
           Hero(
             tag: widget.heroTag,
             child: PhotoView(
-              imageProvider: NetworkImage(widget.imageUrl),
+              imageProvider: (widget.imageUrl == '')
+                  ? const AssetImage('assets/images/person1.png')
+                      as ImageProvider<Object>
+                  : NetworkImage(widget.imageUrl),
               minScale: PhotoViewComputedScale.contained * 0.8,
               maxScale: PhotoViewComputedScale.covered * 2,
               backgroundDecoration: const BoxDecoration(
-                color: Colors.black,
+                color: Colors.grey,
               ),
               loadingBuilder: (context, event) {
                 if (event == null) {

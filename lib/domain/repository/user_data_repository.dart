@@ -1,3 +1,4 @@
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -23,6 +24,10 @@ abstract interface class UserDataRepository {
 
   Future<String?> getFullImageUrl(String userId);
 
+  Future<Result<bool>> updateField(String field, dynamic value);
+
+  Future<Result<void>> updateProfileImage(String userId, File imageFile);
+
   Future<Result<void>> logOutUser();
 
   Future<Result<void>> signOutUser();
@@ -34,10 +39,4 @@ abstract interface class UserDataRepository {
   Future<Result<UserDataModel>> signUpWithFacebook();
 
   Future<Result<UserDataModel>> signUpWithApple();
-
-
-
-
-
-
 }

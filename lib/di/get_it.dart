@@ -22,6 +22,8 @@ import 'package:fmsproject/domain/use_case/user_data/sign_in_with_facebook_use_c
 import 'package:fmsproject/domain/use_case/user_data/sign_in_with_google_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/update_profile_image_use_case.dart';
+import 'package:fmsproject/domain/use_case/user_data/update_profile_use_case.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
@@ -65,6 +67,10 @@ void diSetup() {
     ..registerSingleton<GetUserThumbnailUseCase>(GetUserThumbnailUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<GetUserFullImageUseCase>(GetUserFullImageUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<UpdateProfileImageUseCase>(UpdateProfileImageUseCase(
+        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<UpdateProfileUseCase>(UpdateProfileUseCase(
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<LogOutByEmailUseCase>(
         LogOutByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
@@ -132,5 +138,8 @@ void diSetup() {
     ..registerFactory<EditProfilePageViewModel>(() => EditProfilePageViewModel(
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
           getUserProfileUseCase: getIt<GetUserProfileUseCase>(),
+          updateProfileUseCase: getIt<UpdateProfileUseCase>(),
+          getUserThumbnailUseCase: getIt<GetUserThumbnailUseCase>(),
+          updateProfileImageUseCase: getIt<UpdateProfileImageUseCase>(),
         ));
 }
