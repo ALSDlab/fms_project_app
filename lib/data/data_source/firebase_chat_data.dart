@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fmsproject/data/dtos/chat_data_dto.dart';
 import 'package:fmsproject/data/dtos/message_data_dto.dart';
+import 'package:image/image.dart' as img;
 import 'package:rxdart/rxdart.dart';
 
 import '../../utils/simple_logger.dart';
@@ -277,16 +279,43 @@ class FirebaseChatData {
     }
   }
 
-  Future<Result<String>> uploadImage(String chatId, File file) async {
+  Future<Result<String>> uploadImage(String chatId, DateTime now, File imageFile) async {
+    String fileName = "${now.millisecondsSinceEpoch}.png";
+    String thumbnailFileName = 'thumbnail_$fileName';
+    Reference storageReference =
+        _storage.ref().child('chat_images/$chatId/$fileName');
+    final Reference thumbnailRef = _storage
+        .ref()
+        .child('chat_images/$chatId/thumbnails/$thumbnailFileName');
+
     try {
-      final ref = _storage.ref().child(
-          "chat_images/$chatId/${DateTime.now().millisecondsSinceEpoch}.jpg");
-      final uploadTask = ref.putFile(file);
-      final completedTask = await uploadTask;
-      final imgURL = await completedTask.ref.getDownloadURL();
-      return Result.success(imgURL);
+      // 새 파일 업로드
+      UploadTask uploadTask = storageReference.putFile(imageFile);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String imageUrl = await taskSnapshot.ref.getDownloadURL();
+      img.Image? originalImage = img.decodeImage(await imageFile.readAsBytes());
+      if (originalImage == null) {
+        return const Result.error('No image');
+      }
+      img.Image thumbnail =
+          img.copyResize(originalImage, width: 150, height: 150);
+      Uint8List thumbnailData =
+          Uint8List.fromList(img.encodeJpg(thumbnail, quality: 85));
+
+      // 썸네일 업로드
+      UploadTask thumbUploadTask = thumbnailRef.putData(thumbnailData);
+      TaskSnapshot thumbTaskSnapshot = await thumbUploadTask;
+      String thumbnailUrl = await thumbTaskSnapshot.ref.getDownloadURL();
+
+      // // Firestore에 원본 및 썸네일 URL 저장
+      // await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+      //   'imageUrl': imageUrl,
+      //   'thumbnail': thumbnailUrl,
+      // }, SetOptions(merge: true));
+      logger.info("채팅 새로운 파일 업로드 및 URL 저장 완료: $imageUrl");
+      return Result.success(thumbnailUrl);
     } catch (e) {
-      logger.info("Error uploading image: $e");
+      logger.info('채팅 이미지 Update 오류: $e');
       return Result.error(e.toString());
     }
   }

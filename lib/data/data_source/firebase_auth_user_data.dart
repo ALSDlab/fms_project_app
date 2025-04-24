@@ -679,7 +679,7 @@ class FirebaseAuthUserData {
         String thumbnailUrl = await thumbTaskSnapshot.ref.getDownloadURL();
 
         // Firestore에 원본 및 썸네일 URL 저장
-        await FirebaseFirestore.instance.collection('user_data ').doc(userId).set({
+        await FirebaseFirestore.instance.collection('user_data').doc(userId).set({
           'imageUrl': imageUrl,
           'thumbnail': thumbnailUrl,
         }, SetOptions(merge: true));

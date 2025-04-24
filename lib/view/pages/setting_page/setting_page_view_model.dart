@@ -1,8 +1,6 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fmsproject/domain/use_case/user_data/get_user_full_image_use_case.dart';
-import 'package:fmsproject/domain/use_case/user_data/get_user_thumbnail_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/log_out_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.dart';
 import 'package:fmsproject/view/pages/setting_page/setting_page_state.dart';
@@ -10,27 +8,26 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/core/result.dart';
+import '../../../domain/model/user_data_model.dart';
 import '../../../domain/use_case/user_data/get_current_user_use_case.dart';
+import '../../../domain/use_case/user_data/get_user_profile_use_case.dart';
 import '../../../utils/simple_logger.dart';
 import '../../../utils/two_answer_dialog.dart';
 
 class SettingPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
-  final GetUserThumbnailUseCase _getUserThumbnailUseCase;
-  final GetUserFullImageUseCase _getUserFullImageUseCase;
+  final GetUserProfileUseCase _getUserProfileUseCase;
   final LogOutByEmailUseCase _logOutByEmailUseCase;
   final SignOutByEmailUseCase _signOutByEmailUseCase;
   SharedPreferences? prefs;
 
   SettingPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
-    required GetUserThumbnailUseCase getUserThumbnailUseCase,
-    required GetUserFullImageUseCase getUserFullImageUseCase,
+    required GetUserProfileUseCase getUserProfileUseCase,
     required LogOutByEmailUseCase logOutByEmailUseCase,
     required SignOutByEmailUseCase signOutByEmailUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
-        _getUserThumbnailUseCase = getUserThumbnailUseCase,
-        _getUserFullImageUseCase = getUserFullImageUseCase,
+        _getUserProfileUseCase = getUserProfileUseCase,
         _logOutByEmailUseCase = logOutByEmailUseCase,
         _signOutByEmailUseCase = signOutByEmailUseCase {
     languageNames = languages.map((lang) => lang['name']!).toList();
@@ -83,16 +80,21 @@ class SettingPageViewModel with ChangeNotifier {
       final currentUserResult = _getCurrentUserUseCase.execute();
       switch (currentUserResult) {
         case Success<User>():
-          final userThumbnail = await _getUserThumbnailUseCase
-              .execute(currentUserResult.data.uid);
-          final userFullImage = await _getUserFullImageUseCase
-              .execute(currentUserResult.data.uid);
-          _state = state.copyWith(
-              currentUser: currentUserResult.data.uid,
-              userName: currentUserResult.data.displayName ?? '',
-              thumbnailUrl: userThumbnail ?? '',
-              fullImageUrl: userFullImage ?? '');
-          notifyListeners();
+          final userProfile =
+              await _getUserProfileUseCase.execute(currentUserResult.data.uid);
+          switch (userProfile) {
+            case Success<UserDataModel>():
+              _state = state.copyWith(
+                  currentUser: currentUserResult.data.uid,
+                  userName: (userProfile.data.name == '')
+                      ? currentUserResult.data.displayName ?? ''
+                      : userProfile.data.name,
+                  thumbnailUrl: userProfile.data.thumbnail,
+                  fullImageUrl: userProfile.data.imageUrl);
+              notifyListeners();
+            case Error<UserDataModel>():
+              logger.info(userProfile.message);
+          }
         case Error<User>():
           logger.info(currentUserResult.message);
           break;

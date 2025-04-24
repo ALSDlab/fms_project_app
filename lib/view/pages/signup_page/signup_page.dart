@@ -171,7 +171,7 @@ class _SignupPageState extends State<SignupPage> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Empty email address'),
+                                content: Text('Check your input'),
                                 duration: Duration(seconds: 2),
                               ),
                             );

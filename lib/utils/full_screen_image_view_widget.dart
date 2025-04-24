@@ -11,8 +11,7 @@ class FullScreenImageViewWidget extends StatefulWidget {
   const FullScreenImageViewWidget(
       {super.key, required this.imageUrl, required this.heroTag});
 
-  @override
-  _FullScreenImageViewWidgetState createState() =>
+  @override _FullScreenImageViewWidgetState createState() =>
       _FullScreenImageViewWidgetState();
 }
 

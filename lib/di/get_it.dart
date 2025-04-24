@@ -70,8 +70,8 @@ void diSetup() {
         userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<UpdateProfileImageUseCase>(UpdateProfileImageUseCase(
         userDataRepository: getIt<UserDataRepository>()))
-    ..registerSingleton<UpdateProfileUseCase>(UpdateProfileUseCase(
-        userDataRepository: getIt<UserDataRepository>()))
+    ..registerSingleton<UpdateProfileUseCase>(
+        UpdateProfileUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<LogOutByEmailUseCase>(
         LogOutByEmailUseCase(userDataRepository: getIt<UserDataRepository>()))
     ..registerSingleton<SignOutByEmailUseCase>(
@@ -132,8 +132,7 @@ void diSetup() {
           logOutByEmailUseCase: getIt<LogOutByEmailUseCase>(),
           signOutByEmailUseCase: getIt<SignOutByEmailUseCase>(),
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
-          getUserThumbnailUseCase: getIt<GetUserThumbnailUseCase>(),
-          getUserFullImageUseCase: getIt<GetUserFullImageUseCase>(),
+          getUserProfileUseCase: getIt<GetUserProfileUseCase>(),
         ))
     ..registerFactory<EditProfilePageViewModel>(() => EditProfilePageViewModel(
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),

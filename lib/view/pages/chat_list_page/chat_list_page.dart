@@ -39,7 +39,11 @@ class _ChatListPageState extends State<ChatListPage> {
     final navigationBarPageState = navigationBarPageViewModel.state;
 
     return Scaffold(
-        appBar: AppBar(title: const Text("Messages")),
+        backgroundColor: const Color(0xFFEBF4F6),
+        appBar: AppBar(
+          title: const Text("Messages"),
+          backgroundColor: const Color(0xFFEBF4F6),
+        ),
         body: SafeArea(
           child: Align(
             alignment: const AlignmentDirectional(0, 0),
@@ -70,7 +74,11 @@ class _ChatListPageState extends State<ChatListPage> {
                                     .formatLastMessageTime(chat.lastMessageAt)),
                               ],
                             ),
-                            subtitle: Text(chat.lastMessage ?? '', style: const TextStyle(fontSize: 18, color: Colors.grey),),
+                            subtitle: Text(
+                              chat.lastMessage ?? '',
+                              style: const TextStyle(
+                                  fontSize: 18, color: Colors.grey),
+                            ),
                             trailing: (navigationBarPageState
                                             .chatRoomBadge[chat.chatId] !=
                                         null &&

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../domain/model/message_model.dart';
+import '../../../utils/full_screen_image_view_widget.dart';
 import '../../../utils/gif_progress_bar.dart';
 import 'chat_page_view_model.dart';
 
@@ -91,7 +92,20 @@ class _ChatPageState extends State<ChatPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: isImage
-                        ? Image.network(message.text, width: 200)
+                        ? InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  FullScreenImageViewWidget(
+                                    imageUrl: message.text.replaceAll('thumbnails/thumbnail_', ''),
+                                    heroTag: 'heroTag',
+                                  ),
+                            ),
+                          );
+                        },
+                        child: Image.network(message.text, width: 200))
                         : Text(
                             message.text,
                             style: TextStyle(
@@ -104,7 +118,80 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Row(
             children: [
-              IconButton(icon: const Icon(Icons.image), onPressed: () {}),
+              IconButton(icon: const Icon(Icons.image), onPressed: () {
+                showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20)),
+                  ),
+                  builder: (context) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(20)),
+                            ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  leading:
+                                  const Icon(Icons.photo_library),
+                                  title: const Text('Select from Library'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    viewModel.pickImageFromGallery(
+                                        widget.chat.chatId);
+                                  },
+                                ),
+                                const Divider(),
+                                ListTile(
+                                  leading:
+                                  const Icon(Icons.camera_alt),
+                                  title: const Text('Take a photo'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    viewModel
+                                        .takePhoto(widget.chat.chatId);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // 취소 버튼 (별도 박스)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(20)),
+                            ),
+                            child: ListTile(
+                              leading: const Icon(Icons.close,
+                                  color: Colors.red),
+                              title: const Text('Cancel',
+                                  style:
+                                  TextStyle(color: Colors.red)),
+                              onTap: () {
+                                Navigator.pop(context); // 모달 닫기
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },),
               Expanded(
                 child: TextFormField(
                   minLines: 1,

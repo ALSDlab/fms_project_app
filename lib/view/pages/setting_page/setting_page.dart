@@ -96,6 +96,8 @@ class _SettingPageState extends State<SettingPage> {
                                                   loadingBarRadius: 15,
                                                 )
                                               : Image.asset(
+                                                  color:
+                                                      const Color(0xff54D1DB),
                                                   'assets/images/person1.png',
                                                   width: imageSize,
                                                   height: imageSize,
@@ -110,10 +112,13 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                           Expanded(
                             child: InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 if (context.mounted) {
-                                  GoRouter.of(context)
+                                  final result = await GoRouter.of(context)
                                       .push('/edit_profile_page');
+                                  if (result == true) {
+                                    viewModel.loadUser();
+                                  }
                                 }
                               },
                               child: Row(

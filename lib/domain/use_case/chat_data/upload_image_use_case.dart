@@ -9,8 +9,8 @@ class UploadImageUseCase {
 
   final ChatDataRepository _chatDataRepository;
 
-  Future<Result<String>> execute(String chatId, File file) async {
-    final imgURL = await _chatDataRepository.uploadImage(chatId, file);
+  Future<Result<String>> execute(String chatId, DateTime now, File file) async {
+    final imgURL = await _chatDataRepository.uploadImage(chatId, now, file);
     return imgURL.when(
         success: (data) => Result.success(data),
         error: (message) => Result.error(message));

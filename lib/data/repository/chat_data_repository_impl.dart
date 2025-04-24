@@ -72,8 +72,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<void>> createChatRoom(
-      ChatModel chat) async {
+  Future<Result<void>> createChatRoom(ChatModel chat) async {
     final result =
         await FirebaseChatData().createChatRoom(ChatDataMapper.toDTO(chat));
 
@@ -111,8 +110,8 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<String>> uploadImage(String chatId, File file) async {
-    final imgURL = await FirebaseChatData().uploadImage(chatId, file);
+  Future<Result<String>> uploadImage(String chatId, DateTime now, File file) async {
+    final imgURL = await FirebaseChatData().uploadImage(chatId, now, file);
 
     return imgURL.when(
       success: (data) {

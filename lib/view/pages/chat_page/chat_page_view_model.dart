@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.d
 import 'package:fmsproject/domain/use_case/chat_data/send_message_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../data/core/result.dart';
 import '../../../domain/use_case/chat_data/mark_messages_as_read_use_case.dart';
@@ -21,9 +23,11 @@ class ChatPageViewModel with ChangeNotifier {
   final MarkMessagesAsReadUseCase _markMessagesAsReadUseCase;
   final CreateChatRoomUseCase _createChatRoomUseCase;
   final StreamMessageUseCase _streamMessageUseCase;
-  StreamSubscription<List<MessageModel>>? _messagesSubscription;
   final SendMessageUseCase _sendMessageUseCase;
   final UploadImageUseCase _uploadImageUseCase;
+
+  StreamSubscription<List<MessageModel>>? _messagesSubscription;
+
 
   ChatPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
@@ -40,7 +44,11 @@ class ChatPageViewModel with ChangeNotifier {
         _uploadImageUseCase = uploadImageUseCase;
 
   final TextEditingController messageController = TextEditingController();
-  final ImagePicker picker = ImagePicker();
+
+  File? _imageFile;
+
+  final ImagePicker _picker = ImagePicker();
+
 
   ChatPageState _state = const ChatPageState();
 
@@ -191,6 +199,96 @@ class ChatPageViewModel with ChangeNotifier {
       }
     } catch (error) {
       logger.info('Error fetching FIREBASE data(sendMessage): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  // 갤러리에서 이미지 선택
+  Future<void> pickImageFromGallery(String chatId) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+        final DateTime now = DateTime.now();
+        final updateImageResult =
+        await _uploadImageUseCase.execute(chatId, now, _imageFile!);
+        switch (updateImageResult) {
+          case Success<String>():
+            final MessageModel message = MessageModel(
+                messageId: now.millisecondsSinceEpoch.toString() +
+                    const Uuid().v4().substring(0, 6),
+                chatId: chatId,
+                senderId: _state.currentUser,
+                text: updateImageResult.data,
+                timestamp: now,
+                readByUsers: [],
+                type: 'image');
+            final sendMessage = await _sendMessageUseCase.execute(chatId, message);
+            switch (sendMessage) {
+              case Success<void>():
+                logger.info('message was sent successfully!');
+                break;
+              case Error<void>():
+                logger.info('message not sent~~~!!');
+                break;
+            }
+            notifyListeners(); // UI 업데이트
+          case Error<String>():
+            logger.info(updateImageResult);
+            break;
+        }
+      }
+    } catch (error) {
+      logger.info('Error updating FIREBASE data(update chat image): $error');
+    } finally {
+      _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  // 카메라로 사진 찍기
+  Future<void> takePhoto(String chatId) async {
+    _state = state.copyWith(isLoading: true);
+    notifyListeners();
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+        final DateTime now = DateTime.now();
+        final updateImageResult =
+        await _uploadImageUseCase.execute(chatId, now, _imageFile!);
+        switch (updateImageResult) {
+          case Success<String>():
+            final MessageModel message = MessageModel(
+                messageId: now.millisecondsSinceEpoch.toString() +
+                    const Uuid().v4().substring(0, 6),
+                chatId: chatId,
+                senderId: _state.currentUser,
+                text: updateImageResult.data,
+                timestamp: now,
+                readByUsers: [],
+                type: 'image');
+            final sendMessage = await _sendMessageUseCase.execute(chatId, message);
+            switch (sendMessage) {
+              case Success<void>():
+                logger.info('message was sent successfully!');
+                break;
+              case Error<void>():
+                logger.info('message not sent~~~!!');
+                break;
+            }
+            notifyListeners(); // UI 업데이트
+          case Error<String>():
+            logger.info(updateImageResult);
+            break;
+        }
+      }
+    } catch (error) {
+      logger.info('Error updating FIREBASE data(update profile image): $error');
     } finally {
       _state = state.copyWith(isLoading: false);
       notifyListeners();

@@ -2,6 +2,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/utils/gif_progress_bar.dart';
 import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class EditProfilePage extends StatelessWidget {
@@ -14,6 +15,13 @@ class EditProfilePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFEBF4F6),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(BootstrapIcons.arrow_left),
+          onPressed: () {
+            GoRouter.of(context).pop(true);
+          },
+        ),
         title: const Text('Edit Profile'),
         backgroundColor: const Color(0xFFEBF4F6),
         foregroundColor: Colors.black,
@@ -37,14 +45,14 @@ class EditProfilePage extends StatelessWidget {
                           width: 2,
                         ),
                       ),
-                      child: (state.isLoading)
-                          ? Center(
-                              child: GifProgressBar(),
-                            )
-                          : CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.lightGreenAccent,
-                              child: ClipOval(
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: const Color(0xff54D1DB),
+                        child: (state.isLoading)
+                            ? Center(
+                                child: GifProgressBar(),
+                              )
+                            : ClipOval(
                                 child: (state.thumbnail == '')
                                     ? Image.asset(
                                         'assets/images/person1.png',
@@ -59,7 +67,7 @@ class EditProfilePage extends StatelessWidget {
                                         fit: BoxFit.cover,
                                       ),
                               ),
-                            ),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -91,7 +99,8 @@ class EditProfilePage extends StatelessWidget {
                                           ListTile(
                                             leading:
                                                 const Icon(Icons.photo_library),
-                                            title: const Text('라이브러리에서 선택'),
+                                            title: const Text(
+                                                'Select from Library'),
                                             onTap: () {
                                               Navigator.pop(context);
                                               viewModel.pickImageFromGallery(
@@ -102,7 +111,7 @@ class EditProfilePage extends StatelessWidget {
                                           ListTile(
                                             leading:
                                                 const Icon(Icons.camera_alt),
-                                            title: const Text('사진 찍기'),
+                                            title: const Text('Take a photo'),
                                             onTap: () {
                                               Navigator.pop(context);
                                               viewModel
@@ -126,7 +135,7 @@ class EditProfilePage extends StatelessWidget {
                                       child: ListTile(
                                         leading: const Icon(Icons.close,
                                             color: Colors.red),
-                                        title: const Text('취소',
+                                        title: const Text('Cancel',
                                             style:
                                                 TextStyle(color: Colors.red)),
                                         onTap: () {
@@ -187,7 +196,8 @@ class EditProfilePage extends StatelessWidget {
                 content: state.email,
                 onTap: () => _showEditModal(
                   context: context,
-                  title: 'Email',
+                  title:
+                      'Email (${state.isEmailVerified ? "Verified" : "Unverified"})',
                   initialValue: state.email,
                   onSave: viewModel.updateEmail,
                 ),
@@ -284,7 +294,7 @@ class EditProfilePage extends StatelessWidget {
     required BuildContext context,
     required String title,
     required String initialValue,
-    required Function(String) onSave,
+    required Function onSave,
     bool isMultiline = false,
   }) {
     final textController = TextEditingController(text: initialValue);

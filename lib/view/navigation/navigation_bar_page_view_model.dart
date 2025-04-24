@@ -1,3 +1,4 @@
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'navigation_bar_page_state.dart';
@@ -31,35 +32,7 @@ class NavigationBarPageViewModel with ChangeNotifier {
         originalBadge.values.fold(0, (sum, element) => sum + element);
     _state = state.copyWith(
         badgeCount: totalBadgeCount, chatRoomBadge: originalBadge);
-    print(totalBadgeCount);
-    print('네비게이션:' + _state.badgeCount.toString());
+    AppBadgePlus.updateBadge(totalBadgeCount);
     Future.delayed(Duration.zero, () => notifyListeners());
   }
-
-// Future<void> loadMessages(String userId) async {
-//   _state = state.copyWith(isLoading: true);
-//   notifyListeners();
-//   try {
-//     final getMessagesResult = _getMessageUseCase.execute(userId);
-//     switch (getMessagesResult) {
-//       case Success<Stream<Map<String, List<MessageModel>>>>():
-//         getMessagesResult.data.listen(
-//           (messages) {
-//             _state = state.copyWith(messages: messages);
-//             notifyListeners();
-//           },
-//           onError: (error) {
-//             logger.info("Error fetching messages stream: $error");
-//             notifyListeners();
-//           },
-//         );
-//         break;
-//     }
-//   } catch (error) {
-//     logger.info('Error fetching FIREBASE data(loadMessages): $error');
-//   } finally {
-//     _state = state.copyWith(isLoading: false);
-//     notifyListeners();
-//   }
-// }
 }

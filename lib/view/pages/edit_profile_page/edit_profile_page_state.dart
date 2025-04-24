@@ -1,9 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
-
 
 part 'edit_profile_page_state.freezed.dart';
-
 part 'edit_profile_page_state.g.dart';
 
 @freezed
@@ -16,6 +13,8 @@ class EditProfilePageState with _$EditProfilePageState {
     @Default('') String comment,
     @Default('') String thumbnail,
     @Default('') String imageUrl,
+    @Default(false) bool isEmailValid,
+    @Default(false) bool isEmailVerified,
     
   }) = _EditProfilePageState;
   

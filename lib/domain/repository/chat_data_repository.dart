@@ -26,5 +26,5 @@ abstract interface class ChatDataRepository {
 
   Future<Result<void>> sendMessage(String receiverId, MessageModel message);
 
-  Future<Result<String>> uploadImage(String chatId, File file);
+  Future<Result<String>> uploadImage(String chatId, DateTime now, File file);
 }
