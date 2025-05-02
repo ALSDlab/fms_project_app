@@ -250,7 +250,7 @@ class FirebaseChatData {
     }
   }
 
-// 메시지 보내기 메서드
+  // 메시지 보내기 메서드
   Future<Result<void>> sendMessage(
       String chatId, MessageDataDto messageData) async {
     try {

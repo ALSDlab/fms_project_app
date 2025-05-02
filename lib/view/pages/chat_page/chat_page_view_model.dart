@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/model/chat_model.dart';
 import 'package:fmsproject/domain/model/message_model.dart';
 import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.dart';
+import 'package:fmsproject/domain/use_case/chat_data/get_more_old_chats_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/send_message_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/upload_image_use_case.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,9 +26,9 @@ class ChatPageViewModel with ChangeNotifier {
   final StreamMessageUseCase _streamMessageUseCase;
   final SendMessageUseCase _sendMessageUseCase;
   final UploadImageUseCase _uploadImageUseCase;
+  final GetMoreOldChatsUseCase _getMoreOldChatsUseCase;
 
   StreamSubscription<List<MessageModel>>? _messagesSubscription;
-
 
   ChatPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
@@ -36,19 +37,21 @@ class ChatPageViewModel with ChangeNotifier {
     required StreamMessageUseCase streamMessageUseCase,
     required SendMessageUseCase sendMessageUseCase,
     required UploadImageUseCase uploadImageUseCase,
+    required GetMoreOldChatsUseCase getMoreOldChatsUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
         _markMessagesAsReadUseCase = markMessagesAsReadUseCase,
         _createChatRoomUseCase = createChatRoomUseCase,
         _streamMessageUseCase = streamMessageUseCase,
         _sendMessageUseCase = sendMessageUseCase,
-        _uploadImageUseCase = uploadImageUseCase;
+        _uploadImageUseCase = uploadImageUseCase,
+        _getMoreOldChatsUseCase = getMoreOldChatsUseCase;
 
   final TextEditingController messageController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
 
   File? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
-
 
   ChatPageState _state = const ChatPageState();
 
@@ -61,6 +64,7 @@ class ChatPageViewModel with ChangeNotifier {
     _disposed = true;
     messageController.dispose();
     _messagesSubscription?.cancel();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -122,6 +126,44 @@ class ChatPageViewModel with ChangeNotifier {
       logger.info('Error fetching FIREBASE data(loadCurrentUser): $error');
     } finally {
       _state = state.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+
+  void scrollControllerInit() {
+    scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (scrollController.position.pixels ==
+            scrollController.position.minScrollExtent &&
+        !state.isLoading) {
+      // 스크롤이 제일 위에 닿으면
+      loadOldMessages();
+    }
+  }
+
+  Future<void> loadOldMessages() async {
+    _state = state.copyWith(isOldMessageLoading: true);
+    notifyListeners();
+    try {
+      final oldMessageResult = await _getMoreOldChatsUseCase.execute(
+          _state.messages.first.chatId, _state.messages.last.timestamp);
+      switch (oldMessageResult) {
+        case Success<List<MessageModel>>():
+          List<MessageModel> totalMessages = List.from(_state.messages);
+          totalMessages += oldMessageResult.data;
+          _state = state.copyWith(messages: totalMessages);
+          notifyListeners();
+        case Error<List<MessageModel>>():
+          logger.info('Error occurred loading old messages');
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(oldMessages): $error');
+    } finally {
+      _state = state.copyWith(isOldMessageLoading: false);
+      scrollController.jumpTo(scrollController.position.maxScrollExtent / 2);
       notifyListeners();
     }
   }
@@ -215,7 +257,7 @@ class ChatPageViewModel with ChangeNotifier {
         _imageFile = File(pickedFile.path);
         final DateTime now = DateTime.now();
         final updateImageResult =
-        await _uploadImageUseCase.execute(chatId, now, _imageFile!);
+            await _uploadImageUseCase.execute(chatId, now, _imageFile!);
         switch (updateImageResult) {
           case Success<String>():
             final MessageModel message = MessageModel(
@@ -227,7 +269,8 @@ class ChatPageViewModel with ChangeNotifier {
                 timestamp: now,
                 readByUsers: [],
                 type: 'image');
-            final sendMessage = await _sendMessageUseCase.execute(chatId, message);
+            final sendMessage =
+                await _sendMessageUseCase.execute(chatId, message);
             switch (sendMessage) {
               case Success<void>():
                 logger.info('message was sent successfully!');
@@ -260,7 +303,7 @@ class ChatPageViewModel with ChangeNotifier {
         _imageFile = File(pickedFile.path);
         final DateTime now = DateTime.now();
         final updateImageResult =
-        await _uploadImageUseCase.execute(chatId, now, _imageFile!);
+            await _uploadImageUseCase.execute(chatId, now, _imageFile!);
         switch (updateImageResult) {
           case Success<String>():
             final MessageModel message = MessageModel(
@@ -272,7 +315,8 @@ class ChatPageViewModel with ChangeNotifier {
                 timestamp: now,
                 readByUsers: [],
                 type: 'image');
-            final sendMessage = await _sendMessageUseCase.execute(chatId, message);
+            final sendMessage =
+                await _sendMessageUseCase.execute(chatId, message);
             switch (sendMessage) {
               case Success<void>():
                 logger.info('message was sent successfully!');

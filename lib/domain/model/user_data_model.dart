@@ -1,10 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-
-part 'user_data_model.freezed.dart';
-
-part 'user_data_model.g.dart';
+part 'user_data_model.freezed.dart';part 'user_data_model.g.dart';
 
 @freezed
 class UserDataModel with _$UserDataModel {
@@ -18,9 +14,8 @@ class UserDataModel with _$UserDataModel {
     @JsonKey(name: 'imageUrl') required String imageUrl,
     @JsonKey(name: 'isSignOut') required bool isSignOut,
     @JsonKey(name: 'signOutDate') required String signOutDate,
-
-
   }) = _UserDataModel;
 
-  factory UserDataModel.fromJson(Map<String, dynamic> json) => _$UserDataModelFromJson(json);
+  factory UserDataModel.fromJson(Map<String, dynamic> json) =>
+      _$UserDataModelFromJson(json);
 }

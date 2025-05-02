@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fmsproject/data/core/result.dart';
 import 'package:fmsproject/data/data_source/firebase_chat_data.dart';
 import 'package:fmsproject/data/mappers/chat_data_mapper.dart';
@@ -58,7 +59,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
     final result = await FirebaseChatData().findChatRoom(senderId, receiverId);
 
     return result.when(
-      success: (data) async {
+      success: (data) {
         try {
           return Result.success(data);
         } catch (e) {
@@ -77,7 +78,7 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
         await FirebaseChatData().createChatRoom(ChatDataMapper.toDTO(chat));
 
     return result.when(
-      success: (data) async {
+      success: (data) {
         try {
           return Result.success(data);
         } catch (e) {
@@ -110,7 +111,8 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
   }
 
   @override
-  Future<Result<String>> uploadImage(String chatId, DateTime now, File file) async {
+  Future<Result<String>> uploadImage(
+      String chatId, DateTime now, File file) async {
     final imgURL = await FirebaseChatData().uploadImage(chatId, now, file);
 
     return imgURL.when(
@@ -147,8 +149,18 @@ class ChatDataRepositoryImpl implements ChatDataRepository {
 
   @override
   Future<Result<List<MessageModel>>> fetchMoreMessages(
-      String chatId, DateTime lastTimestamp) {
-    // TODO: implement fetchMoreMessages
-    throw UnimplementedError();
+      String chatId, DateTime lastTimestamp) async {
+    final oldMessages = await FirebaseChatData()
+        .fetchMoreMessages(chatId, Timestamp.fromDate(lastTimestamp));
+    return oldMessages.when(
+      success: (data) {
+        List<MessageModel> result =
+            data.map((e) => MessageDataMapper.fromDTO(e)).toList();
+        return Result.success(result);
+      },
+      error: (message) {
+        return Result.error(message);
+      },
+    );
   }
 }

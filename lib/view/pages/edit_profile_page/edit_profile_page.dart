@@ -48,7 +48,7 @@ class EditProfilePage extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: const Color(0xff54D1DB),
-                        child: (state.isLoading)
+                        child: (state.isThumbnailLoading)
                             ? Center(
                                 child: GifProgressBar(),
                               )

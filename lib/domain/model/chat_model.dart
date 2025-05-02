@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
-
 
 part 'chat_model.freezed.dart';
-
 part 'chat_model.g.dart';
 
 @freezed
@@ -12,14 +8,12 @@ class ChatModel with _$ChatModel {
   const factory ChatModel({
     @JsonKey(name: 'chatId') required String chatId,
     @JsonKey(name: 'participants') required List<String> participants,
-    @JsonKey(name: 'createdAt')  required DateTime createdAt,
-    @JsonKey(name: 'lastMessage')  String? lastMessage,
-    @JsonKey(name: 'lastMessageId')  String? lastMessageId,
-    @JsonKey(name: 'lastMessageAt')  DateTime? lastMessageAt,
-
-
-
+    @JsonKey(name: 'createdAt') required DateTime createdAt,
+    @JsonKey(name: 'lastMessage') String? lastMessage,
+    @JsonKey(name: 'lastMessageId') String? lastMessageId,
+    @JsonKey(name: 'lastMessageAt') DateTime? lastMessageAt,
   }) = _ChatModel;
 
-  factory ChatModel.fromJson(Map<String, dynamic> json) => _$ChatModelFromJson(json);
+  factory ChatModel.fromJson(Map<String, dynamic> json) =>
+      _$ChatModelFromJson(json);
 }

@@ -6,6 +6,7 @@ import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.d
 import 'package:fmsproject/domain/use_case/chat_data/find_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_list_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_room_data_use_case.dart';
+import 'package:fmsproject/domain/use_case/chat_data/get_more_old_chats_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/mark_messages_as_read_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/send_message_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/stream_chat_list_use_case.dart';
@@ -87,6 +88,8 @@ void diSetup() {
         StreamChatListUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<StreamMessageUseCase>(
         StreamMessageUseCase(chatDataRepository: getIt<ChatDataRepository>()))
+    ..registerSingleton<GetMoreOldChatsUseCase>(
+        GetMoreOldChatsUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<MarkMessagesAsReadUseCase>(MarkMessagesAsReadUseCase(
         chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<FindChatRoomUseCase>(
@@ -127,7 +130,8 @@ void diSetup() {
         streamMessageUseCase: getIt<StreamMessageUseCase>(),
         sendMessageUseCase: getIt<SendMessageUseCase>(),
         uploadImageUseCase: getIt<UploadImageUseCase>(),
-        createChatRoomUseCase: getIt<CreateChatRoomUseCase>()))
+        createChatRoomUseCase: getIt<CreateChatRoomUseCase>(),
+        getMoreOldChatsUseCase: getIt<GetMoreOldChatsUseCase>()))
     ..registerFactory<SettingPageViewModel>(() => SettingPageViewModel(
           logOutByEmailUseCase: getIt<LogOutByEmailUseCase>(),
           signOutByEmailUseCase: getIt<SignOutByEmailUseCase>(),

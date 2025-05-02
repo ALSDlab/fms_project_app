@@ -119,7 +119,7 @@ class EditProfilePageViewModel extends ChangeNotifier {
 
   // 갤러리에서 이미지 선택
   Future<void> pickImageFromGallery(String userId) async {
-    _state = state.copyWith(isLoading: true);
+    _state = state.copyWith(isThumbnailLoading: true);
     notifyListeners();
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -141,14 +141,14 @@ class EditProfilePageViewModel extends ChangeNotifier {
     } catch (error) {
       logger.info('Error updating FIREBASE data(update profile image): $error');
     } finally {
-      _state = state.copyWith(isLoading: false);
+      _state = state.copyWith(isThumbnailLoading: false);
       notifyListeners();
     }
   }
 
   // 카메라로 사진 찍기
   Future<void> takePhoto(String userId) async {
-    _state = state.copyWith(isLoading: true);
+    _state = state.copyWith(isThumbnailLoading: true);
     notifyListeners();
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.camera);
@@ -170,7 +170,7 @@ class EditProfilePageViewModel extends ChangeNotifier {
     } catch (error) {
       logger.info('Error updating FIREBASE data(update profile image): $error');
     } finally {
-      _state = state.copyWith(isLoading: false);
+      _state = state.copyWith(isThumbnailLoading: false);
       notifyListeners();
     }
   }

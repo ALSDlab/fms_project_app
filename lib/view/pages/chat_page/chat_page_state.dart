@@ -8,6 +8,7 @@ part 'chat_page_state.g.dart';
 class ChatPageState with _$ChatPageState {
   const factory ChatPageState({
     @Default(false) bool isLoading,
+    @Default(false) bool isOldMessageLoading,
     @Default('') String currentUser,
     @Default([]) List<MessageModel> messages,
   }) = _ChatPageState;
