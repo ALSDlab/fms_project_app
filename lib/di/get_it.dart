@@ -1,7 +1,9 @@
 import 'package:fmsproject/data/repository/chat_data_repository_impl.dart';
 import 'package:fmsproject/data/repository/user_data_repository_impl.dart';
+import 'package:fmsproject/data/repository/wg_data_repository_impl.dart';
 import 'package:fmsproject/domain/repository/chat_data_repository.dart';
 import 'package:fmsproject/domain/repository/user_data_repository.dart';
+import 'package:fmsproject/domain/repository/wg_data_repository.dart';
 import 'package:fmsproject/domain/use_case/chat_data/create_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/find_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_list_use_case.dart';
@@ -25,6 +27,13 @@ import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.
 import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/update_profile_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/update_profile_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/delete_wg_data_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/get_wg_data_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/stream_wg_data_list_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/update_wg_data_field_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/update_wg_images_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/upload_wg_data_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/upload_wg_images_use_case.dart';
 import 'package:fmsproject/view/pages/chat_page/chat_page_view_model.dart';
 import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:fmsproject/view/pages/signup_page/signup_page_view_model.dart';
@@ -45,7 +54,8 @@ void diSetup() {
   // Repository
   getIt
     ..registerSingleton<UserDataRepository>(UserDataRepositoryImpl())
-    ..registerSingleton<ChatDataRepository>(ChatDataRepositoryImpl());
+    ..registerSingleton<ChatDataRepository>(ChatDataRepositoryImpl())
+    ..registerSingleton<WgDataRepository>(WgDataRepositoryImpl());
 
   // use case(user data)
   getIt
@@ -100,6 +110,23 @@ void diSetup() {
         SendMessageUseCase(chatDataRepository: getIt<ChatDataRepository>()))
     ..registerSingleton<UploadImageUseCase>(
         UploadImageUseCase(chatDataRepository: getIt<ChatDataRepository>()));
+
+  // use case(WG data)
+  getIt
+    ..registerSingleton<UploadWgDataUseCase>(
+        UploadWgDataUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<UploadWgImagesUseCase>(
+        UploadWgImagesUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<GetWgDataUseCase>(
+        GetWgDataUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<StreamWgDataListUseCase>(
+        StreamWgDataListUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<UpdateWgDataFieldUseCase>(
+        UpdateWgDataFieldUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<UpdateWgImagesUseCase>(
+        UpdateWgImagesUseCase(wgDataRepository: getIt<WgDataRepository>()))
+    ..registerSingleton<DeleteWgDataUseCase>(
+        DeleteWgDataUseCase(wgDataRepository: getIt<WgDataRepository>()));
 
   // ViewModel
   getIt

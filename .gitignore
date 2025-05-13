@@ -219,3 +219,4 @@ fabric.properties
 *.env*
 GoogleService-Info.plist
 strings.xml
+ios/Runner/Config.xcconfig

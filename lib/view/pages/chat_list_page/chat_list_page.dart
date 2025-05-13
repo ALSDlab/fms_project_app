@@ -74,30 +74,35 @@ class _ChatListPageState extends State<ChatListPage> {
                                     .formatLastMessageTime(chat.lastMessageAt)),
                               ],
                             ),
-                            subtitle: Text(
-                              chat.lastMessage ?? '',
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.grey),
-                            ),
-                            trailing: (navigationBarPageState
-                                            .chatRoomBadge[chat.chatId] !=
-                                        null &&
+                            subtitle: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  chat.lastMessage ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 18, color: Colors.grey),
+                                ),
+                                (navigationBarPageState
+                                    .chatRoomBadge[chat.chatId] !=
+                                    null &&
                                     navigationBarPageState
-                                            .chatRoomBadge[chat.chatId]! >
+                                        .chatRoomBadge[chat.chatId]! >
                                         0)
-                                ? Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      '${navigationBarPageState.chatRoomBadge[chat.chatId]}',
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  )
-                                : null,
+                                    ? Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${navigationBarPageState.chatRoomBadge[chat.chatId]}',
+                                    style:
+                                    const TextStyle(color: Colors.white),
+                                  ),
+                                )
+                                    : Container(),
+                              ],
+                            ),
                             onTap: () {
                               if (context.mounted) {
                                 GoRouter.of(context).push('/chat_page', extra: {

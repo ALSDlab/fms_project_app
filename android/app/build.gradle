@@ -8,10 +8,23 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+
+def googleMapApiKey = localProperties.getProperty("GOOGLE_MAP_API_KEY")
+if (googleMapApiKey == null) {
+    throw new GradleException("Google Api Key not found. Define location with google.api.key in the local.properties file.")
+}
+
 android {
     namespace = "com.codingenter.fmsprojectapp"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -34,10 +47,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders = [googleMapApiKey: googleMapApiKey]
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            manifestPlaceholders = [googleMapApiKey: googleMapApiKey]
         }
     }
 }

@@ -100,7 +100,7 @@ class PropertyTypeStep extends StatelessWidget {
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final category = _propertyCategories[index];
-              final isSelected = state.wgData.region == category;
+              final isSelected = state.wgData.address == category;
 
               return InkWell(
                 onTap: () {},

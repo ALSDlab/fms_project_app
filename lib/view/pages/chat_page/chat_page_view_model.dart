@@ -135,9 +135,10 @@ class ChatPageViewModel with ChangeNotifier {
   }
 
   void _scrollListener() {
-    if (scrollController.position.pixels ==
-            scrollController.position.minScrollExtent &&
-        !state.isLoading) {
+    if (scrollController.offset >=
+            scrollController.position.maxScrollExtent - 50 &&
+        !state.isLoading &&
+        !state.isOldMessageLoading) {
       // 스크롤이 제일 위에 닿으면
       loadOldMessages();
     }
@@ -152,9 +153,15 @@ class ChatPageViewModel with ChangeNotifier {
       switch (oldMessageResult) {
         case Success<List<MessageModel>>():
           List<MessageModel> totalMessages = List.from(_state.messages);
-          totalMessages += oldMessageResult.data;
-          _state = state.copyWith(messages: totalMessages);
-          notifyListeners();
+          final newMessages = oldMessageResult.data
+              .where((msg) => !totalMessages
+                  .any((existing) => existing.messageId == msg.messageId))
+              .toList();
+          if (newMessages.isNotEmpty) {
+            totalMessages += newMessages;
+            _state = state.copyWith(messages: totalMessages);
+            notifyListeners();
+          }
         case Error<List<MessageModel>>():
           logger.info('Error occurred loading old messages');
           break;
@@ -163,7 +170,6 @@ class ChatPageViewModel with ChangeNotifier {
       logger.info('Error fetching FIREBASE data(oldMessages): $error');
     } finally {
       _state = state.copyWith(isOldMessageLoading: false);
-      scrollController.jumpTo(scrollController.position.maxScrollExtent / 2);
       notifyListeners();
     }
   }

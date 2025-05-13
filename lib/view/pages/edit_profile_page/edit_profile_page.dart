@@ -223,14 +223,6 @@ class EditProfilePage extends StatelessWidget {
                   isMultiline: true,
                 ),
               ),
-              // const SizedBox(height: 32),
-              // const Text(
-              //   '위치',
-              //   style: TextStyle(
-              //     fontSize: 22,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
             ],
           ),
         ),

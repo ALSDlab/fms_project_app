@@ -15,7 +15,7 @@ class UploadWGPage extends StatelessWidget {
     final viewModel = context.watch<UploadWGPageViewModel>();
     return Scaffold(
       appBar: AppBar(
-          title: const Text('숙소 등록하기'),
+          title: const Text('UPLOAD WG'),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,

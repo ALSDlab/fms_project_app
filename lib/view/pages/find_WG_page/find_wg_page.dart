@@ -32,7 +32,7 @@ class FindWGPage extends StatelessWidget {
             splashColor: Colors.transparent,
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
-              const String receiverId = '2coIOGzCahfxEYOkLy33be2kEAN2';
+              const String receiverId = 'm9dDi1hB7UcEnMAkrQutCL5S0H13';
               final chatId =
                   await viewModel.findChatRoom(state.currentUser, receiverId);
               ChatModel? chat = await viewModel.loadChatRoom(chatId);

@@ -7,15 +7,15 @@ class WgDataDto {
   final Timestamp? abDem;
   final Timestamp? bis;
   final String? miete;
-  final String? region;
-  final String? adresse;
-  final String? ort;
-  final String? kreis;
+  final String? country;
+  final String? state;
+  final String? city;
+  final String? address;
   final GeoPoint? location;
-  final String? naehe;
-  final String? beschreibung;
-  final String? wirSuchen;
-  final String? wirSind;
+  final String? postCode;
+  final String? description;
+  final String? weFind;
+  final String? weAre;
   final List<String>? imageUrls;
   final List<String>? thumbnails;
   final Timestamp? createDate;
@@ -28,15 +28,15 @@ class WgDataDto {
     this.abDem,
     this.bis,
     this.miete,
-    this.region,
-    this.adresse,
-    this.ort,
-    this.kreis,
+    this.country,
+    this.state,
+    this.city,
+    this.address,
     this.location,
-    this.naehe,
-    this.beschreibung,
-    this.wirSuchen,
-    this.wirSind,
+    this.postCode,
+    this.description,
+    this.weFind,
+    this.weAre,
     this.imageUrls,
     this.thumbnails,
     this.createDate,
@@ -53,15 +53,15 @@ class WgDataDto {
           abDem == other.abDem &&
           bis == other.bis &&
           miete == other.miete &&
-          region == other.region &&
-          adresse == other.adresse &&
-          ort == other.ort &&
-          kreis == other.kreis &&
+          country == other.country &&
+          state == other.state &&
+          city == other.city &&
+          address == other.address &&
           location == other.location &&
-          naehe == other.naehe &&
-          beschreibung == other.beschreibung &&
-          wirSuchen == other.wirSuchen &&
-          wirSind == other.wirSind &&
+          postCode == other.postCode &&
+          description == other.description &&
+          weFind == other.weFind &&
+          weAre == other.weAre &&
           imageUrls == other.imageUrls &&
           thumbnails == other.thumbnails &&
           createDate == other.createDate);
@@ -74,22 +74,22 @@ class WgDataDto {
       abDem.hashCode ^
       bis.hashCode ^
       miete.hashCode ^
-      region.hashCode ^
-      adresse.hashCode ^
-      ort.hashCode ^
-      kreis.hashCode ^
+      country.hashCode ^
+      state.hashCode ^
+      city.hashCode ^
+      address.hashCode ^
       location.hashCode ^
-      naehe.hashCode ^
-      beschreibung.hashCode ^
-      wirSuchen.hashCode ^
-      wirSind.hashCode ^
+      postCode.hashCode ^
+      description.hashCode ^
+      weFind.hashCode ^
+      weAre.hashCode ^
       imageUrls.hashCode ^
       thumbnails.hashCode ^
       createDate.hashCode;
 
   @override
   String toString() {
-    return 'WgDataDto{ wgId: $wgId, userId: $userId, title: $title, abDem: $abDem, bis: $bis, miete: $miete, region: $region, adresse: $adresse, ort: $ort, kreis: $kreis, location: $location, naehe: $naehe, beschreibung: $beschreibung, wirSuchen: $wirSuchen, wirSind: $wirSind, imageUrls: $imageUrls, thumbnails: $thumbnails, createDate: $createDate,}';
+    return 'WgDataDto{ wgId: $wgId, userId: $userId, title: $title, abDem: $abDem, bis: $bis, miete: $miete, country: $country, state: $state, city: $city, address: $address, location: $location, postCode: $postCode, description: $description, weFind: $weFind, weAre: $weAre, imageUrls: $imageUrls, thumbnails: $thumbnails, createDate: $createDate}';
   }
 
   WgDataDto copyWith({
@@ -99,15 +99,15 @@ class WgDataDto {
     Timestamp? abDem,
     Timestamp? bis,
     String? miete,
-    String? region,
-    String? adresse,
-    String? ort,
-    String? kreis,
+    String? country,
+    String? state,
+    String? city,
+    String? address,
     GeoPoint? location,
-    String? naehe,
-    String? beschreibung,
-    String? wirSuchen,
-    String? wirSind,
+    String? postCode,
+    String? description,
+    String? weFind,
+    String? weAre,
     List<String>? imageUrls,
     List<String>? thumbnails,
     Timestamp? createDate,
@@ -119,15 +119,15 @@ class WgDataDto {
       abDem: abDem ?? this.abDem,
       bis: bis ?? this.bis,
       miete: miete ?? this.miete,
-      region: region ?? this.region,
-      adresse: adresse ?? this.adresse,
-      ort: ort ?? this.ort,
-      kreis: kreis ?? this.kreis,
+      country: country ?? this.country,
+      state: state ?? this.state,
+      city: city ?? this.city,
+      address: address ?? this.address,
       location: location ?? this.location,
-      naehe: naehe ?? this.naehe,
-      beschreibung: beschreibung ?? this.beschreibung,
-      wirSuchen: wirSuchen ?? this.wirSuchen,
-      wirSind: wirSind ?? this.wirSind,
+      postCode: postCode ?? this.postCode,
+      description: description ?? this.description,
+      weFind: weFind ?? this.weFind,
+      weAre: weAre ?? this.weAre,
       imageUrls: imageUrls ?? this.imageUrls,
       thumbnails: thumbnails ?? this.thumbnails,
       createDate: createDate ?? this.createDate,
@@ -142,15 +142,15 @@ class WgDataDto {
       'abDem': abDem,
       'bis': bis,
       'miete': miete,
-      'region': region,
-      'adresse': adresse,
-      'ort': ort,
-      'kreis': kreis,
+      'country': country,
+      'state': state,
+      'city': city,
+      'address': address,
       'location': location,
-      'naehe': naehe,
-      'beschreibung': beschreibung,
-      'wirSuchen': wirSuchen,
-      'wirSind': wirSind,
+      'postCode': postCode,
+      'description': description,
+      'weFind': weFind,
+      'weAre': weAre,
       'imageUrls': imageUrls,
       'thumbnails': thumbnails,
       'createDate': createDate,
@@ -165,15 +165,15 @@ class WgDataDto {
       abDem: map['abDem'] as Timestamp,
       bis: map['bis'] as Timestamp,
       miete: map['miete'] as String,
-      region: map['region'] as String,
-      adresse: map['adresse'] as String,
-      ort: map['ort'] as String,
-      kreis: map['kreis'] as String,
+      country: map['country'] as String,
+      state: map['state'] as String,
+      city: map['city'] as String,
+      address: map['address'] as String,
       location: map['location'] as GeoPoint,
-      naehe: map['naehe'] as String,
-      beschreibung: map['beschreibung'] as String,
-      wirSuchen: map['wirSuchen'] as String,
-      wirSind: map['wirSind'] as String,
+      postCode: map['postCode'] as String,
+      description: map['description'] as String,
+      weFind: map['weFind'] as String,
+      weAre: map['weAre'] as String,
       imageUrls: map['imageUrls'] as List<String>,
       thumbnails: map['thumbnails'] as List<String>,
       createDate: map['createDate'] as Timestamp,
