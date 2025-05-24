@@ -1,25 +1,50 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fmsproject/domain/use_case/wg_data/create_wg_id_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/upload_wg_data_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/upload_wg_images_use_case.dart';
 import 'package:fmsproject/utils/simple_logger.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/upload_wg_page_state.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../data/core/result.dart';
+import '../../../domain/use_case/user_data/get_current_user_use_case.dart';
+import '../../../utils/one_answer_dialog.dart';
 
 class UploadWGPageViewModel with ChangeNotifier {
-  UploadWGPageViewModel();
+  final CreateWgIdUseCase _createWgIdUseCase;
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final UploadWgDataUseCase _uploadWgDataUseCase;
+  final UploadWgImagesUseCase _uploadWgImagesUseCase;
+
+  UploadWGPageViewModel({
+    required CreateWgIdUseCase createWgIdUseCase,
+    required GetCurrentUserUseCase getCurrentUserUseCase,
+    required UploadWgDataUseCase uploadWgDataUseCase,
+    required UploadWgImagesUseCase uploadWgImagesUseCase,
+  })  : _createWgIdUseCase = createWgIdUseCase,
+        _getCurrentUserUseCase = getCurrentUserUseCase,
+        _uploadWgDataUseCase = uploadWgDataUseCase,
+        _uploadWgImagesUseCase = uploadWgImagesUseCase;
 
   int _currentStep = 0;
-  final int _totalSteps = 5;
 
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var confirmPasswordController = TextEditingController();
   final Completer<GoogleMapController> mapController =
       Completer<GoogleMapController>();
+
   GoogleMapController? controller;
+  final ImagePicker _picker = ImagePicker();
   String currentAddress = "주소를 가져오는 중...";
 
   UploadWgPageState _state = const UploadWgPageState();
@@ -27,8 +52,6 @@ class UploadWGPageViewModel with ChangeNotifier {
   UploadWgPageState get state => _state;
 
   int get currentStep => _currentStep;
-
-  int get totalSteps => _totalSteps;
 
   bool _disposed = false;
 
@@ -64,27 +87,10 @@ class UploadWGPageViewModel with ChangeNotifier {
   }
 
   // 스텝 2: 위치 정보 설정
-  void setLocation(String country, String states, String city, String postCode,
-      String address, double latitude, double longitude) {
-    _state = state.copyWith(
-        wgData: state.wgData.copyWith(
-          country: country,
-          state: states,
-          city: city,
-          postCode: postCode,
-          address: address,
-          location: GeoPoint(latitude, longitude),
-        ),
-        isLocationCompleted: address.isNotEmpty &&
-            (country.isNotEmpty ||
-                states.isNotEmpty ||
-                city.isNotEmpty ||
-                postCode.isNotEmpty));
-    notifyListeners();
-  }
-
   // 2-1. 위치 권한 요청 및 현재 위치 표시 메서드
   Future<bool> requestLocationAndShowPosition() async {
+    _state = state.copyWith(isMapLoading: true);
+    notifyListeners();
     try {
       // 현재 권한 상태 확인
       LocationPermission permission = await Geolocator.checkPermission();
@@ -105,10 +111,14 @@ class UploadWGPageViewModel with ChangeNotifier {
       }
 
       // 권한이 있으면 현재 위치 가져와서 바로 표시
-      Position position = await Geolocator.getCurrentPosition();
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
+      );
       GeoPoint currentLatLng = GeoPoint(position.latitude, position.longitude);
       _state = state.copyWith(
           wgData: state.wgData.copyWith(location: currentLatLng));
+      // notifyListeners();
 
       // 위치 정보로 주소 업데이트 및 지도 이동
       await updateAddressAndMoveMap(currentLatLng);
@@ -116,11 +126,16 @@ class UploadWGPageViewModel with ChangeNotifier {
     } catch (e) {
       logger.info("위치 권한 요청 및 표시 중 오류 발생: $e");
       return false;
+    } finally {
+      _state = state.copyWith(isMapLoading: false);
+      notifyListeners();
     }
   }
 
   // 2-2. 주소 업데이트 및 지도 이동을 함께 처리하는 메서드
   Future<void> updateAddressAndMoveMap(GeoPoint latLng) async {
+    _state = state.copyWith(isLocationLoading: true);
+    notifyListeners();
     try {
       // 지도 컨트롤러 가져오기
       // final GoogleMapController controller = await mapController.future;
@@ -162,73 +177,16 @@ class UploadWGPageViewModel with ChangeNotifier {
     } catch (e) {
       currentAddress = "주소를 찾을 수 없습니다";
       notifyListeners();
-
       logger.info("주소 업데이트 및 지도 이동 중 오류: $e");
+    } finally {
+      _state = state.copyWith(isLocationLoading: false);
+      notifyListeners();
     }
   }
 
-  // // 2-3. 우편번호나 주소 문자열로 위치 검색 후 지도 이동 및 주소 업데이트하는 메서드
-  // Future<void> searchAddressAndMoveMap(String addressOrPostal) async {
-  //   try {
-  //     // 주소 문자열이 비어있으면 처리하지 않음
-  //     if (addressOrPostal.trim().isEmpty) {
-  //       return;
-  //     }
-  //
-  //     final placesService = GoogleMapsPlacesService(
-  //       apiKey: Env.googleMapApiKey,
-  //     );
-  //
-  //     // 주소/우편번호로 장소 검색
-  //     final predictions = await placesService.findAutocompletePredictions(
-  //       addressOrPostal,
-  //     );
-  //
-  //     // 검색 결과가 있는 경우
-  //     if (predictions.isNotEmpty) {
-  //       // 첫 번째 예측 결과 선택
-  //       final selectedPrediction = predictions.first;
-  //
-  //       // 장소 ID로 상세 정보 조회
-  //       final placeDetails = await placesService.getPlaceDetails(
-  //         selectedPrediction.placeId,
-  //         fields: ['geometry', 'formatted_address'],
-  //       );
-  //
-  //       // 위치 정보가 있으면 지도 이동
-  //       if (placeDetails.geometry != null &&
-  //           placeDetails.geometry!.location != null) {
-  //
-  //         final location = placeDetails.geometry!.location!;
-  //         final searchedLocation = LatLng(location.lat, location.lng);
-  //
-  //         // 검색된 위치로 지도 이동 및 주소 업데이트
-  //         await updateAddressAndMoveMap(searchedLocation);
-  //
-  //         // 검색된 주소 정보 업데이트 (필요에 따라 구현)
-  //         // 예: setState(() { currentAddress = placeDetails.formattedAddress ?? ''; });
-  //
-  //         return; // 성공적으로 처리되면 종료
-  //       }
-  //     }
-  //   } catch (e) {
-  //     logger.info("Map Location Picker 검색 실패: $e");
-  //   }
-  // }
-
-  // 2-4. 현재 위치로 이동하는 메서드
-  Future<void> moveToCurrentLocation() async {
-    try {
-      // 위치 권한 요청 및 현재 위치 표시 메서드 호출
-      await requestLocationAndShowPosition();
-    } catch (e) {
-      logger.info("현재 위치로 이동 중 오류 발생: $e");
-    }
-  }
-
-  // 2-4. 주소 형식 지정 함수
+  // 2-3. 주소 형식 지정 함수
   String _formatAddress(Placemark place) {
-    String address = "";
+    String address = '';
 
     if (place.country != null && place.country!.isNotEmpty) {
       address += place.country!;
@@ -258,34 +216,155 @@ class UploadWGPageViewModel with ChangeNotifier {
     return address;
   }
 
-  // 스텝 3: 등록자 상세설정
+  // 2-4. 위치정보 저장
+  void setLocation(String country, String states, String city, String postCode,
+      String address, double latitude, double longitude) {
+    _state = state.copyWith(
+        wgData: state.wgData.copyWith(
+          country: country,
+          state: states,
+          city: city,
+          postCode: postCode,
+          address: address,
+          location: GeoPoint(latitude, longitude),
+        ),
+        isLocationCompleted: address.isNotEmpty && postCode.isNotEmpty);
+    notifyListeners();
+  }
+
+  // 스텝 3: 등록자상세 설정
+  void fillTextVermieter() {
+    _state = state.copyWith(isVermieterCompleted: true);
+    notifyListeners();
+  }
+
   void setVermieter(String wirSuchen, String wirSind) {
     _state = state.copyWith(
-        wgData: state.wgData.copyWith(weFind: wirSuchen, weAre: wirSind),
-        isVermieterCompleted: wirSuchen.isNotEmpty || wirSind.isNotEmpty);
+      wgData: state.wgData.copyWith(weFind: wirSuchen, weAre: wirSind),
+    );
     notifyListeners();
   }
 
   // 스텝 4: 사진 추가
-  void addPhoto(String photoThumbnailUrl) {
-    List<String> thumbUrlList = List.from(_state.wgData.thumbnails);
-    thumbUrlList.add(photoThumbnailUrl);
+  // 4-1. 갤러리에서 이미지 선택
+  Future<void> pickImagesFromGallery(BuildContext context) async {
+    _state = state.copyWith(isPhotoUploading: true);
+    notifyListeners();
+    try {
+      final List<XFile> pickedFiles = await _picker.pickMultiImage();
+      if (pickedFiles.isNotEmpty) {
+        final List<File> originalWgImages = List.from(state.wgImageFiles);
+        for (var wgImage in pickedFiles) {
+          final imageFile = File(wgImage.path);
+          if (originalWgImages.contains(imageFile) && context.mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => OneAnswerDialog(
+                onTap: () => context.pop(),
+                title: 'already exists',
+                subtitle: 'other photo',
+                firstButton: 'OK',
+              ),
+            );
+          } else {
+            originalWgImages.add(File(wgImage.path));
+          }
+        }
+        _state = state.copyWith(wgImageFiles: originalWgImages);
+        addWgImagesComplete(originalWgImages);
+        notifyListeners();
+      }
+    } catch (error) {
+      logger.info('Error picking images: $error');
+    } finally {
+      _state = state.copyWith(isPhotoUploading: false);
+      notifyListeners();
+    }
+  }
+
+  // 4-2. 카메라로 사진 찍기
+  Future<void> takePhoto() async {
+    _state = state.copyWith(isPhotoUploading: true);
+    notifyListeners();
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final List<File> originalWgImages = List.from(state.wgImageFiles);
+        originalWgImages.add(File(pickedFile.path));
+        _state = state.copyWith(wgImageFiles: originalWgImages);
+        addWgImagesComplete(originalWgImages);
+        notifyListeners();
+      }
+    } catch (error) {
+      logger.info('Error taking photo: $error');
+    } finally {
+      _state = state.copyWith(isPhotoUploading: false);
+      notifyListeners();
+    }
+  }
+
+  // 4-3. 사진 삭제
+  void removePhoto(int imageIndex) {
+    if (imageIndex != -1) {
+      final List<File> originalWgImages = List.from(state.wgImageFiles);
+      originalWgImages.removeAt(imageIndex);
+      _state = state.copyWith(wgImageFiles: originalWgImages);
+      addWgImagesComplete(originalWgImages);
+      notifyListeners();
+    }
+  }
+
+  // 4-4. 사진 순서 변경
+  void reorderPhotos(int oldIndex, int newIndex) {
     _state = state.copyWith(
-        wgData: state.wgData.copyWith(thumbnails: thumbUrlList),
-        isPhotoCompleted: thumbUrlList.isNotEmpty);
+        isPhotoDragging: false, draggedItemIndex: -1, currentHoverIndex: -1);
+    notifyListeners();
+    try {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final List<File> updatedGridPhotos = List.from(state.wgImageFiles);
+      final File oldIndexItem = updatedGridPhotos.removeAt(oldIndex);
+      final File newIndexItem = updatedGridPhotos.removeAt(newIndex);
+      updatedGridPhotos.insert(newIndex, oldIndexItem);
+      updatedGridPhotos.insert(oldIndex, newIndexItem);
+      // 전체 사진 목록 업데이트
+      _state = state.copyWith(wgImageFiles: updatedGridPhotos);
+      notifyListeners();
+    } catch (error) {
+      logger.info('Error reorder photo: $error');
+    }
+  }
+
+  // 4-5. 사진 이동중
+  void draggingOnMove(int index) {
+    _state = state.copyWith(currentHoverIndex: index);
     notifyListeners();
   }
 
-  void removePhoto(String photoThumbnailUrl) {
-    List<String> thumbUrlList = List.from(_state.wgData.thumbnails);
-    thumbUrlList.remove(photoThumbnailUrl);
-    _state = state.copyWith(
-        wgData: state.wgData.copyWith(thumbnails: thumbUrlList),
-        isPhotoCompleted: thumbUrlList.isNotEmpty);
+  // 4-6. 사진 드래그여부
+  void draggingOnMoveStartEnd(bool isDragging, int index) {
+    _state =
+        state.copyWith(isPhotoDragging: isDragging, draggedItemIndex: index);
     notifyListeners();
+  }
+
+  // 4-7. WG사진 설정
+  void addWgImagesComplete(List wgImageFiles) {
+    if (wgImageFiles.length > 2) {
+      _state = state.copyWith(isPhotoCompleted: true);
+      notifyListeners();
+    } else {
+      _state = state.copyWith(isPhotoCompleted: false);
+    }
   }
 
   // 스텝 5: 가격 및 제목, 설명 설정
+  void fillTextMiete() {
+    _state = state.copyWith(isMieteCompleted: true);
+    notifyListeners();
+  }
+
   void setMiete(String miete, String title, String beschreibung) {
     _state = state.copyWith(
         wgData: state.wgData
@@ -296,26 +375,37 @@ class UploadWGPageViewModel with ChangeNotifier {
   }
 
   // 현재 스텝이 완료되었는지 확인
-  bool isCurrentStepCompleted() {
+  int isCurrentStepCompleted() {
     switch (_currentStep) {
       case 0:
-        return _state.isPeriodCompleted;
+        if (_state.isPeriodCompleted) {
+          return 0;
+        }
       case 1:
-        return _state.isLocationCompleted;
+        if (_state.isLocationCompleted) {
+          return 1;
+        }
       case 2:
-        return _state.isVermieterCompleted;
+        if (_state.isVermieterCompleted) {
+          return 2;
+        }
       case 3:
-        return _state.isPhotoCompleted;
+        if (_state.isPhotoCompleted) {
+          return 3;
+        }
       case 4:
-        return _state.isMieteCompleted;
-      default:
-        return false;
+        if (_state.isMieteCompleted) {
+          return 4;
+        }
+      case 5:
+        return 5;
     }
+    return -1;
   }
 
   // 다음 스텝으로 이동
   bool goToNextStep() {
-    if (_currentStep < _totalSteps - 1) {
+    if (_currentStep < 5) {
       _currentStep++;
       notifyListeners();
       return true;
@@ -327,6 +417,20 @@ class UploadWGPageViewModel with ChangeNotifier {
   bool goToPreviousStep() {
     if (_currentStep > 0) {
       _currentStep--;
+      switch (_currentStep) {
+        case 0:
+          _state = state.copyWith(isPeriodCompleted: false);
+          break;
+        case 1:
+          _state = state.copyWith(isLocationCompleted: false);
+          break;
+        case 2:
+          _state = state.copyWith(isVermieterCompleted: false);
+          break;
+        case 3:
+          _state = state.copyWith(isPhotoCompleted: false);
+          break;
+      }
       notifyListeners();
       return true;
     }
@@ -335,8 +439,51 @@ class UploadWGPageViewModel with ChangeNotifier {
 
   // 숙소 등록 완료
   Future<bool> submitListing() async {
-    // 여기서 실제로는 API 호출을 통해 숙소 정보를 서버에 저장
-    // 간단한 예제이므로 true를 반환하는 것으로 성공으로 처리
-    return Future.delayed(const Duration(seconds: 1), () => true);
+    _state = state.copyWith(isWgDataSubmitting: true);
+    notifyListeners();
+    try {
+      final currentUserResult = _getCurrentUserUseCase.execute();
+      switch (currentUserResult) {
+        case Success<User>():
+          // wgId 생성
+          final wgId = await _createWgIdUseCase.execute();
+          final wgIdString = '${wgId}_${currentUserResult.data.uid}';
+          final createDate = DateTime.now();
+          // wgData를 firebase 에 생성, 저장
+          _state = state.copyWith(
+              wgData: state.wgData.copyWith(
+                  wgId: wgId,
+                  userId: currentUserResult.data.uid,
+                  createDate: createDate));
+          final wgDataUploadResult =
+              await _uploadWgDataUseCase.execute(wgIdString, state.wgData);
+          switch (wgDataUploadResult) {
+            case Success<void>():
+              _state = state.copyWith(
+                  isWgDataSubmitting: false, isPhotosSubmitting: true);
+              notifyListeners();
+              final wgImageUploadResult = await _uploadWgImagesUseCase.execute(
+                  wgIdString, state.wgImageFiles as List<File>);
+              switch (wgImageUploadResult) {
+                case Success<void>():
+                  return Future.delayed(
+                      const Duration(milliseconds: 500), () => true);
+                case Error<void>():
+                  logger.info(wgImageUploadResult.message);
+              }
+            case Error<void>():
+              logger.info(wgDataUploadResult.message);
+          }
+        case Error<User>():
+          logger.info(currentUserResult.message);
+      }
+    } catch (error) {
+      logger.info('Error submitting WG data: $error');
+    } finally {
+      _state =
+          state.copyWith(isWgDataSubmitting: false, isPhotosSubmitting: false);
+      notifyListeners();
+    }
+    return false;
   }
 }

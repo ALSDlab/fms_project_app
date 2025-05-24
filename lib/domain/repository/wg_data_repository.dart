@@ -5,6 +5,8 @@ import 'package:fmsproject/domain/model/wg_data_model.dart';
 import '../../data/core/result.dart';
 
 abstract interface class WgDataRepository {
+  Future<int> createWgId();
+
   Future<Result<void>> uploadWgData(String wgId, WgDataModel wgData);
 
   Stream<List<WgDataModel>> getWgList(

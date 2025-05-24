@@ -27,6 +27,7 @@ import 'package:fmsproject/domain/use_case/user_data/sign_out_by_email_use_case.
 import 'package:fmsproject/domain/use_case/user_data/sign_up_by_email_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/update_profile_image_use_case.dart';
 import 'package:fmsproject/domain/use_case/user_data/update_profile_use_case.dart';
+import 'package:fmsproject/domain/use_case/wg_data/create_wg_id_use_case.dart';
 import 'package:fmsproject/domain/use_case/wg_data/delete_wg_data_use_case.dart';
 import 'package:fmsproject/domain/use_case/wg_data/get_wg_data_use_case.dart';
 import 'package:fmsproject/domain/use_case/wg_data/stream_wg_data_list_use_case.dart';
@@ -113,6 +114,8 @@ void diSetup() {
 
   // use case(WG data)
   getIt
+    ..registerSingleton<CreateWgIdUseCase>(
+        CreateWgIdUseCase(wgDataRepository: getIt<WgDataRepository>()))
     ..registerSingleton<UploadWgDataUseCase>(
         UploadWgDataUseCase(wgDataRepository: getIt<WgDataRepository>()))
     ..registerSingleton<UploadWgImagesUseCase>(
@@ -145,7 +148,12 @@ void diSetup() {
         getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
         findChatRoomUseCase: getIt<FindChatRoomUseCase>(),
         getChatRoomDataUseCase: getIt<GetChatRoomDataUseCase>()))
-    ..registerFactory<UploadWGPageViewModel>(() => UploadWGPageViewModel())
+    ..registerFactory<UploadWGPageViewModel>(() => UploadWGPageViewModel(
+          createWgIdUseCase: getIt<CreateWgIdUseCase>(),
+          getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          uploadWgDataUseCase: getIt<UploadWgDataUseCase>(),
+          uploadWgImagesUseCase: getIt<UploadWgImagesUseCase>(),
+        ))
     ..registerFactory<MyHistoryPageViewModel>(() => MyHistoryPageViewModel())
     ..registerFactory<ChatListPageViewModel>(() => ChatListPageViewModel(
         getChatListUseCase: getIt<GetChatListUseCase>(),
