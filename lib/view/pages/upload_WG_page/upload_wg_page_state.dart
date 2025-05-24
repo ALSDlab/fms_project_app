@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fmsproject/domain/model/wg_data_model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -11,11 +13,19 @@ class UploadWgPageState with _$UploadWgPageState {
   const factory UploadWgPageState({
     @Default(false) bool isLoading,
     @Default(false) bool isPeriodCompleted,
+    @Default(false) bool isMapLoading,
+    @Default(false) bool isLocationLoading,
     @Default(false) bool isLocationCompleted,
     @Default(false) bool isVermieterCompleted,
+    @Default(false) bool isPhotoDragging,
+    @Default(-1) int draggedItemIndex,
+    @Default(-1) int currentHoverIndex,
+    @Default(false) bool isPhotoUploading,
     @Default(false) bool isPhotoCompleted,
     @Default(false) bool isMieteCompleted,
-    @Default(false) bool isSubmitting,
+    @Default(false) bool isWgDataSubmitting,
+    @Default(false) bool isPhotosSubmitting,
+    @Default([]) List wgImageFiles,
     @Default(WgDataModel()) WgDataModel wgData,
   }) = _UploadWgPageState;
 

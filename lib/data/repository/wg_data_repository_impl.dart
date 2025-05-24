@@ -8,6 +8,12 @@ import 'package:fmsproject/domain/repository/wg_data_repository.dart';
 
 class WgDataRepositoryImpl implements WgDataRepository {
   @override
+  Future<int> createWgId() async {
+    final result = await FirebaseWgData().createWgId();
+    return result;
+  }
+
+  @override
   Future<Result<void>> uploadWgData(String wgId, WgDataModel wgData) async {
     final result =
         await FirebaseWgData().uploadWgData(wgId, WgDataMapper.toDTO(wgData));

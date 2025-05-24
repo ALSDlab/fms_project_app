@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +14,17 @@ import '../core/result.dart';
 class FirebaseWgData {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<int> createWgId() async {
+    // WGDATA id 체크
+    QuerySnapshot querySnapshot = await _firestore.collection('wg_data').get();
+
+    List<int> idList = querySnapshot.docs
+        .map((doc) => doc['id'] as int) // id를 int로 캐스팅
+        .toList();
+    int maxId = idList.isNotEmpty ? idList.reduce((a, b) => a > b ? a : b) : 0;
+    return maxId + 1;
+  }
 
   // WG Upload 메서드
   Future<Result<void>> uploadWgData(String wgId, WgDataDto wgData) async {
@@ -43,8 +55,9 @@ class FirebaseWgData {
         final thumbnailFileName = 'thumbnail_$fileName';
 
         final storageRef = _storage.ref().child('wg_images/$wgId/$fileName');
-        final thumbnailRef =
-        _storage.ref().child('wg_images/$wgId/thumbnails/$thumbnailFileName');
+        final thumbnailRef = _storage
+            .ref()
+            .child('wg_images/$wgId/thumbnails/$thumbnailFileName');
 
         // 1. 이미지 업로드
         final uploadTask = storageRef.putFile(imageFile);
@@ -59,9 +72,9 @@ class FirebaseWgData {
         }
 
         final thumbnail =
-        img.copyResize(originalImage, width: 150, height: 150);
+            img.copyResize(originalImage, width: 150, height: 150);
         final thumbnailData =
-        Uint8List.fromList(img.encodeJpg(thumbnail, quality: 85));
+            Uint8List.fromList(img.encodeJpg(thumbnail, quality: 85));
 
         final thumbUploadTask = thumbnailRef.putData(thumbnailData);
         final thumbSnapshot = await thumbUploadTask;

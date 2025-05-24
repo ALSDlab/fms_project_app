@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fmsproject/utils/two_answer_dialog.dart';
+import 'package:fmsproject/view/pages/upload_WG_page/step/final_confirm_step_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/set_location_step_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/set_miete_step_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/set_period_step_page.dart';
@@ -33,7 +35,7 @@ class UploadWGPage extends StatelessWidget {
         children: [
           // 진행 상황 표시 바
           LinearProgressIndicator(
-            value: (viewModel.currentStep + 1) / viewModel.totalSteps,
+            value: (viewModel.currentStep + 1) / 5,
             backgroundColor: Colors.grey[200],
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
           ),
@@ -59,6 +61,8 @@ class UploadWGPage extends StatelessWidget {
         return const SetPhotoStepPage();
       case 4:
         return const SetMieteStepPage();
+      case 5:
+        return const FinalConfirmStepPage();
       default:
         return const Center(child: Text('알 수 없는 단계입니다.'));
     }
@@ -66,8 +70,9 @@ class UploadWGPage extends StatelessWidget {
 
   Widget _buildBottomNavigation(
       BuildContext context, UploadWGPageViewModel viewModel) {
-    final isLastStep = viewModel.currentStep == viewModel.totalSteps - 1;
+    final isLastStep = viewModel.currentStep == 5;
     final buttonTitle = isLastStep ? '등록 완료하기' : '다음';
+    final state = viewModel.state;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -83,11 +88,32 @@ class UploadWGPage extends StatelessWidget {
       ),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed: viewModel.isCurrentStepCompleted()
+          onPressed: (viewModel.isCurrentStepCompleted() != -1)
               ? () {
+                  final int stepResult = viewModel.isCurrentStepCompleted();
                   if (isLastStep) {
-                    _finishListingCreation(context, viewModel);
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => TwoAnswerDialog(
+                            onTap: () =>
+                                _finishListingCreation(context, viewModel),
+                            title: 'Final Confirm',
+                            subtitle: 'Uploading',
+                            firstButton: 'Cancel',
+                            secondButton: 'OK'));
                   } else {
+                    switch (stepResult) {
+                      case 2:
+                        viewModel.setVermieter(
+                            state.wgData.weFind, state.wgData.weAre);
+                        break;
+                      case 4:
+                        viewModel.setMiete(state.wgData.miete,
+                            state.wgData.title, state.wgData.description);
+                        print(state.wgData);
+                        break;
+                    }
                     viewModel.goToNextStep();
                   }
                 }
