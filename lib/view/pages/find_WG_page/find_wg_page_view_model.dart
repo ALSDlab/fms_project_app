@@ -1,24 +1,29 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/model/chat_model.dart';
+import 'package:fmsproject/domain/model/user_data_model.dart';
 import 'package:fmsproject/domain/use_case/chat_data/find_chat_room_use_case.dart';
 import 'package:fmsproject/domain/use_case/chat_data/get_chat_room_data_use_case.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_state.dart';
 
 import '../../../data/core/result.dart';
 import '../../../domain/use_case/user_data/get_current_user_use_case.dart';
+import '../../../domain/use_case/user_data/get_user_profile_use_case.dart';
 import '../../../utils/simple_logger.dart';
 
 class FindWGPageViewModel with ChangeNotifier {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final GetUserProfileUseCase _getUserProfileUseCase;
   final GetChatRoomDataUseCase _getChatRoomDataUseCase;
   final FindChatRoomUseCase _findChatRoomUseCase;
 
   FindWGPageViewModel({
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required GetUserProfileUseCase getUserProfileUseCase,
     required GetChatRoomDataUseCase getChatRoomDataUseCase,
     required FindChatRoomUseCase findChatRoomUseCase,
   })  : _getCurrentUserUseCase = getCurrentUserUseCase,
+        _getUserProfileUseCase = getUserProfileUseCase,
         _getChatRoomDataUseCase = getChatRoomDataUseCase,
         _findChatRoomUseCase = findChatRoomUseCase;
   FindWgPageState _state = const FindWgPageState();
@@ -56,6 +61,22 @@ class FindWGPageViewModel with ChangeNotifier {
       _state = state.copyWith(isLoading: false);
       notifyListeners();
     }
+  }
+
+  Future<UserDataModel?> getHostUserData(String userId) async{
+    try {
+      final hostUserResult = await _getUserProfileUseCase.execute(userId);
+      switch (hostUserResult) {
+        case Success<UserDataModel>():
+          return hostUserResult.data;
+        case Error<UserDataModel>():
+          logger.info(hostUserResult.message);
+          break;
+      }
+    } catch (error) {
+      logger.info('Error fetching FIREBASE data(loadHostUser): $error');
+    }
+    return null;
   }
 
   Future<ChatModel?> loadChatRoom(String chatId) async {

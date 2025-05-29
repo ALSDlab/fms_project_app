@@ -9,6 +9,7 @@ import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page.dart';
 import 'package:fmsproject/view/pages/edit_profile_page/edit_profile_page_view_model.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page.dart';
 import 'package:fmsproject/view/pages/find_WG_page/find_wg_page_view_model.dart';
+import 'package:fmsproject/view/pages/find_WG_page/selected_wg_data_page.dart';
 import 'package:fmsproject/view/pages/login_page/login_page.dart';
 import 'package:fmsproject/view/pages/login_page/login_page_view_model.dart';
 import 'package:fmsproject/view/pages/my_history_page/my_history_page.dart';
@@ -71,12 +72,25 @@ final router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/selected_wg_data_page',
+      builder: (context, state) {
+        final extra = state.extra! as Map<String, dynamic>;
+        return ChangeNotifierProvider(
+          create: (_) => getIt<FindWGPageViewModel>(),
+          child: SelectedWgDataPage(
+            selectedWgData: extra['wgData'],
+            resetNavigation: extra['resetNavigation'],
+            resetChatList: extra['resetChatList'],
+          ),
+        );
+      },
+    ),
+    GoRoute(
       path: '/edit_profile_page',
       builder: (context, state) {
         return ChangeNotifierProvider(
           create: (_) => getIt<EditProfilePageViewModel>(),
-          child: const EditProfilePage(
-          ),
+          child: const EditProfilePage(),
         );
       },
     ),
@@ -156,7 +170,8 @@ final router = GoRouter(
               final extra = state.extra! as Map<String, dynamic>;
               return MultiProvider(
                 providers: [
-                  ChangeNotifierProvider.value(  // 기존 ViewModel 인스턴스 유지
+                  ChangeNotifierProvider.value(
+                    // 기존 ViewModel 인스턴스 유지
                     value: context.read<NavigationBarPageViewModel>(),
                   ),
                   ChangeNotifierProvider(

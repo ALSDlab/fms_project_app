@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fmsproject/utils/two_answer_dialog.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/final_confirm_step_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/set_location_step_page.dart';
 import 'package:fmsproject/view/pages/upload_WG_page/step/set_miete_step_page.dart';
@@ -9,6 +8,8 @@ import 'package:fmsproject/view/pages/upload_WG_page/step/set_vermieter_step_pag
 import 'package:fmsproject/view/pages/upload_WG_page/upload_wg_page_view_model.dart';
 import 'package:provider/provider.dart';
 
+import '../../../utils/gif_progress_bar.dart';
+
 class UploadWGPage extends StatelessWidget {
   const UploadWGPage({super.key});
 
@@ -16,21 +17,23 @@ class UploadWGPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<UploadWGPageViewModel>();
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('UPLOAD WG'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0,
-          leading: (viewModel.currentStep > 0)
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    if (viewModel.currentStep > 0) {
-                      viewModel.goToPreviousStep();
-                    }
-                  },
-                )
-              : null),
+      appBar: (viewModel.currentStep != 5)
+          ? AppBar(
+              title: const Text('UPLOAD WG'),
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              elevation: 0,
+              leading: (viewModel.currentStep > 0)
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        if (viewModel.currentStep > 0) {
+                          viewModel.goToPreviousStep();
+                        }
+                      },
+                    )
+                  : null)
+          : null,
       body: Column(
         children: [
           // 진행 상황 표시 바
@@ -89,29 +92,100 @@ class UploadWGPage extends StatelessWidget {
       child: SafeArea(
         child: ElevatedButton(
           onPressed: (viewModel.isCurrentStepCompleted() != -1)
-              ? () {
+              ? () async {
                   final int stepResult = viewModel.isCurrentStepCompleted();
                   if (isLastStep) {
+                    // 로딩 표시
                     showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => TwoAnswerDialog(
-                            onTap: () =>
-                                _finishListingCreation(context, viewModel),
-                            title: 'Final Confirm',
-                            subtitle: 'Uploading',
-                            firstButton: 'Cancel',
-                            secondButton: 'OK'));
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext dialogContext) => PopScope(
+                        canPop: false,
+                        child: Dialog(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Consumer<UploadWGPageViewModel>(
+                                  builder: (context, vm, child) {
+                                    String message = 'Uploading...';
+                                    if (vm.state.isWgDataSubmitting == true) {
+                                      message = 'DATA Uploading...';
+                                    } else if (vm.state.isPhotoUploading == true) {
+                                      message = 'IMAGE Uploading...';
+                                    }
+
+                                    return Text(
+                                      message,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 20),
+                                GifProgressBar(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                    try {
+                      // 등록 처리
+                      final success = await viewModel.submitListing();
+
+                      // 다이얼로그 닫기 (mounted 체크 포함)
+                      if (context.mounted) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
+
+                      if (success && context.mounted) {
+                        // 성공 메시지
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('숙소가 성공적으로 등록되었습니다!')),
+                        );
+
+                        // 모든 이전 화면 닫고 홈으로 이동
+                        // Navigator.of(context).popUntil((route) => route.isFirst);
+                      } else if (context.mounted) {
+                        // 실패 메시지
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('숙소 등록에 실패했습니다. 다시 시도해주세요.')),
+                        );
+                      }
+                    } catch (e) {
+                      // 에러 발생 시에도 다이얼로그 닫기
+                      if (context.mounted) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      }
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('오류가 발생했습니다. 다시 시도해주세요.')),
+                        );
+                      }
+                    }
+                    // showDialog(
+                    //     context: context,
+                    //     barrierDismissible: false,
+                    //     builder: (context) => TwoAnswerDialog(
+                    //         onTap: () async =>
+                    //
+                    //         title: 'Final Confirm',
+                    //         subtitle: 'Uploading',
+                    //         firstButton: 'Cancel',
+                    //         secondButton: 'OK'));
                   } else {
                     switch (stepResult) {
                       case 2:
-                        viewModel.setVermieter(
-                            state.wgData.weFind, state.wgData.weAre);
+                        viewModel.setVermieter();
                         break;
                       case 4:
-                        viewModel.setMiete(state.wgData.miete,
-                            state.wgData.title, state.wgData.description);
-                        print(state.wgData);
+                        viewModel.setMiete();
                         break;
                     }
                     viewModel.goToNextStep();
@@ -130,40 +204,5 @@ class UploadWGPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _finishListingCreation(
-      BuildContext context, UploadWGPageViewModel viewModel) async {
-    // 로딩 표시
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    // 등록 처리
-    final success = await viewModel.submitListing();
-
-    // 로딩 닫기
-    if (context.mounted) {
-      Navigator.of(context).pop();
-    }
-
-    if (success && context.mounted) {
-      // 성공 메시지 및 홈 화면으로 이동
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('숙소가 성공적으로 등록되었습니다!')),
-      );
-
-      // 모든 이전 화면 닫고 홈으로 이동
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    } else {
-      // 실패 메시지
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('숙소 등록에 실패했습니다. 다시 시도해주세요.')),
-        );
-      }
-    }
   }
 }

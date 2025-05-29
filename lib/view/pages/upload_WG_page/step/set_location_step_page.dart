@@ -10,7 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../domain/model/location_model.dart';
-import '../../../../utils/custom_address_auto_complete.dart';
+import '../../../../utils/upload_wg/custom_address_auto_complete.dart';
 import '../upload_wg_page_view_model.dart';
 
 class SetLocationStepPage extends StatefulWidget {
@@ -299,7 +299,7 @@ class _SetLocationStepPageState extends State<SetLocationStepPage> {
             children: [
               _buildGoogleMap(state, viewModel),
               _buildCenterPin(),
-              _buildAddressPanel(viewModel, state),
+              // _buildAddressPanel(viewModel, state),
               _buildMyLocationButton(viewModel),
             ],
           ),

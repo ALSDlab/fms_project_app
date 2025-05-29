@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:currency_textfield/currency_textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fmsproject/domain/use_case/wg_data/create_wg_id_use_case.dart';
@@ -40,6 +41,13 @@ class UploadWGPageViewModel with ChangeNotifier {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var confirmPasswordController = TextEditingController();
+
+  final TextEditingController weAreController = TextEditingController();
+  final TextEditingController weFindController = TextEditingController();
+  final CurrencyTextFieldController currencyController =
+      CurrencyTextFieldController(initDoubleValue: 0.00);
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   final Completer<GoogleMapController> mapController =
       Completer<GoogleMapController>();
 
@@ -61,6 +69,12 @@ class UploadWGPageViewModel with ChangeNotifier {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+
+    weAreController.dispose();
+    weFindController.dispose();
+    currencyController.dispose();
+    titleController.dispose();
+    descriptionController.dispose();
     if (mapController.isCompleted) {
       mapController.future.then((controller) {
         controller.dispose();
@@ -233,14 +247,15 @@ class UploadWGPageViewModel with ChangeNotifier {
   }
 
   // 스텝 3: 등록자상세 설정
-  void fillTextVermieter() {
-    _state = state.copyWith(isVermieterCompleted: true);
+  void fillTextVermieter(bool value) {
+    _state = state.copyWith(isVermieterCompleted: value);
     notifyListeners();
   }
 
-  void setVermieter(String wirSuchen, String wirSind) {
+  void setVermieter() {
     _state = state.copyWith(
-      wgData: state.wgData.copyWith(weFind: wirSuchen, weAre: wirSind),
+      wgData: state.wgData
+          .copyWith(weAre: weAreController.text, weFind: weFindController.text),
     );
     notifyListeners();
   }
@@ -360,17 +375,17 @@ class UploadWGPageViewModel with ChangeNotifier {
   }
 
   // 스텝 5: 가격 및 제목, 설명 설정
-  void fillTextMiete() {
-    _state = state.copyWith(isMieteCompleted: true);
+  void fillTextMiete(bool value) {
+    _state = state.copyWith(isMieteCompleted: value);
     notifyListeners();
   }
 
-  void setMiete(String miete, String title, String beschreibung) {
+  void setMiete() {
     _state = state.copyWith(
-        wgData: state.wgData
-            .copyWith(miete: miete, title: title, description: beschreibung),
-        isMieteCompleted:
-            miete.isNotEmpty && title.isNotEmpty && beschreibung.isNotEmpty);
+        wgData: state.wgData.copyWith(
+            miete: currencyController.text,
+            title: titleController.text,
+            description: descriptionController.text));
     notifyListeners();
   }
 
@@ -446,7 +461,13 @@ class UploadWGPageViewModel with ChangeNotifier {
       switch (currentUserResult) {
         case Success<User>():
           // wgId 생성
-          final wgId = await _createWgIdUseCase.execute();
+          int wgId = 0;
+          try {
+            wgId = await _createWgIdUseCase.execute();
+          } catch (e) {
+            wgId = -1;
+          }
+          print(wgId);
           final wgIdString = '${wgId}_${currentUserResult.data.uid}';
           final createDate = DateTime.now();
           // wgData를 firebase 에 생성, 저장
@@ -462,8 +483,9 @@ class UploadWGPageViewModel with ChangeNotifier {
               _state = state.copyWith(
                   isWgDataSubmitting: false, isPhotosSubmitting: true);
               notifyListeners();
+              final List<File> wgImageList = List.from(state.wgImageFiles);
               final wgImageUploadResult = await _uploadWgImagesUseCase.execute(
-                  wgIdString, state.wgImageFiles as List<File>);
+                  wgIdString, wgImageList);
               switch (wgImageUploadResult) {
                 case Success<void>():
                   return Future.delayed(
