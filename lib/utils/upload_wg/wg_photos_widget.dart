@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../view/pages/upload_WG_page/upload_wg_page_view_model.dart';
+import '../../view/pages/upload_WG_page/upload_wg_page_view_model.dart';
 
 class WgPhotosWidget extends StatelessWidget {
   const WgPhotosWidget(
-      {super.key, required this.viewModel, required this.photoIndex, this.isPrimary=false});
+      {super.key,
+      required this.viewModel,
+      required this.photoIndex,
+      this.isPrimary = false});
 
   final UploadWGPageViewModel viewModel;
   final int photoIndex;
@@ -38,7 +41,7 @@ class WgPhotosWidget extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Row(
@@ -70,7 +73,7 @@ class WgPhotosWidget extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

@@ -49,7 +49,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(45), // 둥근 모서리 설정
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2), // 검은색 그림자
+                      color: Colors.black.withValues(alpha: 0.2), // 검은색 그림자
                       spreadRadius: 2, // 그림자의 확산 반경
                       blurRadius: 10, // 그림자의 블러 반경
                       offset: const Offset(0, 6), // 그림자를 아래쪽으로 약간 이동 (x, y)

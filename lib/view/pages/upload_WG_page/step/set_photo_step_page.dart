@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fmsproject/utils/wg_photos_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../utils/upload_wg/wg_photos_widget.dart';
 import '../upload_wg_page_view_model.dart';
 
 class SetPhotoStepPage extends StatefulWidget {
@@ -12,7 +12,6 @@ class SetPhotoStepPage extends StatefulWidget {
 }
 
 class _SetPhotoStepPageState extends State<SetPhotoStepPage> {
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -23,6 +22,7 @@ class _SetPhotoStepPageState extends State<SetPhotoStepPage> {
 
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<UploadWGPageViewModel>();
@@ -120,7 +120,8 @@ class _SetPhotoStepPageState extends State<SetPhotoStepPage> {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: isHovering ? Colors.blue : Colors.transparent, width: 2),
+            border: Border.all(
+                color: isHovering ? Colors.blue : Colors.transparent, width: 2),
           ),
           child: LongPressDraggable<int>(
             data: index,

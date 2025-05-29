@@ -11,13 +11,8 @@ class SetVermieterStepPage extends StatefulWidget {
 }
 
 class _SetVermieterStepPageState extends State<SetVermieterStepPage> {
-  final TextEditingController _weAreController = TextEditingController();
-  final TextEditingController _weFindController = TextEditingController();
-
   @override
   void dispose() {
-    _weAreController.dispose();
-    _weFindController.dispose();
     super.dispose();
   }
 
@@ -37,7 +32,7 @@ class _SetVermieterStepPageState extends State<SetVermieterStepPage> {
             const Text('WE ARE'),
             Expanded(
               child: TextField(
-                  controller: _weAreController,
+                  controller: viewModel.weAreController,
                   decoration: InputDecoration(
                     hintText: 'Input text',
                     border: OutlineInputBorder(
@@ -49,14 +44,20 @@ class _SetVermieterStepPageState extends State<SetVermieterStepPage> {
                   maxLength: 200,
                   maxLines: 5,
                   onChanged: (value) async {
-                    _weAreController.text = value;
+                    viewModel.weAreController.text = value;
+                    if (viewModel.weAreController.text.isNotEmpty &&
+                        viewModel.weFindController.text.isNotEmpty) {
+                      viewModel.fillTextVermieter(true);
+                    } else {
+                      viewModel.fillTextVermieter(false);
+                    }
                   }),
             ),
             const SizedBox(height: 16),
             const Text('WE FIND'),
             Expanded(
               child: TextField(
-                  controller: _weFindController,
+                  controller: viewModel.weFindController,
                   decoration: InputDecoration(
                     hintText: 'Input text',
                     border: OutlineInputBorder(
@@ -68,10 +69,12 @@ class _SetVermieterStepPageState extends State<SetVermieterStepPage> {
                   maxLength: 2000,
                   maxLines: null,
                   onChanged: (value) async {
-                    _weFindController.text = value;
-                    if (_weAreController.text.isNotEmpty &&
-                        _weFindController.text.isNotEmpty) {
-                      viewModel.fillTextVermieter();
+                    viewModel.weFindController.text = value;
+                    if (viewModel.weAreController.text.isNotEmpty &&
+                        viewModel.weFindController.text.isNotEmpty) {
+                      viewModel.fillTextVermieter(true);
+                    } else {
+                      viewModel.fillTextVermieter(false);
                     }
                   }),
             ),

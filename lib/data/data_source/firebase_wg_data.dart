@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,11 +18,16 @@ class FirebaseWgData {
     // WGDATA id 체크
     QuerySnapshot querySnapshot = await _firestore.collection('wg_data').get();
 
-    List<int> idList = querySnapshot.docs
-        .map((doc) => doc['id'] as int) // id를 int로 캐스팅
-        .toList();
-    int maxId = idList.isNotEmpty ? idList.reduce((a, b) => a > b ? a : b) : 0;
-    return maxId + 1;
+    if (querySnapshot.docs.isNotEmpty) {
+      List<int> idList = querySnapshot.docs
+          .map((doc) => doc['wgId'] as int) // id를 int로 캐스팅
+          .toList();
+      int maxId =
+          idList.isNotEmpty ? idList.reduce((a, b) => a > b ? a : b) : 0;
+      return maxId + 1;
+    } else {
+      return -1;
+    }
   }
 
   // WG Upload 메서드

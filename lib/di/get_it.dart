@@ -145,9 +145,11 @@ void diSetup() {
         signUpByEmailUseCase: getIt<SignUpByEmailUseCase>(),
         checkEmailVerifiedUseCase: getIt<CheckEmailVerifiedUseCase>()))
     ..registerFactory<FindWGPageViewModel>(() => FindWGPageViewModel(
-        getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
-        findChatRoomUseCase: getIt<FindChatRoomUseCase>(),
-        getChatRoomDataUseCase: getIt<GetChatRoomDataUseCase>()))
+          getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          findChatRoomUseCase: getIt<FindChatRoomUseCase>(),
+          getChatRoomDataUseCase: getIt<GetChatRoomDataUseCase>(),
+          getUserProfileUseCase: getIt<GetUserProfileUseCase>(),
+        ))
     ..registerFactory<UploadWGPageViewModel>(() => UploadWGPageViewModel(
           createWgIdUseCase: getIt<CreateWgIdUseCase>(),
           getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
